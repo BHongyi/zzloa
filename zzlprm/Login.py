@@ -16,7 +16,6 @@ import json
 import datetime
 
 # Create your views here.
-# 岸边擦撒反对
 
 def login(request):
     """获取用户"""

@@ -15,7 +15,7 @@ from django.http import HttpResponseRedirect
 import json
 import datetime
 
-# Create your views here.
+# Create your views here.123123123
 
 def login(request):
     """获取用户"""

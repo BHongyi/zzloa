@@ -16,7 +16,6 @@ import json
 import datetime
 
 # Create your views here.
-#user1
 
 def login(request):
     """获取用户"""

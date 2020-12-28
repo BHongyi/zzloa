@@ -132,6 +132,17 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
+class TbDict(models.Model):
+    dictid = models.AutoField(primary_key=True)
+    type = models.IntegerField()
+    typeid = models.IntegerField()
+    typename = models.CharField(max_length=50)
+
+    class Meta:
+        managed = False
+        db_table = 'tb_dict'
+
+
 class TbGroup(models.Model):
     groupid = models.AutoField(primary_key=True)
     parentid = models.IntegerField(blank=True, null=True)
@@ -163,6 +174,35 @@ class TbPermission(models.Model):
     class Meta:
         managed = False
         db_table = 'tb_permission'
+
+
+class TbProject(models.Model):
+    projectid = models.AutoField(primary_key=True)
+    projectname = models.CharField(max_length=50)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    groupid = models.IntegerField()
+    prestarttime = models.DateTimeField(blank=True, null=True)
+    realstarttime = models.DateTimeField(blank=True, null=True)
+    prefinishtime = models.DateTimeField(blank=True, null=True)
+    realfinishtime = models.DateTimeField(blank=True, null=True)
+    typeid = models.IntegerField()
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_project'
+
+
+class TbProjectUser(models.Model):
+    project_user_id = models.AutoField(primary_key=True)
+    projectid = models.IntegerField()
+    userid = models.IntegerField()
+    ismanager = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_project_user'
 
 
 class TbRole(models.Model):

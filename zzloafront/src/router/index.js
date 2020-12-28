@@ -7,6 +7,7 @@ import GroupManage from '@/components/GroupManage'
 import PermissionManage from '@/components/PermissionManage'
 import RoleManage from '@/components/RoleManage'
 import Default from '@/components/Default'
+import ProjectManage from '@/components/ProjectManage'
 
 Vue.use(Router)
 
@@ -46,6 +47,11 @@ export default new Router({
           path: '/rolemanage',
           name: 'RoleManage',
           component: RoleManage
+        },
+        {
+          path: '/projectmanage',
+          name: 'ProjectManage',
+          component: ProjectManage
         }
       ]
     }

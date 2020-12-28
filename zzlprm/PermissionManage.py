@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from zzlprm.models import TbPermission
+from zzlprm.Common import dictfetchall
 
 from django.http import HttpResponse,JsonResponse
 from django.core import serializers
@@ -62,12 +63,3 @@ def list_to_tree(data):
         out[p['parentid']]['children'].append(out[p['permissionid']])
 
     return out[0]
-
-
-def dictfetchall(cursor):
-    "Return all rows from a cursor as a dict"
-    columns = [col[0] for col in cursor.description]
-    return [
-        dict(zip(columns, row))
-        for row in cursor.fetchall()
-    ]

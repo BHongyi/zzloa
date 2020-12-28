@@ -22,6 +22,9 @@
           <el-menu-item index="rolemanage" v-if="this.permissions.indexOf('000020') != -1">
             <i class="el-icon-user-solid"></i>角色管理
           </el-menu-item>
+          <el-menu-item index="projectmanage" v-if="this.permissions.indexOf('000025') != -1">
+            <i class="el-icon-files"></i>项目管理
+          </el-menu-item>
         </el-menu>
       </el-aside>
 

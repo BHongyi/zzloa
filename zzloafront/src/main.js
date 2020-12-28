@@ -8,6 +8,18 @@ import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
 Vue.prototype.$axios = axios
 
+import moment from 'moment'
+Vue.use(require('vue-moment'));
+Vue.prototype.moment = moment
+Vue.filter('dateYMDHMSFormat',function(dateStr,pattern='YYYY-MM-DD'){
+  if(dateStr == null){
+
+  }
+  else{
+    return moment(dateStr).format(pattern);
+  }
+})
+
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from zzlprm.models import TbRole
 from zzlprm.models import TbRolePermission
 from zzlprm.models import TbUserRole
+from zzlprm.Common import dictfetchall
 
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers
@@ -123,11 +124,3 @@ def edit_role_user(request):
         )
 
     return HttpResponse("OK")
-
-def dictfetchall(cursor):
-    "Return all rows from a cursor as a dict"
-    columns=[col[0] for col in cursor.description]
-    return [
-        dict(zip(columns, row))
-        for row in cursor.fetchall()
-    ]

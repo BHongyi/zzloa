@@ -2,6 +2,7 @@ from django.shortcuts import render
 from zzlprm.models import TbGroup
 from zzlprm.models import TbGroupUser
 from django.db.models import Q
+from zzlprm.Common import dictfetchall
 
 from django.http import HttpResponse,JsonResponse
 from django.core import serializers
@@ -102,23 +103,3 @@ def list_to_tree(data):
         out[p['parentid']]['children'].append(out[p['groupid']])
 
     return out[0]
-
-
-def dictfetchall(cursor):
-    "Return all rows from a cursor as a dict"
-    columns = [col[0] for col in cursor.description]
-    return [
-        dict(zip(columns, row))
-        for row in cursor.fetchall()
-    ]
-
-# class DateEncoder(json.JSONEncoder):
-#     def default(self, obj):
-#         if isinstance(obj, datetime.datetime):
-#             return obj.strftime('%Y-%m-%d %H:%M:%S')
-
-#         elif isinstance(obj, datetime.date):
-#             return obj.strftime("%Y-%m-%d")
-
-#         else:
-#             return json.JSONEncoder.default(self, obj)

@@ -5,8 +5,11 @@ from zzlprm import GroupManage
 from zzlprm import PermissionManage
 from zzlprm import RoleManage
 from zzlprm import Login
+from zzlprm import ProjectManage
 
 urlpatterns = [
+    path('login/login/', Login.login),
+
     path('usermanage/get_users/', UserManage.get_users),
     path('usermanage/create_user/', UserManage.create_user),
     path('usermanage/delete_user/', UserManage.delete_user),
@@ -34,6 +37,11 @@ urlpatterns = [
     path('rolemanage/get_user_role/', RoleManage.get_user_role),
     path('rolemanage/edit_role_user/', RoleManage.edit_role_user),
 
-    path('login/login/', Login.login),
+    path('projectmanage/get_projects/', ProjectManage.get_projects),
+    path('projectmanage/get_project_types/', ProjectManage.get_project_types),
+    path('projectmanage/create_project/', ProjectManage.create_project),
+    path('projectmanage/delete_project/', ProjectManage.delete_project),
+    path('projectmanage/get_project_byid/', ProjectManage.get_project_byid),
+    path('projectmanage/edit_project/', ProjectManage.edit_project),
 
 ]

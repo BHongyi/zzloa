@@ -52,6 +52,7 @@ class AuthUser(models.Model):
     phone = models.CharField(max_length=30)
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
+    positiontype = models.IntegerField()
 
     class Meta:
         managed = False
@@ -188,6 +189,9 @@ class TbProject(models.Model):
     typeid = models.IntegerField()
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
+    preworkload = models.FloatField()
+    realworkload = models.FloatField(blank=True, null=True)
+    isfinished = models.IntegerField()
 
     class Meta:
         managed = False
@@ -203,6 +207,20 @@ class TbProjectUser(models.Model):
     class Meta:
         managed = False
         db_table = 'tb_project_user'
+
+
+class TbProjectschedule(models.Model):
+    projectscheduleid = models.AutoField(primary_key=True)
+    projectid = models.IntegerField()
+    schedulename = models.CharField(max_length=50)
+    schedulestartdate = models.DateTimeField()
+    schedulefinishdate = models.DateTimeField()
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_projectschedule'
 
 
 class TbRole(models.Model):

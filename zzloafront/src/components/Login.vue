@@ -57,6 +57,7 @@ export default {
             permission = permission + ',' + element.code
           });
           sessionStorage.setItem("permissions", permission);
+          sessionStorage.setItem("positiontype", res.data.positiontype);
           this.$router.push({path:"index"})
         }
       });

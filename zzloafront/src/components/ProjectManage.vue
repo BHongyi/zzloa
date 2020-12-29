@@ -23,12 +23,31 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="50"> </el-table-column>
-      <el-table-column prop="projectname" label="项目名" width="180">
+      <el-table-column type="selection" fixed width="50"> </el-table-column>
+      <el-table-column prop="projectname" fixed label="项目名" width="180">
       </el-table-column>
-      <el-table-column prop="description" label="项目描述" width="180">
+      <el-table-column prop="description" fixed label="项目描述" width="180">
       </el-table-column>
-      <el-table-column prop="groupname" label="负责部门" width="180">
+      <el-table-column prop="groupname" fixed label="负责部门" width="120">
+      </el-table-column>
+      <el-table-column prop="preworkload" label="预计工作量(人/日)" width="150">
+      </el-table-column>
+      <el-table-column
+        prop="realworkload"
+        label="实际工作量(人/日)"
+        width="150"
+      >
+      </el-table-column>
+      <el-table-column
+        label="是否结束"
+        prop="isfinished"
+        align="center"
+        width="80"
+      >
+        <template slot-scope="scope">
+          <span v-if="scope.row.isfinished == 0">否</span> 
+          <span v-if="scope.row.isfinished == 1">是</span> 
+           </template>
       </el-table-column>
       <el-table-column prop="prestarttime" label="预计开始时间" width="120">
         <template slot-scope="scope">{{
@@ -61,12 +80,19 @@
         }}</template>
       </el-table-column>
       <el-table-column
+      fixed="right"
         v-if="this.permissions.indexOf('000024') != -1"
         label="操作"
+        width="200"
       >
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
             ><i class="el-icon-edit"></i>修改</el-button
+          >
+          <el-button
+            size="mini"
+            @click="handleScheduleEdit(scope.$index, scope.row)"
+            ><i class="el-icon-edit"></i>添加阶段</el-button
           >
         </template>
       </el-table-column>
@@ -89,7 +115,7 @@
       <el-form
         name="createprojectform"
         :label-position="labelPosition"
-        label-width="100px"
+        label-width="130px"
         :model="createformdata"
       >
         <el-form-item label="项目名">
@@ -105,9 +131,9 @@
           <el-select v-model="createformdata.projecttype" placeholder="请选择">
             <el-option
               v-for="item in types"
-              :key="item.dictid"
+              :key="item.typeid"
               :label="item.typename"
-              :value="item.dictid"
+              :value="item.typeid"
             >
             </el-option>
           </el-select>
@@ -148,6 +174,9 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="预计工作量(人/日)">
+          <el-input v-model="createformdata.preworkload"></el-input>
+        </el-form-item>
         <el-form-item label="预计开始日期">
           <el-date-picker
             v-model="createformdata.prestarttime"
@@ -178,7 +207,7 @@
       <el-form
         name="editprojectform"
         :label-position="labelPosition"
-        label-width="100px"
+        label-width="130px"
         :model="editformdata"
       >
         <el-form-item label="项目名">
@@ -194,9 +223,9 @@
           <el-select v-model="editformdata.projecttype" placeholder="请选择">
             <el-option
               v-for="item in types"
-              :key="item.dictid"
+              :key="item.typeid"
               :label="item.typename"
-              :value="item.dictid"
+              :value="item.typeid"
             >
             </el-option>
           </el-select>
@@ -237,6 +266,12 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="预计工作量(人/日)">
+          <el-input v-model="editformdata.preworkload"></el-input>
+        </el-form-item>
+        <el-form-item label="实际工作量(人/日)">
+          <el-input v-model="editformdata.realworkload"></el-input>
+        </el-form-item>
         <el-form-item label="预计开始日期">
           <el-date-picker
             v-model="editformdata.prestarttime"
@@ -273,12 +308,163 @@
           >
           </el-date-picker>
         </el-form-item>
+        <el-form-item label="结束项目">
+          <el-select v-model="editformdata.isfinished" placeholder="请选择">
+            <el-option label="否" value="0"></el-option>
+            <el-option label="是" value="1"></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editproject()">确 定</el-button>
       </span>
+    </el-dialog>
+
+    <el-dialog
+      title="编辑阶段"
+      :visible.sync="editScheduleDialogVisible"
+      width="30%"
+    >
+      <el-form
+        name="editscheduleform"
+        :label-position="labelPosition"
+        label-width="100px"
+      >
+      </el-form>
+      <el-button type="mini" v-show="addScheduleBtn" @click="createSchedule()"
+        >添加阶段</el-button
+      >
+      <el-container v-show="addScheduleVisible">
+        <table>
+          <tr>
+            <td colspan="3">
+              <el-button type="mini" @click="addSchedule()">确 定</el-button>
+              <el-button
+                type="mini"
+                @click="
+                  addScheduleVisible = false;
+                  addScheduleBtn = true;
+                "
+                >取 消</el-button
+              >
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <el-input
+                size="mini"
+                placeholder="阶段名"
+                v-model="addScheduleformdata.schedulename"
+              ></el-input>
+            </td>
+            <td>
+              <el-date-picker
+                v-model="addScheduleformdata.schedulestartdate"
+                type="date"
+                size="mini"
+                style="width: 130px"
+                value-format="yyyy-MM-dd"
+                placeholder="开始日期"
+              >
+              </el-date-picker>
+            </td>
+            <td>
+              <el-date-picker
+                v-model="addScheduleformdata.schedulefinishdate"
+                type="date"
+                size="mini"
+                style="width: 130px"
+                value-format="yyyy-MM-dd"
+                placeholder="结束日期"
+              >
+              </el-date-picker>
+            </td>
+          </tr>
+        </table>
+      </el-container>
+
+      <el-container v-show="editScheduleVisible">
+        <table>
+          <tr>
+            <td colspan="3">
+              <el-button type="mini" @click="editSchedule()">确 定</el-button>
+              <el-button
+                type="mini"
+                @click="
+                  editScheduleVisible = false;
+                  addScheduleBtn = true;
+                "
+                >取 消</el-button
+              >
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <el-input
+                size="mini"
+                placeholder="阶段名"
+                v-model="editScheduleformdata.schedulename"
+              ></el-input>
+            </td>
+            <td>
+              <el-date-picker
+                v-model="editScheduleformdata.schedulestartdate"
+                type="date"
+                size="mini"
+                style="width: 130px"
+                value-format="yyyy-MM-dd"
+                placeholder="开始日期"
+              >
+              </el-date-picker>
+            </td>
+            <td>
+              <el-date-picker
+                v-model="editScheduleformdata.schedulefinishdate"
+                type="date"
+                size="mini"
+                style="width: 130px"
+                value-format="yyyy-MM-dd"
+                placeholder="结束日期"
+              >
+              </el-date-picker>
+            </td>
+          </tr>
+        </table>
+      </el-container>
+      <el-table
+        :data="scheduleTableData"
+        style="width: 100%"
+        ref="scheduleTable"
+      >
+        <el-table-column prop="schedulename" label="阶段名" width="80">
+        </el-table-column>
+        <el-table-column prop="schedulestartdate" label="开始日期" width="110">
+          <template slot-scope="scope">{{
+            scope.row.schedulestartdate | dateYMDHMSFormat
+          }}</template>
+        </el-table-column>
+        <el-table-column prop="schedulefinishdate" label="结束日期" width="110">
+          <template slot-scope="scope">{{
+            scope.row.schedulefinishdate | dateYMDHMSFormat
+          }}</template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="handleEditSchedule(scope.$index, scope.row)"
+              ><i class="el-icon-edit"></i
+            ></el-button>
+            <el-button
+              size="mini"
+              @click="handleScheduleDelete(scope.$index, scope.row)"
+              ><i class="el-icon-delete"></i
+            ></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-dialog>
   </div>
 </template>
@@ -300,8 +486,13 @@ export default {
       },
       tableData: [],
       multipleSelection: [],
+      scheduleTableData: [],
       dialogVisible: false,
       editDialogVisible: false,
+      editScheduleDialogVisible: false,
+      addScheduleVisible: false,
+      editScheduleVisible: false,
+      addScheduleBtn: true,
       labelPosition: "right",
       createformdata: {
         projectname: "",
@@ -312,9 +503,10 @@ export default {
         prestarttime: "",
         prefinishtime: "",
         projecttype: null,
+        preworkload: null,
       },
       editformdata: {
-        projectid:0,
+        projectid: 0,
         projectname: "",
         description: "",
         groupid: 0,
@@ -325,6 +517,23 @@ export default {
         projecttype: null,
         realstarttime: "",
         realfinishtime: "",
+        preworkload: null,
+        realworkload: null,
+        isfinished: "",
+      },
+      addScheduleformdata: {
+        projectid: null,
+        schedulename: "",
+        schedulestartdate: "",
+        schedulefinishdate: "",
+      },
+      editScheduleformdata: {
+        projectid: null,
+        schedulename: "",
+        schedulestartdate: "",
+        schedulefinishdate: "",
+        index: null,
+        projectscheduleid: null,
       },
       isClearable: true, // 可清空（可选）
       isAccordion: false, // 可收起（可选）
@@ -414,6 +623,7 @@ export default {
       param.append("members", this.createformdata.members);
       param.append("prestarttime", this.createformdata.prestarttime);
       param.append("prefinishtime", this.createformdata.prefinishtime);
+      param.append("preworkload", this.createformdata.preworkload);
 
       axios({
         url: "projectmanage/create_project/",
@@ -460,24 +670,44 @@ export default {
         method: "post",
         data: param,
       }).then((res) => {
-         this.editformdata.projectid = res.data.project[0].projectid;
-         this.editformdata.projectname = res.data.project[0].projectname;
-         this.editformdata.description = res.data.project[0].description;
-         this.editformdata.projecttype = res.data.project[0].typeid;
-         this.editGroupId = res.data.project[0].groupid + "";
-         this.editformdata.prestarttime = res.data.project[0].prestarttime;
-         this.editformdata.prefinishtime = res.data.project[0].prefinishtime;
-         this.editformdata.realstarttime = res.data.project[0].realstarttime;
-         this.editformdata.realfinishtime = res.data.project[0].realfinishtime;
-         res.data.users.forEach(element => {
-             if(element.ismanager == 1){
-                 this.editformdata.managerid = element.userid;
-             }
-             else{
-                 this.editformdata.members.push(element.userid);
-             }
-         });
+        this.editformdata.projectid = res.data.project[0].projectid;
+        this.editformdata.projectname = res.data.project[0].projectname;
+        this.editformdata.description = res.data.project[0].description;
+        this.editformdata.projecttype = res.data.project[0].typeid;
+        this.editGroupId = res.data.project[0].groupid + "";
+        this.editformdata.prestarttime = res.data.project[0].prestarttime;
+        this.editformdata.prefinishtime = res.data.project[0].prefinishtime;
+        this.editformdata.realstarttime = res.data.project[0].realstarttime;
+        this.editformdata.realfinishtime = res.data.project[0].realfinishtime;
+        this.editformdata.preworkload = res.data.project[0].preworkload;
+        this.editformdata.realworkload = res.data.project[0].realworkload;
+        this.editformdata.isfinished = res.data.project[0].isfinished + "";
+        res.data.users.forEach((element) => {
+          if (element.ismanager == 1) {
+            this.editformdata.managerid = element.userid;
+          } else {
+            this.editformdata.members.push(element.userid);
+          }
+        });
       });
+    },
+    refreshSchedule() {
+      let param = new URLSearchParams();
+      param.append("projectid", this.addScheduleformdata.projectid);
+
+      axios({
+        url: "projectmanage/get_project_schedule/",
+        method: "post",
+        data: param,
+      }).then((res) => {
+        this.scheduleTableData = res.data;
+      });
+    },
+    handleScheduleEdit(index, row) {
+      this.editScheduleDialogVisible = true;
+      this.addScheduleformdata.projectid = row.projectid;
+
+      this.refreshSchedule();
     },
     editproject() {
       let param = new URLSearchParams();
@@ -492,6 +722,9 @@ export default {
       param.append("prefinishtime", this.editformdata.prefinishtime);
       param.append("realstarttime", this.editformdata.realstarttime);
       param.append("realfinishtime", this.editformdata.realfinishtime);
+      param.append("preworkload", this.editformdata.preworkload);
+      param.append("realworkload", this.editformdata.realworkload);
+      param.append("isfinished", this.editformdata.isfinished);
 
       axios({
         url: "projectmanage/edit_project/",
@@ -501,6 +734,91 @@ export default {
         this.initprojects();
         this.editDialogVisible = false;
       });
+    },
+    createSchedule() {
+      this.addScheduleVisible = true;
+      this.addScheduleBtn = false;
+      this.addScheduleformdata.schedulename = "";
+      this.addScheduleformdata.schedulestartdate = "";
+      this.addScheduleformdata.schedulefinishdate = "";
+    },
+    addSchedule() {
+      let param = new URLSearchParams();
+      param.append("projectid", this.addScheduleformdata.projectid);
+      param.append("schedulename", this.addScheduleformdata.schedulename);
+      param.append(
+        "schedulestartdate",
+        this.addScheduleformdata.schedulestartdate
+      );
+      param.append(
+        "schedulefinishdate",
+        this.addScheduleformdata.schedulefinishdate
+      );
+
+      axios({
+        url: "projectmanage/create_project_schedule/",
+        method: "post",
+        data: param,
+      }).then((res) => {
+        this.refreshSchedule();
+      });
+
+      this.addScheduleVisible = false;
+      this.addScheduleBtn = true;
+    },
+    handleEditSchedule(index, row) {
+      this.editScheduleVisible = true;
+      this.addScheduleBtn = false;
+      this.editScheduleformdata.schedulename = row.schedulename;
+      this.editScheduleformdata.schedulestartdate = row.schedulestartdate;
+      this.editScheduleformdata.schedulefinishdate = row.schedulefinishdate;
+      this.editScheduleformdata.index = index;
+      this.editScheduleformdata.projectscheduleid = row.projectscheduleid;
+    },
+    editSchedule() {
+      this.editScheduleVisible = false;
+      this.addScheduleBtn = true;
+
+      let param = new URLSearchParams();
+      param.append(
+        "projectscheduleid",
+        this.editScheduleformdata.projectscheduleid
+      );
+      param.append("schedulename", this.editScheduleformdata.schedulename);
+      param.append(
+        "schedulestartdate",
+        this.editScheduleformdata.schedulestartdate
+      );
+      param.append(
+        "schedulefinishdate",
+        this.editScheduleformdata.schedulefinishdate
+      );
+
+      axios({
+        url: "projectmanage/edit_project_schedule/",
+        method: "post",
+        data: param,
+      }).then((res) => {
+        this.refreshSchedule();
+      });
+    },
+    handleScheduleDelete(index, row) {
+      this.$confirm("确认删除？")
+        .then((_) => {
+          let param = new URLSearchParams();
+          param.append("projectscheduleid", row.projectscheduleid);
+
+          axios({
+            url: "projectmanage/delete_project_schedule/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            this.refreshSchedule();
+          });
+        })
+        .catch((_) => {
+          return;
+        });
     },
   },
 };

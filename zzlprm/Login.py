@@ -23,14 +23,16 @@ def login(request):
     password = request.POST.get("password")
 
     cursor=connection.cursor()
-    sql = "select password from auth_user "\
+    sql = "select password,positiontype from auth_user "\
         "where username=%s"
     cursor.execute(sql,[username])
-    passwordtmp = dictfetchall(cursor)[0]["password"]
+    result = dictfetchall(cursor)
+    passwordtmp = result[0]["password"]
     ispass = check_password(password, passwordtmp)
 
     user = AuthUser()
     user.username = username
+    user.positiontype = result[0]["positiontype"]
 
     if ispass:
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -53,7 +55,8 @@ def login(request):
 
         returnjson = {
             'token':token,
-            'permissions':permissions
+            'permissions':permissions,
+            'positiontype':user.positiontype
             }
         return JsonResponse(returnjson, safe=False)
     else:
@@ -66,18 +69,3 @@ def dictfetchall(cursor):
         dict(zip(columns, row))
         for row in cursor.fetchall()
     ]
-
-# def jwt_payload_handler(user, exp=datetime.datetime.now() + api_settings.JWT_EXPIRATION_DELTA):
-#     username = user.username
-#     payload = {'user_id': user.id, 'username': username, 'mobile': user.mobile, 'exp': exp}
-
-#     # Include original issued at time for a brand new token,
-#     # to allow token refresh
-
-#     if api_settings.JWT_AUDIENCE is not None:
-#         payload['aud'] = api_settings.JWT_AUDIENCE
-
-#     if api_settings.JWT_ISSUER is not None:
-#         payload['iss'] = api_settings.JWT_ISSUER
-
-#     return payload

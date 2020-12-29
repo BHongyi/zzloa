@@ -2,6 +2,7 @@ from django.shortcuts import render
 from zzlprm.Common import dictfetchall
 from zzlprm.models import TbProject
 from zzlprm.models import TbProjectUser
+from zzlprm.models import TbProjectschedule
 
 from django.http import HttpResponse,JsonResponse
 from django.db import connection
@@ -41,6 +42,8 @@ def create_project(request):
     groupid = request.POST.get("groupid")
     managerid = request.POST.get("managerid")
     members = request.POST.get("members")
+    isfinished = 0
+    preworkload = request.POST.get("preworkload")
     prestarttime = datetime.datetime.strptime(request.POST.get("prestarttime"),'%Y-%m-%d')
     prefinishtime = datetime.datetime.strptime(request.POST.get("prefinishtime"),'%Y-%m-%d')
     createtime = datetime.datetime.now()
@@ -53,6 +56,8 @@ def create_project(request):
             groupid = groupid,
             prestarttime = prestarttime,
             prefinishtime = prefinishtime,
+            isfinished = isfinished,
+            preworkload = preworkload,
             createtime = createtime,
             updatetime = updatetime
         )
@@ -113,6 +118,15 @@ def edit_project(request):
     groupid = request.POST.get("groupid")
     managerid = request.POST.get("managerid")
     members = request.POST.get("members")
+    preworkload = request.POST.get("preworkload")
+    realworkload = request.POST.get("realworkload")
+    isfinished = request.POST.get("isfinished")
+
+    if request.POST.get("realworkload") != 'null':
+        realworkload = request.POST.get("realworkload")
+    else:
+        realworkload = None
+
     if request.POST.get("prestarttime") != 'null':
         prestarttime = datetime.datetime.strptime(request.POST.get("prestarttime").split("T")[0],'%Y-%m-%d')
     else:
@@ -144,6 +158,9 @@ def edit_project(request):
             prefinishtime = prefinishtime,
             realstarttime = realstarttime,
             realfinishtime = realfinishtime,
+            preworkload = preworkload,
+            realworkload = realworkload,
+            isfinished = isfinished,
             updatetime = updatetime
         )
     
@@ -162,4 +179,60 @@ def edit_project(request):
                 userid = member_ids_list[i],
                 ismanager = 0
                 )
+    return HttpResponse("OK")
+
+
+@api_view(['GET','POST'])
+def get_project_schedule(request):
+    projectid = request.POST.get("projectid")
+
+    cursor=connection.cursor()
+    sql = "select * from tb_projectschedule "\
+          "where projectid=%s order by schedulestartdate"
+    cursor.execute(sql,[projectid])
+    projectschedule = dictfetchall(cursor)
+    return JsonResponse(projectschedule, safe=False)
+
+@api_view(['GET','POST'])
+def create_project_schedule(request):
+    projectid = request.POST.get("projectid")
+    schedulename = request.POST.get("schedulename")
+    schedulestartdate = request.POST.get("schedulestartdate")
+    schedulefinishdate = request.POST.get("schedulefinishdate")
+    createtime = datetime.datetime.now()
+    updatetime = datetime.datetime.now()
+
+    TbProjectschedule.objects.create(
+            projectid = projectid,
+            schedulename = schedulename,
+            schedulestartdate = schedulestartdate,
+            schedulefinishdate = schedulefinishdate,
+            createtime = createtime,
+            updatetime = updatetime
+        )
+
+    return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def edit_project_schedule(request):
+    projectscheduleid = request.POST.get("projectscheduleid")
+    schedulename = request.POST.get("schedulename")
+    schedulestartdate = request.POST.get("schedulestartdate")
+    schedulefinishdate = request.POST.get("schedulefinishdate")
+    updatetime = datetime.datetime.now()
+
+    TbProjectschedule.objects.filter(projectscheduleid=projectscheduleid).update(
+        schedulename = schedulename,
+        schedulestartdate = schedulestartdate,
+        schedulefinishdate = schedulefinishdate,
+        updatetime = updatetime
+        )
+    return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def delete_project_schedule(request):
+    delete_id = request.POST.get("projectscheduleid")
+
+    TbProjectschedule.objects.filter(projectscheduleid=delete_id).delete()
+
     return HttpResponse("OK")

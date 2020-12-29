@@ -28,6 +28,7 @@ def create_user(request):
     username = request.POST.get("username")
     phone = request.POST.get("phone")
     email = request.POST.get("email")
+    positiontype = request.POST.get("positiontype")
     password = make_password("123456")
     issuperuser = 0
     isactive = 1
@@ -40,6 +41,7 @@ def create_user(request):
             username = username,
             name = name,
             email = email,
+            positiontype = int(positiontype),
             phone = phone,
             is_active = isactive,
             createtime = createtime,
@@ -76,6 +78,7 @@ def edit_user(request):
     phone = request.POST.get("phone")
     email = request.POST.get("email")
     is_active = request.POST.get("isactive")
+    positiontype = request.POST.get("positiontype")
     updatetime = datetime.datetime.now()
 
     AuthUser.objects.filter(id=id).update(
@@ -83,6 +86,16 @@ def edit_user(request):
         phone=phone,
         email = email,
         is_active = is_active,
+        positiontype = positiontype,
         updatetime = updatetime
         )
     return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def get_positiontypes(request):
+    cursor=connection.cursor()
+    sql = "select * from tb_dict "\
+          "where type=2"
+    cursor.execute(sql)
+    positiontypes = dictfetchall(cursor)
+    return JsonResponse(positiontypes, safe=False)

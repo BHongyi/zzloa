@@ -15,6 +15,7 @@ urlpatterns = [
     path('usermanage/delete_user/', UserManage.delete_user),
     path('usermanage/get_user_byid/', UserManage.get_user_byid),
     path('usermanage/edit_user/', UserManage.edit_user),
+    path('usermanage/get_positiontypes/', UserManage.get_positiontypes),
 
     path('groupmanage/get_groups/', GroupManage.get_groups),
     path('groupmanage/edit_group/', GroupManage.edit_group),
@@ -43,5 +44,9 @@ urlpatterns = [
     path('projectmanage/delete_project/', ProjectManage.delete_project),
     path('projectmanage/get_project_byid/', ProjectManage.get_project_byid),
     path('projectmanage/edit_project/', ProjectManage.edit_project),
+    path('projectmanage/get_project_schedule/', ProjectManage.get_project_schedule),
+    path('projectmanage/create_project_schedule/', ProjectManage.create_project_schedule),
+    path('projectmanage/edit_project_schedule/', ProjectManage.edit_project_schedule),
+    path('projectmanage/delete_project_schedule/', ProjectManage.delete_project_schedule),
 
 ]

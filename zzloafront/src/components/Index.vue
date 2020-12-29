@@ -25,6 +25,9 @@
           <el-menu-item index="projectmanage" v-if="this.permissions.indexOf('000025') != -1">
             <i class="el-icon-files"></i>项目管理
           </el-menu-item>
+          <el-menu-item index="dailypaper">
+            <i class="el-icon-edit"></i>填写日报
+          </el-menu-item>
         </el-menu>
       </el-aside>
 

@@ -18,6 +18,14 @@
       <el-table-column prop="name" label="姓名" width="180"> </el-table-column>
       <el-table-column prop="username" label="用户名" width="180">
       </el-table-column>
+      <el-table-column prop="positiontype" label="岗位类别" width="180">
+        <template slot-scope="scope">
+          <span v-if="scope.row.positiontype == 1">开发岗</span> 
+          <span v-else-if="scope.row.positiontype == 2">销售岗</span> 
+          <span v-else-if="scope.row.positiontype == 3">管理岗</span> 
+          <span v-else>其他岗</span> 
+        </template>
+      </el-table-column>
       <el-table-column prop="phone" label="电话" width="180"> </el-table-column>
       <el-table-column prop="email" label="邮件" width="180"> </el-table-column>
       <!-- </el-table-column> -->
@@ -97,6 +105,17 @@
         <el-form-item label="邮件">
           <el-input v-model="createformdata.email"></el-input>
         </el-form-item>
+        <el-form-item label="岗位类别">
+          <el-select v-model="createformdata.positiontype" placeholder="请选择">
+            <el-option
+              v-for="item in positiontypeData"
+              :key="item.typeid"
+              :label="item.typename"
+              :value="item.typeid"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -129,6 +148,17 @@
         <el-form-item label="是否激活">
           <el-input v-model="editformdata.isactive"></el-input>
         </el-form-item>
+        <el-form-item label="岗位类别">
+          <el-select v-model="editformdata.positiontype" placeholder="请选择">
+            <el-option
+              v-for="item in positiontypeData"
+              :key="item.typeid"
+              :label="item.typename"
+              :value="item.typeid"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
@@ -153,6 +183,7 @@ export default {
         page: 1,
       },
       tableData: [],
+      positiontypeData: [],
       dialogVisible: false,
       editDialogVisible: false,
       labelPosition: "right",
@@ -163,12 +194,14 @@ export default {
         email: "",
         isactive: 1,
         id: 0,
+        positiontype:0
       },
       createformdata: {
         name: "",
         username: "",
         phone: "",
         email: "",
+        positiontype:null
       },
     };
   },
@@ -178,6 +211,7 @@ export default {
   mounted: function () {
     //console.log(this.permissions);
     this.initusers(); //需要触发的函数
+    this.positiontypes();
   },
   methods: {
     initusers() {
@@ -188,6 +222,15 @@ export default {
       }).then((res) => {
         this.tableData = res.data;
         this.total = res.data.length;
+      });
+    },
+    positiontypes(){
+      axios({
+        url: "usermanage/get_positiontypes/",
+        method: "get",
+        data: {},
+      }).then((res) => {
+        this.positiontypeData = res.data;
       });
     },
     filterTag(value, row) {
@@ -231,6 +274,7 @@ export default {
       param.append("username", this.createformdata.username);
       param.append("phone", this.createformdata.phone);
       param.append("email", this.createformdata.email);
+      param.append("positiontype", this.createformdata.positiontype);
 
       axios({
         url: "usermanage/create_user/",
@@ -274,6 +318,8 @@ export default {
       param.append("phone", this.editformdata.phone);
       param.append("email", this.editformdata.email);
       param.append("isactive", this.editformdata.isactive);
+      param.append("positiontype", this.editformdata.positiontype);
+
       axios({
         url: "usermanage/edit_user/",
         method: "post",
@@ -297,6 +343,7 @@ export default {
         this.editformdata.phone = res.data[0].phone;
         this.editformdata.isactive = res.data[0].is_active;
         this.editformdata.id = res.data[0].id;
+        this.editformdata.positiontype = res.data[0].positiontype;
       });
     },
   },

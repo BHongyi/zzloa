@@ -160,6 +160,7 @@ class TbGroupUser(models.Model):
     group_user_id = models.AutoField(primary_key=True)
     userid = models.IntegerField()
     groupid = models.IntegerField()
+    ismanager = models.IntegerField()
 
     class Meta:
         managed = False
@@ -181,46 +182,45 @@ class TbProject(models.Model):
     projectid = models.AutoField(primary_key=True)
     projectname = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True, null=True)
-    groupid = models.IntegerField()
-    prestarttime = models.DateTimeField(blank=True, null=True)
-    realstarttime = models.DateTimeField(blank=True, null=True)
-    prefinishtime = models.DateTimeField(blank=True, null=True)
-    realfinishtime = models.DateTimeField(blank=True, null=True)
     typeid = models.IntegerField()
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
-    preworkload = models.FloatField()
-    realworkload = models.FloatField(blank=True, null=True)
-    isfinished = models.IntegerField()
 
     class Meta:
         managed = False
         db_table = 'tb_project'
 
 
-class TbProjectUser(models.Model):
-    project_user_id = models.AutoField(primary_key=True)
-    projectid = models.IntegerField()
-    userid = models.IntegerField()
-    ismanager = models.IntegerField()
-
-    class Meta:
-        managed = False
-        db_table = 'tb_project_user'
-
-
 class TbProjectschedule(models.Model):
     projectscheduleid = models.AutoField(primary_key=True)
     projectid = models.IntegerField()
     schedulename = models.CharField(max_length=50)
+    scheduledescription = models.CharField(max_length=255, blank=True, null=True)
+    groupid = models.IntegerField()
+    preworkload = models.IntegerField()
+    realworkload = models.IntegerField(blank=True, null=True)
     schedulestartdate = models.DateTimeField()
     schedulefinishdate = models.DateTimeField()
+    schedulerealstartdate = models.DateTimeField(blank=True, null=True)
+    schedulerealfinishdate = models.DateTimeField(blank=True, null=True)
+    isfinished = models.IntegerField()
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = 'tb_projectschedule'
+
+
+class TbProjectscheduleUser(models.Model):
+    projectschedule_user_id = models.AutoField(primary_key=True)
+    projectscheduleid = models.IntegerField()
+    userid = models.IntegerField()
+    ismanager = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_projectschedule_user'
 
 
 class TbRole(models.Model):

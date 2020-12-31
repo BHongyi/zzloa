@@ -1,6 +1,5 @@
 <template>
   <el-container>
-    <el-header class="dailypaperheader"> 日报页 </el-header>
     <el-main>
       <router-view></router-view>
     </el-main>
@@ -8,9 +7,6 @@
 </template>
 
 <style>
-.dailypaperheader {
-  background-color:white;
-}
 </style>
 
 <script>

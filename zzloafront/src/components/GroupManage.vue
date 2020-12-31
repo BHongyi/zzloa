@@ -16,6 +16,12 @@
         </el-tree>
       </el-col>
       <el-col :span="12">
+        <el-button
+          @click="setmanager()"
+          type="primary"
+          v-if="this.permissions.indexOf('000009') != -1"
+          ><i class="el-icon-s-custom"></i>设为部门经理</el-button
+        >
         <el-transfer
           filterable
           :filter-method="filterMethod"
@@ -24,6 +30,7 @@
           :titles="titles"
           :data="userlist"
           @change="handleChange"
+          @left-check-change="leftcheckchange"
           ref="transfer"
         >
         </el-transfer>
@@ -75,6 +82,7 @@ export default {
       dialogVisible: false,
       currentgroupid: 0,
       userlist: [],
+      managerlist: [],
       value: [],
       valueleft: [],
       titles: ["部门用户", "非部门用户"],
@@ -118,8 +126,7 @@ export default {
     },
     setpermission() {
       if (this.permissions.indexOf("000009") != -1) {
-      }
-      else{
+      } else {
         this.$refs.transfer.$children[1].$el.style.display = "none";
         this.$refs.transfer.$children[2].$el.style.display = "none";
         this.$refs.transfer.$children[3].$el.style.display = "none";
@@ -232,6 +239,27 @@ export default {
         this.dialogVisible = false;
         this.initgroups();
       });
+    },
+    leftcheckchange(val) {
+      this.managerlist = val;
+    },
+    setmanager() {
+      if (this.managerlist.length < 1) {
+        alert("请选择用户");
+      } else if (this.managerlist.length == 1) {
+        let param = new URLSearchParams();
+        param.append("groupid", this.currentgroupid);
+        param.append("userid", this.managerlist[0]);
+        axios({
+          url: "groupmanage/setmanager/",
+          method: "post",
+          data: param,
+        }).then((res) => {
+          this.initgroups();
+        });
+      } else {
+        alert("部门经理只能为一人，请选择一个用户");
+      }
     },
     renderContent(h, { node, data, store }) {
       return (

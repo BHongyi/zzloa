@@ -6,6 +6,7 @@ from zzlprm import PermissionManage
 from zzlprm import RoleManage
 from zzlprm import Login
 from zzlprm import ProjectManage
+from zzlprm import DailyPaper
 
 urlpatterns = [
     path('login/login/', Login.login),
@@ -23,6 +24,7 @@ urlpatterns = [
     path('groupmanage/get_group_user/', GroupManage.get_group_user),
     path('groupmanage/group_add_user/', GroupManage.group_add_user),
     path('groupmanage/group_delete_user/', GroupManage.group_delete_user),
+    path('groupmanage/setmanager/', GroupManage.setmanager),
 
     path('permissionmanage/get_permissions/', PermissionManage.get_permissions),
     path('permissionmanage/edit_permission/', PermissionManage.edit_permission),
@@ -48,5 +50,8 @@ urlpatterns = [
     path('projectmanage/create_project_schedule/', ProjectManage.create_project_schedule),
     path('projectmanage/edit_project_schedule/', ProjectManage.edit_project_schedule),
     path('projectmanage/delete_project_schedule/', ProjectManage.delete_project_schedule),
+    path('projectmanage/get_project_schedule_byid/', ProjectManage.get_project_schedule_byid),
+
+    path('dailypaper/get_projects/', DailyPaper.get_projects),
 
 ]

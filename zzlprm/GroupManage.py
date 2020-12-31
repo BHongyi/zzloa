@@ -20,7 +20,15 @@ from rest_framework.decorators import api_view
 def get_groups(request):
     """获取部门"""
     cursor=connection.cursor()
-    sql = "select groupid,parentid,name as label from tb_group "
+    sql = "select tb_group.groupid,tb_group.parentid "\
+",CONCAT(tb_group.name,IFNULL(CONCAT('(',a.name,')'),'')) "\
+"as label from tb_group "\
+"LEFT JOIN ( "\
+"select tb_group_user.groupid,auth_user.name from tb_group_user "\
+"LEFT JOIN auth_user "\
+"on tb_group_user.userid = auth_user.id "\
+"where tb_group_user.ismanager = 1) a "\
+"on tb_group.groupid = a.groupid "
     cursor.execute(sql)
     groups = dictfetchall(cursor)
 
@@ -84,6 +92,20 @@ def edit_group(request):
             updatetime = updatetime
             )
 
+    return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def setmanager(request):
+    groupid = request.POST.get("groupid")
+    userid = request.POST.get("userid")
+
+    TbGroupUser.objects.filter(groupid=groupid).update(
+            ismanager = 0
+            )
+    
+    TbGroupUser.objects.filter(Q(groupid=int(groupid)) & Q(userid=int(userid))).update(
+            ismanager = 1
+            )
     return HttpResponse("OK")
 
 @api_view(['GET','POST'])

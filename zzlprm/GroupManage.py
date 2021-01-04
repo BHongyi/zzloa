@@ -55,7 +55,8 @@ def group_add_user(request):
     for userid in userids:
         TbGroupUser.objects.create(
             groupid = int(groupid),
-            userid = int(userid)
+            userid = int(userid),
+            ismanager = 0
         )
 
     return HttpResponse("OK")

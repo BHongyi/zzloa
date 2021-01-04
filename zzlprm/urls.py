@@ -53,5 +53,6 @@ urlpatterns = [
     path('projectmanage/get_project_schedule_byid/', ProjectManage.get_project_schedule_byid),
 
     path('dailypaper/get_projects/', DailyPaper.get_projects),
+    path('dailypaper/get_receptionists/', DailyPaper.get_receptionists),
 
 ]

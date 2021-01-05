@@ -133,6 +133,40 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
+class TbDailypaper(models.Model):
+    dailypaperid = models.AutoField(primary_key=True)
+    userid = models.IntegerField()
+    dailypaperdate = models.DateTimeField()
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_dailypaper'
+
+
+class TbDailypaperUser(models.Model):
+    dailypaper_user_id = models.AutoField(primary_key=True)
+    dailypaperid = models.IntegerField()
+    userid = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_dailypaper_user'
+
+
+class TbDailypaperdetail(models.Model):
+    dailypaperdetailid = models.AutoField(primary_key=True)
+    dailypaperid = models.IntegerField()
+    projectscheduleid = models.IntegerField(blank=True, null=True)
+    worktime = models.FloatField()
+    workcontent = models.CharField(max_length=1000)
+
+    class Meta:
+        managed = False
+        db_table = 'tb_dailypaperdetail'
+
+
 class TbDict(models.Model):
     dictid = models.AutoField(primary_key=True)
     type = models.IntegerField()

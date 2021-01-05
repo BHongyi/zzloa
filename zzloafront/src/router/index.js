@@ -9,11 +9,13 @@ import RoleManage from '@/components/RoleManage'
 import Default from '@/components/Default'
 import ProjectManage from '@/components/ProjectManage'
 import DailyPaper from '@/components/DailyPaper'
-import DeveloperPaper from '@/components/dailypapercomponents/DeveloperPaper'
-import SalePaper from '@/components/dailypapercomponents/SalePaper'
-import ManagerPaper from '@/components/dailypapercomponents/ManagerPaper'
+import ReadDailyPaper from '@/components/ReadDailyPaper'
 
 Vue.use(Router)
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 
 export default new Router({
   routes: [
@@ -61,24 +63,12 @@ export default new Router({
         {
           path: '/dailypaper',
           name: 'DailyPaper',
-          component: DailyPaper,
-          children: [
-            {
-              path: '/developerpaper',
-              name: 'DeveloperPaper',
-              component: DeveloperPaper
-            },
-            {
-              path: '/salepaper',
-              name: 'SalePaper',
-              component: SalePaper
-            },
-            {
-              path: '/managerpaper',
-              name: 'ManagerPaper',
-              component: ManagerPaper
-            }
-          ]
+          component: DailyPaper
+        },
+        {
+          path: '/readdailypaper',
+          name: 'ReadDailyPaper',
+          component: ReadDailyPaper
         }
       ]
     }

@@ -1,5 +1,5 @@
 <template>
-  <div>销售人员日报</div>
+  <div>查看日报</div>
 </template>
 
 <style>
@@ -7,6 +7,6 @@
 
 <script>
 export default {
-  name: "SalePaper"
+  name: "ReadDailyPaper"
 };
 </script>

@@ -10,24 +10,48 @@
       <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
         <el-menu router>
           <!-- 开启菜单中的router=true之后，点击菜单会把index作为路由跳转路径 -->
-          <el-menu-item index="usermanage" v-if="this.permissions.indexOf('000005') != -1">
+          <el-menu-item
+            index="usermanage"
+            v-if="this.permissions.indexOf('000005') != -1"
+          >
             <i class="el-icon-user"></i>用户管理
           </el-menu-item>
-          <el-menu-item index="groupmanage" v-if="this.permissions.indexOf('000010') != -1">
+          <el-menu-item
+            index="groupmanage"
+            v-if="this.permissions.indexOf('000010') != -1"
+          >
             <i class="el-icon-folder"></i>部门管理
           </el-menu-item>
-          <el-menu-item index="permissionmanage" v-if="this.permissions.indexOf('000015') != -1">
+          <el-menu-item
+            index="permissionmanage"
+            v-if="this.permissions.indexOf('000015') != -1"
+          >
             <i class="el-icon-menu"></i>权限管理
           </el-menu-item>
-          <el-menu-item index="rolemanage" v-if="this.permissions.indexOf('000020') != -1">
+          <el-menu-item
+            index="rolemanage"
+            v-if="this.permissions.indexOf('000020') != -1"
+          >
             <i class="el-icon-user-solid"></i>角色管理
           </el-menu-item>
-          <el-menu-item index="projectmanage" v-if="this.permissions.indexOf('000025') != -1">
+          <el-menu-item
+            index="projectmanage"
+            v-if="this.permissions.indexOf('000025') != -1"
+          >
             <i class="el-icon-files"></i>项目管理
           </el-menu-item>
-          <el-menu-item index="dailypaper">
-            <i class="el-icon-edit"></i>填写日报
-          </el-menu-item>
+          <el-submenu index="1">
+            <template slot="title">
+              <i class="el-icon-document"></i>
+              <span>日报管理</span>
+            </template>
+            <el-menu-item index="dailypaper">
+              <i class="el-icon-edit"></i>填写日报
+            </el-menu-item>
+            <el-menu-item index="readdailypaper">
+              <i class="el-icon-view"></i>查看日报
+            </el-menu-item>
+          </el-submenu>
         </el-menu>
       </el-aside>
 
@@ -62,9 +86,9 @@ export default {
     this.initpermissions();
   },
   methods: {
-    initpermissions(){
-      this.permissions = sessionStorage.getItem('permissions');
-    }
+    initpermissions() {
+      this.permissions = sessionStorage.getItem("permissions");
+    },
   },
 };
 </script>

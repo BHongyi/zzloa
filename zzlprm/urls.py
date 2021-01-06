@@ -56,5 +56,7 @@ urlpatterns = [
     path('dailypaper/get_receptionists/', DailyPaper.get_receptionists),
     path('dailypaper/create_dailypaper/', DailyPaper.create_dailypaper),
     path('dailypaper/get_dailypapers/', DailyPaper.get_dailypapers),
+    path('dailypaper/get_organization/', DailyPaper.get_organization),
+    path('dailypaper/load_userdailypaper/', DailyPaper.load_userdailypaper),
 
 ]

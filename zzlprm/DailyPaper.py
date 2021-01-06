@@ -142,3 +142,72 @@ def create_dailypaper(request):
             workcontent = workcontent
         )
     return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def get_organization(request):
+    """获取部门"""
+    cursor=connection.cursor()
+    sql = "select tb_group.groupid,tb_group.parentid "\
+    ",CONCAT(tb_group.name,IFNULL(CONCAT('(',a.name,')'),'')) "\
+    "as label from tb_group "\
+    "LEFT JOIN ( "\
+    "select tb_group_user.groupid,auth_user.name from tb_group_user "\
+    "LEFT JOIN auth_user "\
+    "on tb_group_user.userid = auth_user.id "\
+    "where tb_group_user.ismanager = 1) a "\
+    "on tb_group.groupid = a.groupid "
+    cursor.execute(sql)
+    groups = dictfetchall(cursor)
+
+    grouptree = list_to_tree(groups)
+
+    sql1 = "select tb_group.groupid,auth_user.id,auth_user.name from tb_group "\
+    "LEFT JOIN tb_group_user "\
+    "on tb_group.groupid = tb_group_user.groupid "\
+    "LEFT JOIN auth_user "\
+    "on tb_group_user.userid = auth_user.id "\
+    "WHERE auth_user.name is not NULL"
+    cursor.execute(sql1)
+    users = dictfetchall(cursor)
+
+    returnjson = {
+        'users':users,
+        'grouptree':grouptree
+    }
+    return JsonResponse(returnjson, safe=False)
+
+@api_view(['GET','POST'])
+def load_userdailypaper(request):
+    writerid = request.POST.get("userid")
+    username = request.user.username
+    cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    receptionistid = dictfetchall(cursor)[0]["id"]
+
+    sql = "select tb_dailypaper.dailypaperid,tb_dailypaper.dailypaperdate "\
+    ",tb_dailypaper.createtime "\
+    ",tb_dailypaper.userid as writer "\
+    ",b.userid as receptionist from tb_dailypaper "\
+    "LEFT JOIN (select * from tb_dailypaper_user where tb_dailypaper_user.userid = %s) b "\
+    "on tb_dailypaper.userid = tb_dailypaper.userid "\
+    "where tb_dailypaper.userid = %s "\
+    "GROUP BY tb_dailypaper.dailypaperid "\
+    "ORDER BY tb_dailypaper.dailypaperdate desc,tb_dailypaper.createtime DESC"
+    cursor.execute(sql,[receptionistid,writerid])
+    dailypapers = dictfetchall(cursor)
+
+    return JsonResponse(dailypapers, safe=False)
+
+def list_to_tree(data):
+    out = { 
+        0: { 'groupid': 0, 'parentid': 0, 'label': "Root node", 'children': [] }
+    }
+
+    for p in data:
+        out.setdefault(p['parentid'], { 'children': [] })
+        out.setdefault(p['groupid'], { 'children': [] })
+        out[p['groupid']].update(p)
+        out[p['parentid']]['children'].append(out[p['groupid']])
+
+    return out[0]

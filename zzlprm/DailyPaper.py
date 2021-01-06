@@ -191,7 +191,7 @@ def load_userdailypaper(request):
     ",b.userid as receptionist from tb_dailypaper "\
     "LEFT JOIN (select * from tb_dailypaper_user where tb_dailypaper_user.userid = %s) b "\
     "on tb_dailypaper.userid = tb_dailypaper.userid "\
-    "where tb_dailypaper.userid = %s "\
+    "where tb_dailypaper.userid = %s  and b.userid is not null "\
     "GROUP BY tb_dailypaper.dailypaperid "\
     "ORDER BY tb_dailypaper.dailypaperdate desc,tb_dailypaper.createtime DESC"
     cursor.execute(sql,[receptionistid,writerid])

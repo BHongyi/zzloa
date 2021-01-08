@@ -149,6 +149,8 @@ class TbDailypaperUser(models.Model):
     dailypaper_user_id = models.AutoField(primary_key=True)
     dailypaperid = models.IntegerField()
     userid = models.IntegerField()
+    isread = models.IntegerField()
+    readtime = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False

@@ -22,9 +22,15 @@
             )
           "
           style="width: 100%"
+          @row-click="openDetails"
         >
           <el-table-column width="50">
-            <i class="el-icon-folder-opened"></i>
+            <template slot-scope="scope">
+              <i v-if="scope.row.isread == 1" class="el-icon-folder-opened"></i>
+              <i v-else class="el-icon-folder"></i>
+            </template>
+            <i v-if="tableData.isread == 1" class="el-icon-folder-opened"></i>
+            <i v-else class="el-icon-folder"></i>
           </el-table-column>
           <el-table-column prop="dailypaperdate" label="日报日期" width="180">
             <template slot-scope="scope">{{
@@ -52,6 +58,37 @@
         </div>
       </el-col>
     </el-row>
+
+    <el-dialog title="日报查看" :visible.sync="dialogVisible" width="40%">
+      <table style="margin-left:7px;">
+        <tr>
+          <td>接收人:</td>
+          <td>{{dailypaperdata.receptionists}}</td>
+        </tr>
+        <tr>
+          <td>日报日期:</td>
+          <td>{{dailypaperdata.dailypaperdate | dateYMDHMSFormat}}</td>
+        </tr>
+        <tr>
+          <td>创建日期:</td>
+          <td>{{dailypaperdata.createdate}}</td>
+        </tr>
+      </table>
+      <el-table
+          :data="dailypaperdetail"
+          style="width: 100%"
+        >
+          <el-table-column prop="projectname" label="项目-阶段名" width="180">
+          </el-table-column>
+          <el-table-column prop="worktime" label="工时(单位:h)" width="180">
+          </el-table-column>
+          <el-table-column prop="workcontent" label="工作内容" style="width:40%;">
+          </el-table-column>
+        </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">关 闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -66,6 +103,18 @@
   line-height: 12px;
   padding: 0 2px;
 }
+
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 8px;
+}
+
+.el-tree-node.is-current > .el-tree-node__content {
+  background-color: #c2d6ea !important;
+}
 </style>
 
 <script>
@@ -74,6 +123,7 @@ export default {
   name: "ReadDailyPaper",
   data() {
     return {
+      dialogVisible:false,
       treeData: [],
       userlist: [],
       limitePage: {
@@ -81,6 +131,12 @@ export default {
         page: 1,
       },
       tableData: [],
+      dailypaperdata:{
+        receptionists:null,
+        dailypaperdate:"",
+        createdate:""
+      },
+      dailypaperdetail:[],
     };
   },
   mounted: function () {
@@ -103,7 +159,7 @@ export default {
           let newChild = {
             label: element.name,
             parentid: node.groupid,
-            groupid: "user_" + element.id,
+            groupid: "user_" + element.id + "_" + element.count,
             children: [],
           };
           node.children.unshift(newChild);
@@ -118,6 +174,29 @@ export default {
         node.children.forEach((item) => this.recursion(item));
       }
     },
+    openDetails(row) {
+      row.isread = 1;
+      let param = new URLSearchParams();
+      param.append("dailypaperid", row.dailypaperid);
+
+      axios({
+        url: "dailypaper/read_dailypaperdetail/",
+        method: "post",
+        data: param,
+      }).then((res) => {
+        this.dialogVisible = true;
+        res.data.forEach(element => {
+          if(element.projectscheduleid == -1){
+            element.projectname = '自我学习';
+          }
+        });
+        this.dailypaperdetail = res.data;
+        this.dailypaperdata.receptionists = res.data[0].receptionists;
+        this.dailypaperdata.dailypaperdate = res.data[0].dailypaperdate;
+        this.dailypaperdata.createdate = res.data[0].createtime.replace('T',' ');
+        this.initorganization();
+      });
+    },
     handleSizeChange(val) {
       this.limitePage.limit = val;
     },
@@ -127,13 +206,12 @@ export default {
     handleNodeClick(data) {
       if ((data.groupid + "").indexOf("user") != -1) {
         let param = new URLSearchParams();
-        param.append("userid", data.groupid.split('_')[1]);
+        param.append("userid", data.groupid.split("_")[1]);
         axios({
           url: "dailypaper/load_userdailypaper/",
           method: "post",
           data: param,
         }).then((res) => {
-          //this.initgroups();
           this.tableData = res.data;
         });
       }
@@ -146,13 +224,28 @@ export default {
             class="el-icon-user"
           ></i>
           <el-badge
-            v-show={(node.key + "").indexOf("user") != -1 ? "ok" : ""}
-            value="5"
+            v-show={
+              ((node.key + "").indexOf("user") != -1) &
+              ((node.key + "").split("_")[2] != 0)
+                ? "ok"
+                : ""
+            }
+            value={(node.key + "").split("_")[2]}
             size="mini"
             class="item"
           >
             {node.label}
           </el-badge>
+          <span
+            v-show={
+              ((node.key + "").indexOf("user") != -1) &
+              ((node.key + "").split("_")[2] == 0)
+                ? "ok"
+                : ""
+            }
+          >
+            {node.label}
+          </span>
           <i
             v-show={(node.key + "").indexOf("user") == -1 ? "ok" : ""}
             class="el-icon-s-home"

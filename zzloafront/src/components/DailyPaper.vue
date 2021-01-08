@@ -243,6 +243,11 @@ export default {
       }).then((res) => {
         this.tableData = res.data.dailypapers;
         this.tableDailypaperDetail = res.data.dailypaperdetails;
+        this.tableDailypaperDetail.forEach(element => {
+          if(element.projectscheduleid == -1){
+            element.projectname = '自我学习';
+          }
+        });
       });
     },
     initproject() {

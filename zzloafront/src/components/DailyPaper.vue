@@ -1,7 +1,9 @@
 <template>
   <div>
     <el-row>
-      <el-button @click="dialogVisible = true"><i class="el-icon-plus"></i>填写日报</el-button>
+      <el-button @click="dialogVisible = true;cleardailypaperForm()"
+        ><i class="el-icon-plus"></i>填写日报</el-button
+      >
     </el-row>
     <el-table
       :data="
@@ -12,7 +14,7 @@
       "
       style="width: 100%"
     >
-    <el-table-column type="expand">
+      <el-table-column type="expand">
         <template slot-scope="props">
           <el-table
             :data="
@@ -23,14 +25,10 @@
             stripe
             style="width: 100%"
           >
-          <el-table-column type="index" width="20"> </el-table-column>
+            <el-table-column type="index" width="20"> </el-table-column>
             <el-table-column prop="projectname" label="项目-阶段名" width="200">
             </el-table-column>
-            <el-table-column
-              prop="worktime"
-              label="用时(单位:h)"
-              width="200"
-            >
+            <el-table-column prop="worktime" label="用时(单位:h)" width="200">
             </el-table-column>
             <el-table-column
               prop="workcontent"
@@ -41,12 +39,13 @@
           </el-table>
         </template>
       </el-table-column>
-      <el-table-column prop="receptionists" label="接受人" style="width: 50%"> </el-table-column>
+      <el-table-column prop="receptionists" label="接受人" style="width: 50%">
+      </el-table-column>
       <el-table-column prop="dailypaperdate" label="日报日期" width="180">
         <template slot-scope="scope">{{
           scope.row.dailypaperdate | dateYMDHMSFormat
         }}</template>
-         </el-table-column>
+      </el-table-column>
       <el-table-column prop="createtime" label="提交日期" width="180">
         <template slot-scope="scope">{{
           scope.row.createtime | dateYMDHMSFormat
@@ -70,13 +69,26 @@
     <el-dialog
       title="填写日报"
       :visible.sync="dialogVisible"
-      width="950px"
+      width="650px"
       :before-close="handleClose"
     >
-    <table>
-      <tr>
-        <td>日期:</td>
-        <td>
+      <el-form
+        :model="returnjson"
+        label-position="left"
+        label-width="80px"
+        ref="dailypaperForm"
+      >
+        <el-form-item
+          label="日期:"
+          prop="dailypaperdate"
+          :rules="[
+            {
+              required: true,
+              message: '日报日期不能为空',
+              trigger: 'blur',
+            },
+          ]"
+        >
           <el-date-picker
             v-model="returnjson.dailypaperdate"
             type="date"
@@ -85,11 +97,18 @@
             :picker-options="pickerOptions"
           >
           </el-date-picker>
-        </td>
-      </tr>
-      <tr>
-        <td>项目:</td>
-        <td>
+        </el-form-item>
+        <el-form-item
+          label="项目:"
+          prop="projectschedules"
+          :rules="[
+            {
+              required: true,
+              message: '项目不能为空',
+              trigger: 'blur',
+            },
+          ]"
+        >
           <el-select
             v-model="returnjson.projectschedules"
             multiple
@@ -105,11 +124,18 @@
             >
             </el-option>
           </el-select>
-        </td>
-      </tr>
-      <tr>
-        <td>接收人：</td>
-        <td>
+        </el-form-item>
+        <el-form-item
+          label="接收人:"
+          prop="checkeduser"
+          :rules="[
+            {
+              required: true,
+              message: '接收人不能为空',
+              trigger: 'blur',
+            },
+          ]"
+        >
           <el-select
             v-model="returnjson.checkeduser"
             multiple
@@ -124,24 +150,31 @@
             >
             </el-option>
           </el-select>
-        </td>
-      </tr>
-      <tr>
-        <td>工作内容:</td>
-        <td style="width: 800px">
-          <el-table
-            :data="returnjson.tableData"
-            empty-text="请选择项目"
-            style="width: 100%"
+        </el-form-item>
+        <el-table
+          :data="returnjson.tableData"
+          empty-text="请选择项目"
+          style="width: 100%"
+        >
+          <el-table-column
+            prop="projectschedulename"
+            label="项目-阶段"
+            width="180"
           >
-            <el-table-column
-              prop="projectschedulename"
-              label="项目-阶段"
-              width="180"
-            >
-            </el-table-column>
-            <el-table-column prop="worktime" label="工时(单位:h)" width="180">
-              <template slot-scope="scope">
+          </el-table-column>
+          <el-table-column prop="worktime" label="工时(单位:h)" width="120">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.worktime'"
+                :rules="[
+                  {
+                    required: true,
+                    message: '工作内容不能为空',
+                    trigger: 'blur',
+                  },
+                ]"
+              >
                 <el-select v-model="scope.row.worktime" placeholder="请选择">
                   <el-option
                     v-for="item in timelist"
@@ -150,26 +183,34 @@
                     :label="item.name"
                   ></el-option>
                 </el-select>
-              </template>
-            </el-table-column>
-            <el-table-column prop="workcontent" label="工作内容">
-              <template slot-scope="scope1">
+              </el-form-item>
+            </template>
+          </el-table-column>
+          <el-table-column prop="workcontent" label="工作内容">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.workcontent'"
+                :rules="[
+                  {
+                    required: true,
+                    message: '工作内容不能为空',
+                    trigger: 'blur',
+                  },
+                ]"
+              >
                 <el-input
-                  v-model="scope1.row.workcontent"
+                  v-model="scope.row.workcontent"
                   type="textarea"
-                  style="width: 420px"
                 ></el-input>
-              </template>
-            </el-table-column>
-          </el-table>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2" style="text-align: right">
-          <el-button type="primary" @click="submitdailypaper()">提交</el-button>
-        </td>
-      </tr>
-    </table>
+              </el-form-item>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitdailypaper()">提交</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
@@ -192,11 +233,11 @@ export default {
         page: 1,
       },
       tableData: [],
-      tableDailypaperDetail:[],
+      tableDailypaperDetail: [],
       pickerOptions: {
         disabledDate(time) {
           var curTime = new Date().getTime();
-          var startDate = curTime - (3 * 3600 * 24 * 1000);
+          var startDate = curTime - 3 * 3600 * 24 * 1000;
           startDate = new Date(startDate);
           return time.getTime() > Date.now() || time.getTime() < startDate;
         },
@@ -221,12 +262,12 @@ export default {
       oldprojectschedules: [],
       receptionists: "",
       userlist: [],
-      returnjson:{
+      returnjson: {
         dailypaperdate: "",
         projectschedules: [],
         checkeduser: [],
         tableData: [],
-      }
+      },
     };
   },
   mounted: function () {
@@ -236,16 +277,16 @@ export default {
     this.returnjson.dailypaperdate = new Date();
   },
   methods: {
-    initdailypapers(){
+    initdailypapers() {
       axios({
         url: "dailypaper/get_dailypapers/",
         method: "post",
       }).then((res) => {
         this.tableData = res.data.dailypapers;
         this.tableDailypaperDetail = res.data.dailypaperdetails;
-        this.tableDailypaperDetail.forEach(element => {
-          if(element.projectscheduleid == -1){
-            element.projectname = '自我学习';
+        this.tableDailypaperDetail.forEach((element) => {
+          if (element.projectscheduleid == -1) {
+            element.projectname = "自我学习";
           }
         });
       });
@@ -255,8 +296,12 @@ export default {
         url: "dailypaper/get_projects/",
         method: "post",
       }).then((res) => {
+        //console.log(res.data);
         this.projectschedulelist = res.data;
-        this.projectschedulelist.push({"projectscheduleid":-1,"projectname":"自我学习"})
+        this.projectschedulelist.push({
+          projectscheduleid: -1,
+          projectname: "自我学习",
+        });
       });
     },
     initusers() {
@@ -268,14 +313,28 @@ export default {
         this.userlist = res.data;
       });
     },
+    cleardailypaperForm(){
+      this.$refs["dailypaperForm"].clearValidate();
+      this.returnjson.dailypaperdate = "";
+      this.returnjson.projectschedules = [];
+      this.returnjson.checkeduser = [];
+      this.returnjson.tableData = [];
+    },
     submitdailypaper() {
-      axios({
-        url: "dailypaper/create_dailypaper/",
-        data: this.returnjson,
-        method: "post",
-      }).then((res) => {
-        this.initdailypapers();
-        this.dialogVisible = false;
+      this.$refs["dailypaperForm"].validate((valid) => {
+        if (valid) {
+          axios({
+            url: "dailypaper/create_dailypaper/",
+            data: this.returnjson,
+            method: "post",
+          }).then((res) => {
+            this.initdailypapers();
+            this.dialogVisible = false;
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
       });
     },
     handleClose(done) {

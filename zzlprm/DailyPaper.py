@@ -56,7 +56,7 @@ def get_projects(request):
     cursor.execute(sqlu)
     userid = dictfetchall(cursor)[0]["id"]
 
-    sql = "select CONCAT(tb_project.projectname,'-',tb_projectschedule.schedulename) "\
+    sql = "SELECT * from (select CONCAT(tb_project.projectname,'-',tb_projectschedule.schedulename) "\
 "as projectname,tb_projectschedule.projectscheduleid from tb_project "\
 "LEFT JOIN tb_projectschedule "\
 "on tb_project.projectid = tb_projectschedule.projectid "\
@@ -65,7 +65,8 @@ def get_projects(request):
 "LEFT JOIN auth_user "\
 "on auth_user.id = tb_projectschedule_user.userid "\
 "where tb_projectschedule.isfinished = 0 "\
-"and auth_user.id = %s"
+"and auth_user.id = %s) a "\
+"group by a.projectscheduleid"
     cursor.execute(sql,[userid])
     projects = dictfetchall(cursor)
 

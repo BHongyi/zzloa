@@ -7,6 +7,7 @@ from zzlprm import RoleManage
 from zzlprm import Login
 from zzlprm import ProjectManage
 from zzlprm import DailyPaper
+from zzlprm import PersonalPage
 
 urlpatterns = [
     path('login/login/', Login.login),
@@ -60,4 +61,5 @@ urlpatterns = [
     path('dailypaper/load_userdailypaper/', DailyPaper.load_userdailypaper),
     path('dailypaper/read_dailypaperdetail/', DailyPaper.read_dailypaperdetail),
 
+    path('personalpage/edit_password/', PersonalPage.edit_password),
 ]

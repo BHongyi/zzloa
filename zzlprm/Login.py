@@ -27,6 +27,10 @@ def login(request):
         "where username=%s"
     cursor.execute(sql,[username])
     result = dictfetchall(cursor)
+
+    if len(result) == 0:
+        return HttpResponse("账号密码不正确")
+
     passwordtmp = result[0]["password"]
     ispass = check_password(password, passwordtmp)
 

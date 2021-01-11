@@ -1,8 +1,17 @@
 <template>
-  <div style="text-align: center; width: 100%;">
-    <el-form id="loginform" :style="loginfromstyle">
-      <h1 style="font-family:宋体;">中智联项目管理系统</h1>
-      <el-form-item label="">
+  <div style="text-align: center; width: 100%">
+    <el-form
+      id="loginform"
+      :model="loginfrom"
+      ref="loginform"
+      :style="loginfromstyle"
+    >
+      <h1 style="font-family: 宋体">中智联项目管理系统</h1>
+      <el-form-item
+        label=""
+        prop="username"
+        :rules="[{ required: true, message: '请输入用户名', trigger: 'blur' }]"
+      >
         <el-input
           type="text"
           v-model="loginfrom.username"
@@ -10,7 +19,7 @@
           autocomplete="off"
         ></el-input>
       </el-form-item>
-      <el-form-item label="">
+      <el-form-item label="" prop="password" :rules="[{ required: true, message: '请输入密码', trigger: 'blur' }]">
         <el-input
           type="password"
           placeholder="请输入密码"
@@ -29,10 +38,10 @@
 </template>
 <style>
 label.el-checkbox.rememberme {
-    margin: 0px 0px 15px 0px;
-    text-align: left;
+  margin: 0px 0px 15px 0px;
+  text-align: left;
 }
-.el-dialog__body{
+.el-dialog__body {
   display: inline-block;
 }
 </style>
@@ -47,53 +56,63 @@ export default {
         username: null,
         password: null,
       },
-      marginleft:300,
-      loginfromstyle:{
-        width:"300px",
-        marginTop:"100px",
-        marginLeft:"400px"
+      marginleft: 300,
+      loginfromstyle: {
+        width: "300px",
+        marginTop: "100px",
+        marginLeft: "400px",
       },
-      remember:true,
+      remember: true,
       token: "",
     };
   },
-  mounted(){
-    this.loginfromstyle.marginLeft = window.innerWidth/2 - 150 + "px";
+  mounted() {
+    this.loginfromstyle.marginLeft = window.innerWidth / 2 - 150 + "px";
   },
-  created(){ 
-    if (localStorage.getItem("rememberPsw") == 'true') {
+  created() {
+    if (localStorage.getItem("rememberPsw") == "true") {
       this.getCookie();
-      }
+    }
   },
   methods: {
     doSubmit() {
-      let param = new URLSearchParams();
-      param.append("username", this.loginfrom.username);
-      param.append("password", this.loginfrom.password);
-      axios({
-        url: "login/login/",
-        //  url: "api-token-auth/",
-        method: "post",
-        data: param,
-      }).then((res) => {
-        if (res.data == "账号密码不正确") {
-          alert("账号密码不正确");
-        } else {
-          sessionStorage.setItem("token", res.data.token);
-          var permission = "";
-          res.data.permissions.forEach(element => {
-            permission = permission + ',' + element.code
+      this.$refs["loginform"].validate((valid) => {
+        if (valid) {
+          let param = new URLSearchParams();
+          param.append("username", this.loginfrom.username);
+          param.append("password", this.loginfrom.password);
+          axios({
+            url: "login/login/",
+            //  url: "api-token-auth/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            if (res.data == "账号密码不正确") {
+              alert("账号密码不正确");
+            } else {
+              sessionStorage.setItem("token", res.data.token);
+              var permission = "";
+              res.data.permissions.forEach((element) => {
+                permission = permission + "," + element.code;
+              });
+              sessionStorage.setItem("permissions", permission);
+              sessionStorage.setItem("positiontype", res.data.positiontype);
+              if (this.remember) {
+                this.setCookie(
+                  this.loginfrom.username,
+                  this.loginfrom.password,
+                  7
+                );
+              } else {
+                this.clearCookie();
+              }
+              localStorage.setItem("rememberPsw", this.remember);
+              this.$router.push({ path: "index" });
+            }
           });
-          sessionStorage.setItem("permissions", permission);
-          sessionStorage.setItem("positiontype", res.data.positiontype);
-          if(this.remember){
-            this.setCookie(this.loginfrom.username,this.loginfrom.password,7);
-          }
-          else{
-            this.clearCookie();
-          }
-          localStorage.setItem("rememberPsw", this.remember);
-          this.$router.push({path:"index"})
+        } else {
+          console.log("error submit!!");
+          return false;
         }
       });
     },
@@ -101,10 +120,10 @@ export default {
     setCookie(portId, psw, exdays) {
       // Encrypt，加密账号密码
       var cipherPortId = CryptoJS.AES.encrypt(
-        portId+'',
+        portId + "",
         "secretkey123"
       ).toString();
-      var cipherPsw = CryptoJS.AES.encrypt(psw+'', "secretkey123").toString();
+      var cipherPsw = CryptoJS.AES.encrypt(psw + "", "secretkey123").toString();
       //console.log(cipherPortId+'/'+cipherPsw)//打印一下看看有没有加密成功
 
       var exdate = new Date(); //获取时间
@@ -124,7 +143,7 @@ export default {
         exdate.toGMTString();
     },
     //读取cookie
-    getCookie: function() {
+    getCookie: function () {
       if (document.cookie.length > 0) {
         var arr = document.cookie.split("; "); //这里显示的格式请根据自己的代码更改
         for (var i = 0; i < arr.length; i++) {
@@ -143,9 +162,9 @@ export default {
       }
     },
     //清除cookie
-    clearCookie: function() {
-      this.setCookie("", "", -1); 
-    }
+    clearCookie: function () {
+      this.setCookie("", "", -1);
+    },
   },
 };
 </script>

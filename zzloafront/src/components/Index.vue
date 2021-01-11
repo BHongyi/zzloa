@@ -4,6 +4,12 @@
     <el-header
       ><img src="../assets/img/logo.png" style="width: 30px" />
       中智联项目管理系统
+      <el-link
+        @click="logout()"
+        style="position: absolute; top: 0px; right: 20px"
+        type="primary"
+        >退出</el-link
+      >
     </el-header>
     <el-container>
       <!-- 页面左侧菜单 -->
@@ -52,6 +58,9 @@
               <i class="el-icon-view"></i>查看日报
             </el-menu-item>
           </el-submenu>
+          <el-menu-item index="personalpage">
+            <i class="el-icon-setting"></i>个人中心
+          </el-menu-item>
         </el-menu>
       </el-aside>
 
@@ -88,6 +97,15 @@ export default {
   methods: {
     initpermissions() {
       this.permissions = sessionStorage.getItem("permissions");
+    },
+    logout() {
+      this.$confirm("确认退出？")
+        .then((_) => {
+          this.$router.push({ path: "/" });
+        })
+        .catch((_) => {
+          return;
+        });
     },
   },
 };

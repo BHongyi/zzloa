@@ -82,7 +82,7 @@
           </el-table-column>
           <el-table-column prop="worktime" label="工时(单位:h)" width="180">
           </el-table-column>
-          <el-table-column prop="workcontent" label="工作内容" style="width:40%;">
+          <el-table-column prop="workcontent" label="工作内容" width="300">
           </el-table-column>
         </el-table>
       <span slot="footer" class="dialog-footer">

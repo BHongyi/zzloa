@@ -46,7 +46,6 @@ label.el-checkbox.rememberme {
 }
 </style>
 <script>
-//这是test
 import axios from "../utils/httpRequest";
 import CryptoJS from "crypto-js";
 export default {

@@ -25,6 +25,7 @@
   </div>
 </template>
 <script>
+//这是main
 import axios from "../utils/httpRequest";
 export default {
   name: "Login",

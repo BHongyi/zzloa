@@ -1,8 +1,20 @@
 <template>
   <div>
     <el-row>
-      <el-button @click="dialogVisible = true" v-if="this.permissions.indexOf('000002') != -1"><i class="el-icon-plus"></i>新建</el-button>
-      <el-button type="danger" @click="deleteuser()" v-if="this.permissions.indexOf('000003') != -1"><i class="el-icon-delete"></i>删除</el-button>
+      <el-button
+        @click="
+          dialogVisible = true;
+          clearcreateuserform();
+        "
+        v-if="this.permissions.indexOf('000002') != -1"
+        ><i class="el-icon-plus"></i>新建</el-button
+      >
+      <el-button
+        type="danger"
+        @click="deleteuser()"
+        v-if="this.permissions.indexOf('000003') != -1"
+        ><i class="el-icon-delete"></i>删除</el-button
+      >
     </el-row>
     <el-table
       :data="
@@ -20,46 +32,28 @@
       </el-table-column>
       <el-table-column prop="positiontype" label="岗位类别" width="180">
         <template slot-scope="scope">
-          <span v-if="scope.row.positiontype == 1">开发岗</span> 
-          <span v-else-if="scope.row.positiontype == 2">销售岗</span> 
-          <span v-else-if="scope.row.positiontype == 3">管理岗</span> 
-          <span v-else>其他岗</span> 
+          <span v-if="scope.row.positiontype == 1">开发岗</span>
+          <span v-else-if="scope.row.positiontype == 2">销售岗</span>
+          <span v-else-if="scope.row.positiontype == 3">管理岗</span>
+          <span v-else>其他岗</span>
         </template>
       </el-table-column>
       <el-table-column prop="phone" label="电话" width="180"> </el-table-column>
       <el-table-column prop="email" label="邮件" width="180"> </el-table-column>
-      <!-- </el-table-column> -->
-      <el-table-column
-        prop="is_active"
-        label="是否激活"
-        width="100"
-        :filters="[
-          { text: '是', value: 1 },
-          { text: '否', value: 0 },
-        ]"
-        :filter-method="filterTag"
-        filter-placement="bottom-end"
-      >
-        <template slot-scope="scope">
-          <el-tag
-            :type="scope.row.is_active === 1 ? 'success' : 'danger'"
-            disable-transitions
-            v-if="scope.row.is_active == 1"
-            >是</el-tag
-          >
-          <el-tag
-            :type="scope.row.is_active === 1 ? 'success' : 'danger'"
-            disable-transitions
-            v-else
-            >否</el-tag
-          >
-        </template>
-      </el-table-column>
       <el-table-column prop="createtime" label="创建日期" width="180">
+        <template slot-scope="scope">{{
+          scope.row.createtime | dateYMDHMSFormat
+        }}</template>
       </el-table-column>
       <el-table-column prop="updatetime" label="更新日期" width="180">
+        <template slot-scope="scope">{{
+          scope.row.updatetime | dateYMDHMSFormat
+        }}</template>
       </el-table-column>
-      <el-table-column v-if="this.permissions.indexOf('000004') != -1" label="操作">
+      <el-table-column
+        v-if="this.permissions.indexOf('000004') != -1"
+        label="操作"
+      >
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
             ><i class="el-icon-edit"></i>修改</el-button
@@ -90,22 +84,53 @@
       <el-form
         name="createuserform"
         :label-position="labelPosition"
-        label-width="80px"
+        label-width="90px"
         :model="createformdata"
+        ref="createuserform"
       >
-        <el-form-item label="姓名">
+        <el-form-item
+          label="姓名"
+          prop="name"
+          :rules="[
+            { required: true, message: '姓名不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="createformdata.name"></el-input>
         </el-form-item>
-        <el-form-item label="用户名">
+        <el-form-item
+          label="用户名"
+          prop="username"
+          :rules="[
+            { required: true, message: '用户名不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="createformdata.username"></el-input>
         </el-form-item>
-        <el-form-item label="电话">
+        <el-form-item
+          label="电话"
+          prop="phone"
+          :rules="[
+            { required: true, message: '电话不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="createformdata.phone"></el-input>
         </el-form-item>
-        <el-form-item label="邮件">
+        <el-form-item
+          label="邮件"
+          prop="email"
+          :rules="[
+            { required: true, message: '邮件不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="createformdata.email"></el-input>
         </el-form-item>
-        <el-form-item label="岗位类别">
+        <el-form-item
+          label="岗位类别"
+          prop="positiontype"
+          :rules="[
+            { required: true, message: '岗位类别不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-select v-model="createformdata.positiontype" placeholder="请选择">
             <el-option
               v-for="item in positiontypeData"
@@ -133,22 +158,44 @@
       <el-form
         name="edituserform"
         :label-position="labelPosition"
-        label-width="80px"
+        label-width="90px"
         :model="editformdata"
+        ref="edituserform"
       >
-        <el-form-item label="姓名">
+        <el-form-item
+          label="姓名"
+          prop="name"
+          :rules="[
+            { required: true, message: '姓名不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="editformdata.name"></el-input>
         </el-form-item>
-        <el-form-item label="电话">
+        <el-form-item
+          label="电话"
+          prop="phone"
+          :rules="[
+            { required: true, message: '电话不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="editformdata.phone"></el-input>
         </el-form-item>
-        <el-form-item label="邮件">
+        <el-form-item
+          label="邮件"
+          prop="email"
+          :rules="[
+            { required: true, message: '邮件不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="editformdata.email"></el-input>
         </el-form-item>
-        <el-form-item label="是否激活">
-          <el-input v-model="editformdata.isactive"></el-input>
-        </el-form-item>
-        <el-form-item label="岗位类别">
+        <el-form-item
+          label="岗位类别"
+          prop="positiontype"
+          :rules="[
+            { required: true, message: '岗位类别不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-select v-model="editformdata.positiontype" placeholder="请选择">
             <el-option
               v-for="item in positiontypeData"
@@ -179,7 +226,7 @@ export default {
   data() {
     return {
       limitePage: {
-        limit: 5,
+        limit: 10,
         page: 1,
       },
       tableData: [],
@@ -194,20 +241,20 @@ export default {
         email: "",
         isactive: 1,
         id: 0,
-        positiontype:0
+        positiontype: 0,
       },
       createformdata: {
         name: "",
         username: "",
         phone: "",
         email: "",
-        positiontype:null
+        positiontype: null,
       },
     };
   },
-  props:{
-    permissions: String
-    },
+  props: {
+    permissions: String,
+  },
   mounted: function () {
     //console.log(this.permissions);
     this.initusers(); //需要触发的函数
@@ -224,7 +271,7 @@ export default {
         this.total = res.data.length;
       });
     },
-    positiontypes(){
+    positiontypes() {
       axios({
         url: "usermanage/get_positiontypes/",
         method: "get",
@@ -251,38 +298,36 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
+    clearcreateuserform() {
+      this.$refs["createuserform"].clearValidate();
+      this.createformdata.name = "";
+      this.createformdata.username = "";
+      this.createformdata.phone = "";
+      this.createformdata.email = "";
+      this.createformdata.positiontype = null;
+    },
     createuser() {
-      if (this.createformdata.name == "") {
-        alert("请输入名字");
-        return;
-      }
-      if (this.createformdata.username == "") {
-        alert("请输入用户名");
-        return;
-      }
-      if (this.createformdata.phone == "") {
-        alert("请输入电话");
-        return;
-      }
-      if (this.createformdata.email == "") {
-        alert("请输入邮件");
-        return;
-      }
+      this.$refs["createuserform"].validate((valid) => {
+        if (valid) {
+          let param = new URLSearchParams();
+          param.append("name", this.createformdata.name);
+          param.append("username", this.createformdata.username);
+          param.append("phone", this.createformdata.phone);
+          param.append("email", this.createformdata.email);
+          param.append("positiontype", this.createformdata.positiontype);
 
-      let param = new URLSearchParams();
-      param.append("name", this.createformdata.name);
-      param.append("username", this.createformdata.username);
-      param.append("phone", this.createformdata.phone);
-      param.append("email", this.createformdata.email);
-      param.append("positiontype", this.createformdata.positiontype);
-
-      axios({
-        url: "usermanage/create_user/",
-        method: "post",
-        data: param,
-      }).then((res) => {
-        this.dialogVisible = false;
-        this.initusers();
+          axios({
+            url: "usermanage/create_user/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            this.dialogVisible = false;
+            this.initusers();
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
       });
     },
     deleteuser() {
@@ -312,21 +357,28 @@ export default {
       }
     },
     edituser() {
-      let param = new URLSearchParams();
-      param.append("name", this.editformdata.name);
-      param.append("id", this.editformdata.id);
-      param.append("phone", this.editformdata.phone);
-      param.append("email", this.editformdata.email);
-      param.append("isactive", this.editformdata.isactive);
-      param.append("positiontype", this.editformdata.positiontype);
+      this.$refs["edituserform"].validate((valid) => {
+        if (valid) {
+          let param = new URLSearchParams();
+          param.append("name", this.editformdata.name);
+          param.append("id", this.editformdata.id);
+          param.append("phone", this.editformdata.phone);
+          param.append("email", this.editformdata.email);
+          param.append("isactive", this.editformdata.isactive);
+          param.append("positiontype", this.editformdata.positiontype);
 
-      axios({
-        url: "usermanage/edit_user/",
-        method: "post",
-        data: param,
-      }).then((res) => {
-        this.initusers();
-        this.editDialogVisible = false;
+          axios({
+            url: "usermanage/edit_user/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            this.initusers();
+            this.editDialogVisible = false;
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
       });
     },
     handleEdit(index, row) {

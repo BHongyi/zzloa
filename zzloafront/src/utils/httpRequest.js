@@ -3,7 +3,7 @@ import axios from 'axios'
 // 创建 axios 实例
 const http = axios.create({
     // 统一 url 配置，定义访问前缀 baseURL
-    baseURL: 'http://127.0.0.1:8000', 
+    baseURL: 'http://127.0.0.1:8082', 
     //baseURL: 'https://localhost:44320',
     timeout: 50000,
     // 定义消息头

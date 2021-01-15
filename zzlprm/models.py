@@ -133,6 +133,82 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
+class TbBusiness(models.Model):
+    businessid = models.AutoField(primary_key=True)
+    businessname = models.CharField(max_length=100)
+    clientid = models.IntegerField()
+    contactid = models.IntegerField()
+    status = models.IntegerField()
+    description = models.CharField(max_length=200, blank=True, null=True)
+    possibility = models.FloatField(blank=True, null=True)
+    budget = models.DecimalField(max_digits=10, decimal_places=0, blank=True, null=True)
+    lossreason = models.CharField(max_length=200, blank=True, null=True)
+    owner = models.IntegerField(blank=True, null=True)
+    writer = models.IntegerField()
+    finishtime = models.DateTimeField(blank=True, null=True)
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_business'
+
+
+class TbBusinessUser(models.Model):
+    business_user_id = models.AutoField(primary_key=True)
+    businessid = models.IntegerField()
+    userid = models.IntegerField()
+    ismanager = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_business_user'
+
+
+class TbClient(models.Model):
+    clientid = models.AutoField(primary_key=True)
+    companyname = models.CharField(max_length=100)
+    clienttype = models.IntegerField()
+    staff = models.IntegerField()
+    owner = models.CharField(max_length=50, blank=True, null=True)
+    description = models.CharField(max_length=200, blank=True, null=True)
+    scale = models.IntegerField(blank=True, null=True)
+    profession = models.CharField(max_length=50, blank=True, null=True)
+    website = models.CharField(max_length=100, blank=True, null=True)
+    fax = models.CharField(max_length=50, blank=True, null=True)
+    email = models.CharField(max_length=50, blank=True, null=True)
+    address = models.CharField(max_length=200, blank=True, null=True)
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_client'
+
+
+class TbContact(models.Model):
+    contactid = models.AutoField(primary_key=True)
+    contactname = models.CharField(max_length=50)
+    position = models.CharField(max_length=50, blank=True, null=True)
+    description = models.CharField(max_length=200, blank=True, null=True)
+    clientid = models.IntegerField()
+    ismanager = models.IntegerField()
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    telephone = models.CharField(max_length=50, blank=True, null=True)
+    email = models.CharField(max_length=50, blank=True, null=True)
+    wx = models.CharField(max_length=50, blank=True, null=True)
+    fax = models.CharField(max_length=50, blank=True, null=True)
+    sex = models.CharField(max_length=10, blank=True, null=True)
+    age = models.IntegerField(blank=True, null=True)
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_contact'
+
+
 class TbDailypaper(models.Model):
     dailypaperid = models.AutoField(primary_key=True)
     userid = models.IntegerField()
@@ -178,6 +254,28 @@ class TbDict(models.Model):
     class Meta:
         managed = False
         db_table = 'tb_dict'
+
+
+class TbFlow(models.Model):
+    flowid = models.AutoField(primary_key=True)
+    flowno = models.IntegerField(unique=True)
+    flowname = models.CharField(max_length=50)
+    remark = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tb_flow'
+
+
+class TbFlownode(models.Model):
+    flownodeid = models.AutoField(primary_key=True)
+    flowno = models.IntegerField()
+    flownodename = models.CharField(max_length=50)
+    flownodetype = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_flownode'
 
 
 class TbGroup(models.Model):

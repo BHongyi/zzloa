@@ -94,14 +94,14 @@
 
 <style>
 .el-badge__content.is-fixed {
-  top: 5px;
-  right: 5px;
+  top: 5px !important;
+  right: 5px !important;
 }
 .el-badge__content {
-  font-size: 6px;
-  height: 10px;
-  line-height: 12px;
-  padding: 0 2px;
+  font-size: 6px !important;
+  height: 10px !important;
+  line-height: 12px !important;
+  padding: 0 2px !important;
 }
 
 .custom-tree-node {

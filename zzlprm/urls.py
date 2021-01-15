@@ -8,6 +8,7 @@ from zzlprm import Login
 from zzlprm import ProjectManage
 from zzlprm import DailyPaper
 from zzlprm import PersonalPage
+from zzlprm import ClientManage
 
 urlpatterns = [
     path('login/login/', Login.login),
@@ -60,6 +61,20 @@ urlpatterns = [
     path('dailypaper/get_organization/', DailyPaper.get_organization),
     path('dailypaper/load_userdailypaper/', DailyPaper.load_userdailypaper),
     path('dailypaper/read_dailypaperdetail/', DailyPaper.read_dailypaperdetail),
+    path('dailypaper/get_dailypaperbyid/', DailyPaper.get_dailypaperbyid),
+    path('dailypaper/edit_dailypaper/', DailyPaper.edit_dailypaper),
 
     path('personalpage/edit_password/', PersonalPage.edit_password),
+
+    path('clientmanage/get_clients/', ClientManage.get_clients),
+    path('clientmanage/get_clienttypes/', ClientManage.get_clienttypes),
+    path('clientmanage/create_client/', ClientManage.create_client),
+    path('clientmanage/get_client_byid/', ClientManage.get_client_byid),
+    path('clientmanage/edit_client/', ClientManage.edit_client),
+    path('clientmanage/delete_client/', ClientManage.delete_client),
+    path('clientmanage/get_contacts/', ClientManage.get_contacts),
+    path('clientmanage/create_contact/', ClientManage.create_contact),
+    path('clientmanage/get_contact_byid/', ClientManage.get_contact_byid),
+    path('clientmanage/edit_contact/', ClientManage.edit_contact),
+    path('clientmanage/delete_contact/', ClientManage.delete_contact),
 ]

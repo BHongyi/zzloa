@@ -41,6 +41,15 @@
             <i class="el-icon-user-solid"></i>角色管理
           </el-menu-item>
           <el-menu-item
+            index="clientmanage"
+            v-if="this.permissions.indexOf('000030') != -1"
+          >
+            <i class="el-icon-s-custom"></i>客户管理
+          </el-menu-item>
+          <el-menu-item index="businessmanage">
+            <i class="el-icon-s-opportunity"></i>商机管理
+          </el-menu-item>
+          <el-menu-item
             index="projectmanage"
             v-if="this.permissions.indexOf('000025') != -1"
           >

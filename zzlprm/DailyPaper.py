@@ -120,6 +120,14 @@ def create_dailypaper(request):
     createtime = datetime.datetime.now()
     updatetime = datetime.datetime.now()
 
+    sqldatecheck = "SELECT * FROM tb_dailypaper "\
+    "where dailypaperdate = %s "\
+    "and userid = %s"
+    cursor.execute(sqldatecheck,[json_data.get("dailypaperdate").split("T")[0],userid])
+    if len(dictfetchall(cursor))>0:
+        return HttpResponse("一天只能提交一个日报")
+
+
     d = TbDailypaper.objects.create(
             userid = userid,
             dailypaperdate = dailypaperdate,
@@ -251,6 +259,82 @@ def read_dailypaperdetail(request):
             readtime = datetime.datetime.now()
             )
     return JsonResponse(dailypaper, safe=False)
+
+@api_view(['GET','POST'])
+def get_dailypaperbyid(request):
+    dailypaperid = request.POST.get("dailypaperid")
+
+    cursor=connection.cursor()
+    sql = "select * from ( "\
+        "select tb_dailypaper.*,GROUP_CONCAT(auth_user.name) as receptionists,GROUP_CONCAT(auth_user.id) as receptionistids from tb_dailypaper "\
+        "LEFT JOIN tb_dailypaper_user "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+        "LEFT JOIN auth_user "\
+        "on tb_dailypaper_user.userid = auth_user.id "\
+        "GROUP BY tb_dailypaper.dailypaperid) a "\
+        "LEFT JOIN (select tb_dailypaperdetail.*,CONCAT(tb_project.projectname,'-',tb_projectschedule.schedulename)  "\
+        "as projectname from tb_dailypaperdetail "\
+        "LEFT JOIN tb_projectschedule "\
+        "on tb_dailypaperdetail.projectscheduleid = tb_projectschedule.projectscheduleid "\
+        "LEFT JOIN tb_project "\
+        "on tb_projectschedule.projectid = tb_project.projectid) b "\
+        "ON a.dailypaperid = b.dailypaperid "\
+        "where a.dailypaperid = %s"
+    cursor.execute(sql,[dailypaperid])
+    dailypaper = dictfetchall(cursor)
+
+    return JsonResponse(dailypaper, safe=False)
+
+@api_view(['GET','POST'])
+def edit_dailypaper(request):
+    data = request.body.decode("utf-8")
+    json_data = json.loads(data)
+
+    checkeduser = json_data.get("checkeduser")
+    dailypaperdate = datetime.datetime.strptime(json_data.get("dailypaperdate").split("T")[0],'%Y-%m-%d')
+    contents = json_data.get("tableData")
+    updatetime = datetime.datetime.now()
+    dailypaperid = json_data.get("dailypaperid")
+
+    username = request.user.username
+    cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    userid = dictfetchall(cursor)[0]["id"]
+
+    sqldatecheck = "SELECT * FROM tb_dailypaper "\
+    "where dailypaperdate = %s "\
+    "and userid = %s"
+    cursor.execute(sqldatecheck,[json_data.get("dailypaperdate").split("T")[0],userid])
+    dp = dictfetchall(cursor)
+    if len(dp)>0 and dp[0]["dailypaperid"] != dailypaperid:
+        return HttpResponse("一天只能提交一个日报")
+
+    TbDailypaper.objects.filter(dailypaperid=int(dailypaperid)).update(
+            dailypaperdate = dailypaperdate,
+            updatetime = updatetime
+        )
+    
+    TbDailypaperUser.objects.filter(dailypaperid=dailypaperid).delete()
+    for i in range(0,len(checkeduser)):
+        TbDailypaperUser.objects.create(
+            dailypaperid = dailypaperid,
+            userid = checkeduser[i],
+            isread = 0
+        )
+    
+    TbDailypaperdetail.objects.filter(dailypaperid=dailypaperid).delete()
+    for j in range(0,len(contents)):
+        projectscheduleid = contents[j].get("projectscheduleid")
+        worktime = contents[j].get("worktime")
+        workcontent = contents[j].get("workcontent")
+        TbDailypaperdetail.objects.create(
+            dailypaperid = dailypaperid,
+            projectscheduleid = projectscheduleid,
+            worktime = worktime,
+            workcontent = workcontent
+        )
+    return HttpResponse("OK")
 
 def list_to_tree(data):
     out = { 

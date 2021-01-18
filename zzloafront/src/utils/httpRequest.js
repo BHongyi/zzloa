@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import axios from 'axios'
+import {showFullScreenLoading, tryHideFullScreenLoading} from './axiosHelperLoading'
 // 创建 axios 实例
 const http = axios.create({
     // 统一 url 配置，定义访问前缀 baseURL
@@ -21,6 +22,7 @@ http.interceptors.request.use(
         if(sessionStorage.getItem('token') != undefined){
             config.headers.Authorization = 'JWT ' + sessionStorage.getItem('token');
         }
+        showFullScreenLoading();
         return config
     },
     error => { 
@@ -49,6 +51,7 @@ http.interceptors.response.use(
                 name: '404'
             })
         }
+        tryHideFullScreenLoading();
         return response
     },
     error => {

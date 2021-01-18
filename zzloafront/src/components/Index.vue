@@ -46,7 +46,8 @@
           >
             <i class="el-icon-s-custom"></i>客户管理
           </el-menu-item>
-          <el-menu-item index="businessmanage">
+          <el-menu-item index="businessmanage"
+          v-if="this.permissions.indexOf('000035') != -1">
             <i class="el-icon-s-opportunity"></i>商机管理
           </el-menu-item>
           <el-menu-item

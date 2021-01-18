@@ -136,8 +136,6 @@ class DjangoSession(models.Model):
 class TbBusiness(models.Model):
     businessid = models.AutoField(primary_key=True)
     businessname = models.CharField(max_length=100)
-    clientid = models.IntegerField()
-    contactid = models.IntegerField()
     status = models.IntegerField()
     description = models.CharField(max_length=200, blank=True, null=True)
     possibility = models.FloatField(blank=True, null=True)
@@ -152,6 +150,28 @@ class TbBusiness(models.Model):
     class Meta:
         managed = False
         db_table = 'tb_business'
+
+
+class TbBusinessClient(models.Model):
+    business_client_id = models.AutoField(primary_key=True)
+    businessid = models.IntegerField()
+    clientid = models.IntegerField()
+    ismanager = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_business_client'
+
+
+class TbBusinessContact(models.Model):
+    business_contact_id = models.AutoField(primary_key=True)
+    businessid = models.IntegerField()
+    contactid = models.IntegerField()
+    ismanager = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_business_contact'
 
 
 class TbBusinessUser(models.Model):

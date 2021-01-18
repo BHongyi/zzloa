@@ -9,6 +9,7 @@ from zzlprm import ProjectManage
 from zzlprm import DailyPaper
 from zzlprm import PersonalPage
 from zzlprm import ClientManage
+from zzlprm import BusinessManage
 
 urlpatterns = [
     path('login/login/', Login.login),
@@ -77,4 +78,12 @@ urlpatterns = [
     path('clientmanage/get_contact_byid/', ClientManage.get_contact_byid),
     path('clientmanage/edit_contact/', ClientManage.edit_contact),
     path('clientmanage/delete_contact/', ClientManage.delete_contact),
+
+    path('businessmanage/get_businesses/', BusinessManage.get_businesses),
+    path('businessmanage/get_statuses/', BusinessManage.get_statuses),
+    path('businessmanage/create_business/', BusinessManage.create_business),
+    path('businessmanage/get_business_byid/', BusinessManage.get_business_byid),
+    path('businessmanage/get_contacts/', BusinessManage.get_contacts),
+    path('businessmanage/edit_business/', BusinessManage.edit_business),
+    path('businessmanage/delete_business/', BusinessManage.delete_business),
 ]

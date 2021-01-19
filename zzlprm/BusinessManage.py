@@ -3,6 +3,7 @@ from zzlprm.models import TbBusiness
 from zzlprm.models import TbBusinessClient
 from zzlprm.models import TbBusinessContact
 from zzlprm.models import TbBusinessUser
+from zzlprm.models import TbProject
 from zzlprm.Common import dictfetchall
 
 from django.http import HttpResponse,JsonResponse
@@ -33,7 +34,7 @@ def get_businesses(request):
 "GROUP BY a.businessid) b "\
 "LEFT JOIN tb_business_user "\
 "on b.businessid = tb_business_user.businessid "\
-"where tb_business_user.ismanager = 1 "\
+"GROUP BY b.businessid "\
 "order by b.updatetime desc"
     cursor.execute(sql)
     businesses = dictfetchall(cursor)
@@ -185,5 +186,42 @@ def delete_business(request):
         TbBusinessClient.objects.filter(businessid=delete_ids_list[i]).delete()
         TbBusinessContact.objects.filter(businessid=delete_ids_list[i]).delete()
         TbBusinessUser.objects.filter(businessid=delete_ids_list[i]).delete()
+
+    return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def end_business(request):
+    data = request.body.decode("utf-8")
+    json_data = json.loads(data)
+
+    status = json_data.get("status")
+    transtoproject = json_data.get("transtoproject")
+    businessid = json_data.get("businessid")
+    lossreason = json_data.get("lossreason")
+    projectname = json_data.get("projectname")
+    projecttype = json_data.get("projecttype")
+    description = json_data.get("description")
+    
+    if status == "0":
+        TbBusiness.objects.filter(businessid=json_data.get("businessid")).update(
+            status = 5,
+            lossreason = lossreason,
+            finishtime = datetime.datetime.now(),
+            updatetime = datetime.datetime.now()
+        )
+    else:
+        TbBusiness.objects.filter(businessid=json_data.get("businessid")).update(
+            status = 4,
+            finishtime = datetime.datetime.now(),
+            updatetime = datetime.datetime.now()
+        )
+        if transtoproject == "1":
+            TbProject.objects.create(
+                projectname = projectname,
+                description = description,
+                typeid = projecttype,
+                createtime = datetime.datetime.now(),
+                updatetime = datetime.datetime.now()
+                )
 
     return HttpResponse("OK")

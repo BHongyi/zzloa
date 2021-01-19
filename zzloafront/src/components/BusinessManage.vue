@@ -327,14 +327,14 @@
             <el-option label="获取商机" value="1"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="丢失原因" v-if="lossoption" prop="lossreason">
+        <el-form-item label="丢失原因" v-if="endbusinessformdata.lossoption" prop="lossreason">
           <el-input
             type="textarea"
             v-model="endbusinessformdata.lossreason"
           ></el-input>
         </el-form-item>
 
-        <el-form-item label="是否自动转为项目" v-if="getoption" prop="status">
+        <el-form-item label="是否自动转为项目" v-if="endbusinessformdata.getoption" prop="status">
           <el-select v-model="endbusinessformdata.transtoproject" @change="transtoprojectchange()" placeholder="请选择">
             <el-option label="否" value="0"></el-option>
             <el-option label="是" value="1"></el-option>
@@ -344,7 +344,7 @@
         <el-form-item
           label="项目名"
           prop="projectname"
-          v-if="transtoproject"
+          v-if="endbusinessformdata.istranstoproject"
           :rules="[
             { required: true, message: '项目名不能为空', trigger: 'blur' },
           ]"
@@ -352,13 +352,13 @@
           <el-input v-model="endbusinessformdata.projectname"></el-input>
         </el-form-item>
 
-        <el-form-item label="项目描述" v-if="transtoproject" prop="description">
+        <el-form-item label="项目描述" v-if="endbusinessformdata.istranstoproject" prop="description">
           <el-input
             type="textarea"
             v-model="endbusinessformdata.description"
           ></el-input>
         </el-form-item>
-        <el-form-item label="项目类型" v-if="transtoproject" prop="projecttype" :rules="[
+        <el-form-item label="项目类型" v-if="endbusinessformdata.istranstoproject" prop="projecttype" :rules="[
             { required: true, message: '项目类型不能为空', trigger: 'blur' },
           ]">
           <el-select
@@ -407,9 +407,6 @@ export default {
       dialogVisible: false,
       editDialogVisible: false,
       endDialogVisible: false,
-      lossoption:false,
-      getoption:false,
-      transtoproject:false,
       labelPosition: "right",
       multipleSelection: [],
       editformdata: {
@@ -439,7 +436,11 @@ export default {
         description:"",
         lossreason:"",
         projectname:"",
-        projecttype:null
+        projecttype:null,
+        lossoption:false,
+        getoption:false,
+        istranstoproject:false,
+        businessid:null,
       },
     };
   },
@@ -618,16 +619,35 @@ export default {
       });
     },
     handleEnd(index, row) {
+      console.log(this.projecttypes);
+      this.endbusinessformdata.businessid = row.businessid
       this.endbusinessformdata.status = null;
-      this.endbusinessformdata.transtoproject = null;
+      this.endbusinessformdata.transtoproject = "0";
       this.endbusinessformdata.description = row.description;
       this.endbusinessformdata.lossreason = null;
       this.endbusinessformdata.projectname = row.businessname;
-      this.endbusinessformdata.projecttype = null;
-      this.lossoption = false;
-      this.getoption = false;
-      this.transtoproject = false;
+      this.endbusinessformdata.projecttype = 1;
+      this.endbusinessformdata.lossoption = false;
+      this.endbusinessformdata.getoption = false;
+      this.endbusinessformdata.istranstoproject = false;
       this.endDialogVisible = true;
+    },
+    endbusiness(){
+      this.$refs["endbusinessform"].validate((valid) => {
+        if (valid) {
+          axios({
+            url: "businessmanage/end_business/",
+            method: "post",
+            data: this.endbusinessformdata,
+          }).then((res) => {
+            this.endDialogVisible = false;
+            this.initbusinesses();
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
     },
     clientlistchange() {
       this.$forceUpdate();
@@ -655,20 +675,20 @@ export default {
     },
     endstatuschange(){
       if(this.endbusinessformdata.status == 0){
-        this.lossoption = true;
-        this.getoption = false;
+        this.endbusinessformdata.lossoption = true;
+        this.endbusinessformdata.getoption = false;
       }
       else{
-        this.lossoption = false;
-        this.getoption = true;
+        this.endbusinessformdata.lossoption = false;
+        this.endbusinessformdata.getoption = true;
       }
     },
     transtoprojectchange(){
       if(this.endbusinessformdata.transtoproject == 0){
-        this.transtoproject = false;
+        this.endbusinessformdata.istranstoproject = false;
       }
       else{
-        this.transtoproject = true;
+        this.endbusinessformdata.istranstoproject = true;
       }
     },
     editbusiness() {

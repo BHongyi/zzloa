@@ -265,6 +265,20 @@ class TbDailypaperdetail(models.Model):
         db_table = 'tb_dailypaperdetail'
 
 
+class TbDailypaperdetailSale(models.Model):
+    dailypaperdetail_saleid = models.AutoField(primary_key=True)
+    dailypaperid = models.IntegerField()
+    businessid = models.IntegerField(blank=True, null=True)
+    cost = models.DecimalField(max_digits=10, decimal_places=0, blank=True, null=True)
+    worktime = models.FloatField()
+    workcontent = models.CharField(max_length=1000, blank=True, null=True)
+    contactid = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tb_dailypaperdetail_sale'
+
+
 class TbDict(models.Model):
     dictid = models.AutoField(primary_key=True)
     type = models.IntegerField()

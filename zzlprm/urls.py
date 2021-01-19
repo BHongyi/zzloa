@@ -10,6 +10,7 @@ from zzlprm import DailyPaper
 from zzlprm import PersonalPage
 from zzlprm import ClientManage
 from zzlprm import BusinessManage
+from zzlprm import DailyPaperSale
 
 urlpatterns = [
     path('login/login/', Login.login),
@@ -86,4 +87,11 @@ urlpatterns = [
     path('businessmanage/get_contacts/', BusinessManage.get_contacts),
     path('businessmanage/edit_business/', BusinessManage.edit_business),
     path('businessmanage/delete_business/', BusinessManage.delete_business),
+    path('businessmanage/end_business/', BusinessManage.end_business),
+
+    path('dailypapersale/get_dailypapers/', DailyPaperSale.get_dailypapers),
+    path('dailypapersale/get_businesses/', DailyPaperSale.get_businesses),
+    path('dailypapersale/get_receptionists/', DailyPaperSale.get_receptionists),
+    path('dailypapersale/get_contacts/', DailyPaperSale.get_contacts),
+    path('dailypapersale/create_dailypaper/', DailyPaperSale.create_dailypaper),
 ]

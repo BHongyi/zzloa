@@ -1,5 +1,8 @@
 <template>
-  <div>首页</div>
+  <div>
+    <el-calendar v-model="value">
+    </el-calendar>
+    </div>
 </template>
 
 <style>
@@ -7,6 +10,11 @@
 
 <script>
 export default {
-  name: "Default"
+  name: "Default",
+  data() {
+      return {
+        value: new Date()
+      }
+  }
 };
 </script>

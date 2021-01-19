@@ -16,6 +16,9 @@
       <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
         <el-menu router>
           <!-- 开启菜单中的router=true之后，点击菜单会把index作为路由跳转路径 -->
+          <el-menu-item index="default">
+            <i class="el-icon-s-home"></i>首页
+          </el-menu-item>
           <el-menu-item
             index="usermanage"
             v-if="this.permissions.indexOf('000005') != -1"
@@ -56,18 +59,15 @@
           >
             <i class="el-icon-files"></i>项目管理
           </el-menu-item>
-          <el-submenu index="1">
-            <template slot="title">
-              <i class="el-icon-document"></i>
-              <span>日报管理</span>
-            </template>
-            <el-menu-item index="dailypaper">
+          <el-menu-item v-if="positiontype==2" index="dailypapersale">
               <i class="el-icon-edit"></i>填写日报
             </el-menu-item>
-            <el-menu-item index="readdailypaper">
+            <el-menu-item v-if="positiontype==1" index="dailypaper">
+              <i class="el-icon-edit"></i>填写日报
+            </el-menu-item>
+            <el-menu-item v-if="positiontype==3" index="readdailypaper">
               <i class="el-icon-view"></i>查看日报
             </el-menu-item>
-          </el-submenu>
           <el-menu-item index="personalpage">
             <i class="el-icon-setting"></i>个人中心
           </el-menu-item>
@@ -100,6 +100,7 @@ export default {
   data() {
     return {
       permissions: "",
+      positiontype:null
     };
   },
   mounted: function () {
@@ -108,6 +109,7 @@ export default {
   methods: {
     initpermissions() {
       this.permissions = sessionStorage.getItem("permissions");
+      this.positiontype = sessionStorage.getItem("positiontype");
     },
     logout() {
       this.$confirm("确认退出？")

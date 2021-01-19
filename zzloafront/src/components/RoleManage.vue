@@ -22,8 +22,14 @@
       <el-table-column prop="rolename" label="角色名" width="180">
       </el-table-column>
       <el-table-column prop="createtime" label="创建日期" width="180">
+        <template slot-scope="scope">{{
+          scope.row.createtime | dateYMDHMSFormat
+        }}</template>
       </el-table-column>
       <el-table-column prop="updatetime" label="更新日期" width="180">
+        <template slot-scope="scope">{{
+          scope.row.updatetime | dateYMDHMSFormat
+        }}</template>
       </el-table-column>
       <el-table-column v-if="this.permissions.indexOf('000019') != -1" label="操作">
         <template slot-scope="scope">

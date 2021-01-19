@@ -59,6 +59,7 @@ http.interceptors.response.use(
         if(error.response.status == 401){
             window.location.href='/'
         }
+        tryHideFullScreenLoading();
         return Promise.reject(error)
     }
 )

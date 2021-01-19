@@ -13,6 +13,7 @@ import ReadDailyPaper from '@/components/ReadDailyPaper'
 import PersonalPage from '@/components/PersonalPage'
 import ClientManage from '@/components/ClientManage'
 import BusinessManage from '@/components/BusinessManage'
+import DailyPaperSale from '@/components/DailyPaperSale'
 
 Vue.use(Router)
 const originalPush = Router.prototype.push
@@ -34,8 +35,13 @@ export default new Router({
       children: [
         {
           path: '/',
-          name: 'DailyPaper',
-          component: DailyPaper
+          name: 'Default',
+          component: Default
+        },
+        {
+          path: '/default',
+          name: 'Default',
+          component: Default
         },
         {
           path: '/usermanage',
@@ -87,6 +93,11 @@ export default new Router({
           path: '/businessmanage',
           name: 'BusinessManage',
           component: BusinessManage
+        },
+        {
+          path: '/dailypapersale',
+          name: 'DailyPaperSale',
+          component: DailyPaperSale
         }
       ]
     }

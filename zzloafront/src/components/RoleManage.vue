@@ -164,7 +164,7 @@ export default {
   data() {
     return {
       limitePage: {
-        limit: 5,
+        limit: 10,
         page: 1,
       },
       tableData: [],

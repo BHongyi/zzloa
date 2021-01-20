@@ -245,6 +245,173 @@
         <el-button type="primary" @click="submitdailypaper()">提交</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="修改日报" :visible.sync="editDialogVisible" width="850px">
+      <el-form
+        :model="editreturnjson"
+        label-position="left"
+        label-width="80px"
+        ref="editdailypaperForm"
+      >
+        <el-form-item
+          label="日期:"
+          prop="dailypaperdate"
+          :rules="[
+            {
+              required: true,
+              message: '日报日期不能为空',
+              trigger: 'blur',
+            },
+          ]"
+        >
+          <el-date-picker
+            v-model="editreturnjson.dailypaperdate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="选择日期"
+            :picker-options="pickerOptions"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item
+          label="商机:"
+          prop="businesses"
+          :rules="[
+            {
+              required: true,
+              message: '商机不能为空',
+              trigger: 'blur',
+            },
+          ]"
+        >
+          <el-select
+            v-model="editreturnjson.businesses"
+            multiple
+            placeholder="请选择商机"
+            style="width: 700px"
+            @change="editbusinesschange()"
+          >
+            <el-option
+              v-for="item in businesslist"
+              :key="item.businessid"
+              :label="item.businessname"
+              :value="item.businessid"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="接收人:"
+          prop="checkeduser"
+          :rules="[
+            {
+              required: true,
+              message: '接收人不能为空',
+              trigger: 'blur',
+            },
+          ]"
+        >
+          <el-select
+            v-model="editreturnjson.checkeduser"
+            multiple
+            placeholder="请选择收件人"
+            style="width: 700px"
+          >
+            <el-option
+              v-for="item in userlist"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-table
+          :data="editreturnjson.tableData"
+          empty-text="请选择项目"
+          style="width: 100%"
+        >
+          <el-table-column prop="businessname" label="商机名" width="180">
+          </el-table-column>
+          <el-table-column prop="worktime" label="工时(单位:h)" width="120">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.worktime'"
+                :rules="[
+                  {
+                    required: true,
+                    message: '工作内容不能为空',
+                    trigger: 'blur',
+                  },
+                ]"
+              >
+                <el-select v-model="scope.row.worktime" placeholder="请选择">
+                  <el-option
+                    v-for="item in timelist"
+                    :key="item.id"
+                    :value="item.id"
+                    :label="item.name"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </template>
+          </el-table-column>
+          <el-table-column prop="contactid" label="联系人" width="120">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.contactid'"
+              >
+                <el-select v-model="scope.row.contactid" placeholder="请选择">
+                  <el-option
+                    v-for="item in scope.row.contacts"
+                    :key="item.contactid"
+                    :value="item.contactid"
+                    :label="item.contactname"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </template>
+          </el-table-column>
+          <el-table-column prop="cost" width="120" label="费用(元)">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.cost'"
+              >
+                <el-input v-model="scope.row.cost"></el-input>
+              </el-form-item>
+            </template>
+          </el-table-column>
+          <el-table-column prop="workcontent" label="工作内容">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.workcontent'"
+                :rules="[
+                  {
+                    required: true,
+                    message: '工作内容不能为空',
+                    trigger: 'blur',
+                  },
+                ]"
+              >
+                <el-input
+                  v-model="scope.row.workcontent"
+                  type="textarea"
+                ></el-input>
+              </el-form-item>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submiteditdailypaper()"
+          >提交</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -260,7 +427,7 @@ export default {
       dialogVisible: false,
       editDialogVisible: false,
       limitePage: {
-        limit: 5,
+        limit: 10,
         page: 1,
       },
       tableData: [],
@@ -291,7 +458,7 @@ export default {
       ],
       businesslist: [],
       oldbusiness: [],
-      editoldprojectschedules: [],
+      editoldbusinesses: [],
       receptionists: "",
       userlist: [],
       returnjson: {
@@ -303,7 +470,7 @@ export default {
       editreturnjson: {
         dailypaperid: null,
         dailypaperdate: "",
-        projectschedules: [],
+        businesses: [],
         checkeduser: [],
         tableData: [],
       },
@@ -323,11 +490,11 @@ export default {
       }).then((res) => {
         this.tableData = res.data.dailypapers;
         this.tableDailypaperDetail = res.data.dailypaperdetails;
-        // this.tableDailypaperDetail.forEach((element) => {
-        //   if (element.businessid == -1) {
-        //     element.projectname = "自我学习";
-        //   }
-        // });
+        this.tableDailypaperDetail.forEach((element) => {
+          if (element.businessid == -1) {
+            element.businessname = "自我学习";
+          }
+        });
       });
     },
     initbusiness() {
@@ -364,6 +531,28 @@ export default {
     handleCurrentChange(val) {
       this.limitePage.page = val;
     },
+    submiteditdailypaper(){
+      this.$refs["editdailypaperForm"].validate((valid) => {
+        if (valid) {
+          axios({
+            url: "dailypapersale/edit_dailypaper/",
+            data: this.editreturnjson,
+            method: "post",
+          }).then((res) => {
+            if(res.data != "OK"){
+              alert(res.data);
+            }
+            else{
+              this.initdailypapers();
+              this.editDialogVisible = false;
+            }
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
     submitdailypaper() {
       this.$refs["dailypaperForm"].validate((valid) => {
         if (valid) {
@@ -372,10 +561,9 @@ export default {
             data: this.returnjson,
             method: "post",
           }).then((res) => {
-            if(res.data != "OK"){
+            if (res.data != "OK") {
               alert(res.data);
-            }
-            else{
+            } else {
               this.initdailypapers();
               this.dialogVisible = false;
             }
@@ -384,6 +572,134 @@ export default {
           console.log("error submit!!");
           return false;
         }
+      });
+    },
+    handleEdit(index, row) {
+      this.editreturnjson.dailypaperid = null;
+      this.editreturnjson.dailypaperdate = "";
+      this.editreturnjson.businesses = [];
+      this.editreturnjson.checkeduser = [];
+      this.editreturnjson.tableData = [];
+
+      this.editDialogVisible = true;
+      let param = new URLSearchParams();
+      param.append("dailypaperid", row.dailypaperid);
+      axios({
+        url: "dailypapersale/get_dailypaperbyid/",
+        data: param,
+        method: "post",
+      }).then((res) => {
+        //console.log(res.data);
+        this.editreturnjson.dailypaperid = res.data[0].dailypaperid;
+        this.editreturnjson.dailypaperdate = res.data[0].dailypaperdate.split(
+          "T"
+        )[0];
+        res.data.forEach((element) => {
+          if (element.businessid == -1) {
+            element.businessname = "自我学习";
+          }
+          this.editreturnjson.businesses.push(element.businessid);
+
+          let param = new URLSearchParams();
+            param.append("businessid", element.businessid);
+            axios({
+              url: "dailypapersale/get_contacts/",
+              method: "post",
+              data: param,
+            }).then((res) => {
+              element.contacts = res.data;
+              element.contacts.push({
+                contactid: null,
+                contactname: "无",
+                });
+              this.editreturnjson.tableData.push(element);
+            });
+
+        });
+
+        this.editoldbusinesses = this.editreturnjson.businesses;
+        res.data[0].receptionistids.split(",").forEach((element) => {
+          this.editreturnjson.checkeduser.push(parseInt(element));
+        });
+      });
+    },
+    editbusinesschange() {
+      //debugger
+      this.editoldbusinesses.forEach((element) => {
+        var flag = 0;
+        this.editreturnjson.businesses.forEach((element1) => {
+          if (element == element1) {
+            flag = 1;
+          }
+        });
+        if (flag == 0) {
+          var index = 0;
+          this.editreturnjson.tableData.forEach((element3) => {
+            if (element3.businessid == element) {
+              this.editreturnjson.tableData.splice(index, 1);
+            }
+            index++;
+          });
+        }
+      });
+      this.editoldbusinesses = this.editreturnjson.businesses;
+
+      this.editreturnjson.businesses.forEach((element) => {
+        if (document.getElementById("business_" + element) == null) {
+          var businessname = "";
+          this.businesslist.forEach((element1) => {
+            if (element == element1.businessid) {
+              businessname = element1.businessname;
+            }
+          });
+
+          var exist = 0;
+          this.editreturnjson.tableData.forEach((element2) => {
+            if (element == element2.businessid) {
+              exist = 1;
+            }
+          });
+
+          if (exist == 0) {
+            let param = new URLSearchParams();
+            param.append("businessid", element);
+            axios({
+              url: "dailypapersale/get_contacts/",
+              method: "post",
+              data: param,
+            }).then((res) => {
+              var node = {
+                businessid: element,
+                businessname: businessname,
+                worktime: null,
+                workcontent: null,
+                contacts: res.data,
+              };
+              this.editreturnjson.tableData.push(node);
+            });
+          }
+        }
+      });
+
+      this.editreturnjson.checkeduser = [];
+      let param = new URLSearchParams();
+      param.append("businessids", this.editreturnjson.businesses);
+      axios({
+        url: "dailypapersale/get_receptionists/",
+        method: "post",
+        data: param,
+      }).then((res) => {
+        res.data.forEach((element) => {
+          var flag = 0;
+          this.editreturnjson.checkeduser.forEach((element1) => {
+            if (element.userid == element1) {
+              flag = 1;
+            }
+          });
+          if (flag == 0) {
+            this.editreturnjson.checkeduser.push(element.userid);
+          }
+        });
       });
     },
     businesschange() {
@@ -428,7 +744,7 @@ export default {
             axios({
               url: "dailypapersale/get_contacts/",
               method: "post",
-              data:param,
+              data: param,
             }).then((res) => {
               var node = {
                 businessid: element,

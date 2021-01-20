@@ -223,7 +223,16 @@ def load_userdailypaper(request):
     cursor.execute(sql,[receptionistid,writerid])
     dailypapers = dictfetchall(cursor)
 
-    return JsonResponse(dailypapers, safe=False)
+    sql_getusertype = "select * from auth_user where id = "+ writerid +" "
+    cursor.execute(sql_getusertype)
+    positiontype = dictfetchall(cursor)[0]["positiontype"]
+
+    returnjson = {
+        'dailypapers':dailypapers,
+        'positiontype':positiontype
+    }
+
+    return JsonResponse(returnjson, safe=False)
 
 @api_view(['GET','POST'])
 def read_dailypaperdetail(request):

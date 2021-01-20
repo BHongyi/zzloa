@@ -170,3 +170,116 @@ def create_dailypaper(request):
             workcontent = workcontent
         )
     return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def get_dailypaperbyid(request):
+    dailypaperid = request.POST.get("dailypaperid")
+
+    cursor=connection.cursor()
+    sql = "select * from ( "\
+        "select tb_dailypaper.*,GROUP_CONCAT(auth_user.name) as receptionists,GROUP_CONCAT(auth_user.id) as receptionistids from tb_dailypaper "\
+        "LEFT JOIN tb_dailypaper_user "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+        "LEFT JOIN auth_user "\
+        "on tb_dailypaper_user.userid = auth_user.id "\
+        "GROUP BY tb_dailypaper.dailypaperid) a "\
+        "LEFT JOIN ( "\
+        "select tb_dailypaperdetail_sale.*,tb_business.businessname  "\
+        "from tb_dailypaperdetail_sale "\
+        "LEFT JOIN tb_business "\
+        "on tb_dailypaperdetail_sale.businessid = tb_business.businessid "\
+        ") b "\
+        "ON a.dailypaperid = b.dailypaperid  "\
+        "where a.dailypaperid = %s"
+    cursor.execute(sql,[dailypaperid])
+    dailypaper = dictfetchall(cursor)
+
+    return JsonResponse(dailypaper, safe=False)
+
+@api_view(['GET','POST'])
+def edit_dailypaper(request):
+    data = request.body.decode("utf-8")
+    json_data = json.loads(data)
+
+    checkeduser = json_data.get("checkeduser")
+    dailypaperdate = datetime.datetime.strptime(json_data.get("dailypaperdate").split("T")[0],'%Y-%m-%d')
+    contents = json_data.get("tableData")
+    updatetime = datetime.datetime.now()
+    dailypaperid = json_data.get("dailypaperid")
+
+    username = request.user.username
+    cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    userid = dictfetchall(cursor)[0]["id"]
+
+    sqldatecheck = "SELECT * FROM tb_dailypaper "\
+    "where dailypaperdate = %s "\
+    "and userid = %s"
+    cursor.execute(sqldatecheck,[json_data.get("dailypaperdate").split("T")[0],userid])
+    dp = dictfetchall(cursor)
+    if len(dp)>0 and dp[0]["dailypaperid"] != dailypaperid:
+        return HttpResponse("一天只能提交一个日报")
+
+    TbDailypaper.objects.filter(dailypaperid=int(dailypaperid)).update(
+            dailypaperdate = dailypaperdate,
+            updatetime = updatetime
+        )
+    
+    TbDailypaperUser.objects.filter(dailypaperid=dailypaperid).delete()
+    for i in range(0,len(checkeduser)):
+        TbDailypaperUser.objects.create(
+            dailypaperid = dailypaperid,
+            userid = checkeduser[i],
+            isread = 0
+        )
+    
+    TbDailypaperdetailSale.objects.filter(dailypaperid=dailypaperid).delete()
+    for j in range(0,len(contents)):
+        businessid = contents[j].get("businessid")
+        worktime = contents[j].get("worktime")
+        workcontent = contents[j].get("workcontent")
+        cost = contents[j].get("cost")
+        contactid = contents[j].get("contactid")
+        TbDailypaperdetailSale.objects.create(
+            dailypaperid = dailypaperid,
+            businessid = businessid,
+            worktime = worktime,
+            workcontent = workcontent,
+            cost = cost,
+            contactid = contactid
+        )
+    return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def read_dailypaperdetail(request):
+    dailypaperid = request.POST.get("dailypaperid")
+
+    cursor=connection.cursor()
+    sql = "select * from ( "\
+        "select tb_dailypaper.*,GROUP_CONCAT(auth_user.name) as receptionists from tb_dailypaper "\
+        "LEFT JOIN tb_dailypaper_user "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+        "LEFT JOIN auth_user "\
+        "on tb_dailypaper_user.userid = auth_user.id "\
+        "GROUP BY tb_dailypaper.dailypaperid) a "\
+        "LEFT JOIN (select tb_dailypaperdetail_sale.*,tb_business.businessname "\
+        "from tb_dailypaperdetail_sale "\
+        "LEFT JOIN tb_business "\
+        "on tb_dailypaperdetail_sale.businessid = tb_business.businessid ) b "\
+        "ON a.dailypaperid = b.dailypaperid "\
+        "where a.dailypaperid = %s"
+    cursor.execute(sql,[dailypaperid])
+    dailypaper = dictfetchall(cursor)
+
+    username = request.user.username
+    cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    readuserid = dictfetchall(cursor)[0]["id"]
+
+    TbDailypaperUser.objects.filter(Q(dailypaperid=int(dailypaperid)) & Q(userid=int(readuserid))).update(
+            isread = 1,
+            readtime = datetime.datetime.now()
+            )
+    return JsonResponse(dailypaper, safe=False)

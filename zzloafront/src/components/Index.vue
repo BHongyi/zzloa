@@ -65,7 +65,7 @@
             <el-menu-item v-if="positiontype==1" index="dailypaper">
               <i class="el-icon-edit"></i>填写日报
             </el-menu-item>
-            <el-menu-item v-if="positiontype==3" index="readdailypaper">
+            <el-menu-item v-if="this.permissions.indexOf('000037') != -1" index="readdailypaper">
               <i class="el-icon-view"></i>查看日报
             </el-menu-item>
           <el-menu-item index="personalpage">

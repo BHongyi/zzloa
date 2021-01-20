@@ -386,7 +386,7 @@ export default {
       dialogVisible: false,
       editDialogVisible:false,
       limitePage: {
-        limit: 5,
+        limit: 10,
         page: 1,
       },
       tableData: [],

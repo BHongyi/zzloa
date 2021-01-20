@@ -94,4 +94,7 @@ urlpatterns = [
     path('dailypapersale/get_receptionists/', DailyPaperSale.get_receptionists),
     path('dailypapersale/get_contacts/', DailyPaperSale.get_contacts),
     path('dailypapersale/create_dailypaper/', DailyPaperSale.create_dailypaper),
+    path('dailypapersale/get_dailypaperbyid/', DailyPaperSale.get_dailypaperbyid),
+    path('dailypapersale/edit_dailypaper/', DailyPaperSale.edit_dailypaper),
+    path('dailypapersale/read_dailypaperdetail/', DailyPaperSale.read_dailypaperdetail),
 ]

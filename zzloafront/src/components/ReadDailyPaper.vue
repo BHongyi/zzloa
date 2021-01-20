@@ -60,33 +60,62 @@
     </el-row>
 
     <el-dialog title="日报查看" :visible.sync="dialogVisible" width="40%">
-      <table style="margin-left:7px;">
+      <table style="margin-left: 7px">
         <tr>
           <td>接收人:</td>
-          <td>{{dailypaperdata.receptionists}}</td>
+          <td>{{ dailypaperdata.receptionists }}</td>
         </tr>
         <tr>
           <td>日报日期:</td>
-          <td>{{dailypaperdata.dailypaperdate | dateYMDHMSFormat}}</td>
+          <td>{{ dailypaperdata.dailypaperdate | dateYMDHMSFormat }}</td>
         </tr>
         <tr>
           <td>创建日期:</td>
-          <td>{{dailypaperdata.createdate}}</td>
+          <td>{{ dailypaperdata.createdate }}</td>
         </tr>
       </table>
-      <el-table
-          :data="dailypaperdetail"
-          style="width: 100%"
-        >
-          <el-table-column prop="projectname" label="项目-阶段名" width="180">
-          </el-table-column>
-          <el-table-column prop="worktime" label="工时(单位:h)" width="180">
-          </el-table-column>
-          <el-table-column prop="workcontent" label="工作内容" width="300">
-          </el-table-column>
-        </el-table>
+      <el-table :data="dailypaperdetail" style="width: 100%">
+        <el-table-column prop="projectname" label="项目-阶段名" width="180">
+        </el-table-column>
+        <el-table-column prop="worktime" label="工时(单位:h)" width="180">
+        </el-table-column>
+        <el-table-column prop="workcontent" label="工作内容" width="300">
+        </el-table-column>
+      </el-table>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">关 闭</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog title="日报查看" :visible.sync="saleDialogVisible" width="50%">
+      <table style="margin-left: 7px">
+        <tr>
+          <td>接收人:</td>
+          <td>{{ dailypaperdata.receptionists }}</td>
+        </tr>
+        <tr>
+          <td>日报日期:</td>
+          <td>{{ dailypaperdata.dailypaperdate | dateYMDHMSFormat }}</td>
+        </tr>
+        <tr>
+          <td>创建日期:</td>
+          <td>{{ dailypaperdata.createdate }}</td>
+        </tr>
+      </table>
+      <el-table :data="dailypaperdetail" style="width: 100%">
+        <el-table-column prop="businessname" label="商机名" width="180">
+        </el-table-column>
+        <el-table-column prop="worktime" label="工时(单位:h)" width="120">
+        </el-table-column>
+        <el-table-column prop="contactid" label="联系人" width="100">
+        </el-table-column>
+        <el-table-column prop="cost" label="费用(单位:元)" width="120">
+        </el-table-column>
+        <el-table-column prop="workcontent" label="工作内容" width="280">
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="saleDialogVisible = false">关 闭</el-button>
       </span>
     </el-dialog>
   </div>
@@ -123,20 +152,22 @@ export default {
   name: "ReadDailyPaper",
   data() {
     return {
-      dialogVisible:false,
+      dialogVisible: false,
+      saleDialogVisible:false,
       treeData: [],
       userlist: [],
+      positiontype: null,
       limitePage: {
-        limit: 5,
+        limit: 10,
         page: 1,
       },
       tableData: [],
-      dailypaperdata:{
-        receptionists:null,
-        dailypaperdate:"",
-        createdate:""
+      dailypaperdata: {
+        receptionists: null,
+        dailypaperdate: "",
+        createdate: "",
       },
-      dailypaperdetail:[],
+      dailypaperdetail: [],
     };
   },
   mounted: function () {
@@ -179,23 +210,50 @@ export default {
       let param = new URLSearchParams();
       param.append("dailypaperid", row.dailypaperid);
 
-      axios({
-        url: "dailypaper/read_dailypaperdetail/",
-        method: "post",
-        data: param,
-      }).then((res) => {
-        this.dialogVisible = true;
-        res.data.forEach(element => {
-          if(element.projectscheduleid == -1){
-            element.projectname = '自我学习';
-          }
+      if (this.positiontype == 1) {
+        axios({
+          url: "dailypaper/read_dailypaperdetail/",
+          method: "post",
+          data: param,
+        }).then((res) => {
+          this.dialogVisible = true;
+          res.data.forEach((element) => {
+            if (element.projectscheduleid == -1) {
+              element.projectname = "自我学习";
+            }
+          });
+          this.dailypaperdetail = res.data;
+          this.dailypaperdata.receptionists = res.data[0].receptionists;
+          this.dailypaperdata.dailypaperdate = res.data[0].dailypaperdate;
+          this.dailypaperdata.createdate = res.data[0].createtime.replace(
+            "T",
+            " "
+          );
+          this.initorganization();
         });
-        this.dailypaperdetail = res.data;
-        this.dailypaperdata.receptionists = res.data[0].receptionists;
-        this.dailypaperdata.dailypaperdate = res.data[0].dailypaperdate;
-        this.dailypaperdata.createdate = res.data[0].createtime.replace('T',' ');
-        this.initorganization();
-      });
+      }
+      else if(this.positiontype == 2){
+        axios({
+          url: "dailypapersale/read_dailypaperdetail/",
+          method: "post",
+          data: param,
+        }).then((res) => {
+          this.saleDialogVisible = true;
+          res.data.forEach((element) => {
+            if (element.businessid == -1) {
+              element.businessname = "自我学习";
+            }
+          });
+          this.dailypaperdetail = res.data;
+          this.dailypaperdata.receptionists = res.data[0].receptionists;
+          this.dailypaperdata.dailypaperdate = res.data[0].dailypaperdate;
+          this.dailypaperdata.createdate = res.data[0].createtime.replace(
+            "T",
+            " "
+          );
+          this.initorganization();
+        });
+      }
     },
     handleSizeChange(val) {
       this.limitePage.limit = val;
@@ -212,7 +270,8 @@ export default {
           method: "post",
           data: param,
         }).then((res) => {
-          this.tableData = res.data;
+          this.tableData = res.data.dailypapers;
+          this.positiontype = res.data.positiontype;
         });
       }
     },

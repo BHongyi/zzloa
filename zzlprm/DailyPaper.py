@@ -373,7 +373,7 @@ def get_history(request):
         "on tb_dailypaper_user.userid = auth_user.id "\
         "GROUP BY tb_dailypaper.dailypaperid) a "\
         "LEFT JOIN (select tb_dailypaperdetail.*,CONCAT(tb_project.projectname,'-',tb_projectschedule.schedulename)  "\
-        "as projectname from tb_dailypaperdetail "\
+        "as projectschedulename from tb_dailypaperdetail "\
         "LEFT JOIN tb_projectschedule "\
         "on tb_dailypaperdetail.projectscheduleid = tb_projectschedule.projectscheduleid "\
         "LEFT JOIN tb_project "\

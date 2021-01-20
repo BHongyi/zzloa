@@ -169,10 +169,10 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="可能性(%)" prop="possibility">
-          <el-input v-model="createformdata.possibility"></el-input>
+          <el-input type="number" v-model="createformdata.possibility"></el-input>
         </el-form-item>
         <el-form-item label="预算(万)" prop="budget">
-          <el-input v-model="createformdata.budget"></el-input>
+          <el-input type="number" v-model="createformdata.budget"></el-input>
         </el-form-item>
       </el-form>
 
@@ -234,10 +234,10 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="可能性(%)" prop="possibility">
-          <el-input v-model="editformdata.possibility"></el-input>
+          <el-input type="number" v-model="editformdata.possibility"></el-input>
         </el-form-item>
         <el-form-item label="预算(万)" prop="budget">
-          <el-input v-model="editformdata.budget"></el-input>
+          <el-input type="number" v-model="editformdata.budget"></el-input>
         </el-form-item>
         <el-form-item label="客户" prop="clientlist">
           <el-select

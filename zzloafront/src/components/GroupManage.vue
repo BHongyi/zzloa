@@ -38,8 +38,14 @@
     </el-row>
 
     <el-dialog title="部门编辑" :visible.sync="dialogVisible" width="25%">
-      <el-form name="createdeptform" label-width="80px" :model="editformdata">
-        <el-form-item label="部门名称">
+      <el-form name="editdeptform" ref="editdeptform" label-width="90px" :model="editformdata">
+        <el-form-item
+          label="部门名称"
+          prop="deptname"
+          :rules="[
+            { required: true, message: '部门名不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="editformdata.deptname"></el-input>
         </el-form-item>
       </el-form>
@@ -200,7 +206,7 @@ export default {
     },
     edit(data) {
       this.dialogVisible = true;
-      this.editformdata.deptname = data.label;
+      this.editformdata.deptname = data.label.split('(')[0];
       this.editformdata.id = data.groupid;
       this.editformdata.parentid = data.parentid;
     },
@@ -222,22 +228,25 @@ export default {
         });
     },
     editgroup() {
-      if (this.editformdata.deptname == "") {
-        alert("请输入名字");
-        return;
-      }
-      let param = new URLSearchParams();
-      param.append("groupid", this.editformdata.id);
-      param.append("name", this.editformdata.deptname);
-      param.append("parentid", this.editformdata.parentid);
+      this.$refs["editdeptform"].validate((valid) => {
+        if (valid) {
+          let param = new URLSearchParams();
+          param.append("groupid", this.editformdata.id);
+          param.append("name", this.editformdata.deptname);
+          param.append("parentid", this.editformdata.parentid);
 
-      axios({
-        url: "groupmanage/edit_group/",
-        method: "post",
-        data: param,
-      }).then((res) => {
-        this.dialogVisible = false;
-        this.initgroups();
+          axios({
+            url: "groupmanage/edit_group/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            this.dialogVisible = false;
+            this.initgroups();
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
       });
     },
     leftcheckchange(val) {
@@ -287,7 +296,7 @@ export default {
             <el-button
               size="mini"
               type="text"
-              v-show={this.permissions.indexOf("000008") != -1 ? "ok" : ""}
+              v-show={this.permissions.indexOf("000008") != -1 & node.level != 1 ? "ok" : ""}
               name="deletegroup"
               on-click={() => this.remove(node, data)}
             >

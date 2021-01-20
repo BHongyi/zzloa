@@ -85,7 +85,7 @@
       <el-form
         :model="returnjson"
         label-position="left"
-        label-width="80px"
+        label-width="100px"
         ref="dailypaperForm"
       >
         <el-form-item
@@ -109,7 +109,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item
-          label="商机:"
+          label="商机(多选):"
           prop="businesses"
           :rules="[
             {
@@ -163,7 +163,7 @@
         </el-form-item>
         <el-table
           :data="returnjson.tableData"
-          empty-text="请选择项目"
+          empty-text="请选择商机"
           style="width: 100%"
         >
           <el-table-column prop="businessname" label="商机名" width="180">
@@ -215,7 +215,7 @@
                 label-width="0px"
                 :prop="'tableData.' + scope.$index + '.cost'"
               >
-                <el-input v-model="scope.row.cost"></el-input>
+                <el-input type="number" v-model="scope.row.cost"></el-input>
               </el-form-item>
             </template>
           </el-table-column>
@@ -250,7 +250,7 @@
       <el-form
         :model="editreturnjson"
         label-position="left"
-        label-width="80px"
+        label-width="100px"
         ref="editdailypaperForm"
       >
         <el-form-item
@@ -274,7 +274,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item
-          label="商机:"
+          label="商机(多选):"
           prop="businesses"
           :rules="[
             {
@@ -328,7 +328,7 @@
         </el-form-item>
         <el-table
           :data="editreturnjson.tableData"
-          empty-text="请选择项目"
+          empty-text="请选择商机"
           style="width: 100%"
         >
           <el-table-column prop="businessname" label="商机名" width="180">
@@ -380,7 +380,7 @@
                 label-width="0px"
                 :prop="'tableData.' + scope.$index + '.cost'"
               >
-                <el-input v-model="scope.row.cost"></el-input>
+                <el-input type="number" v-model="scope.row.cost"></el-input>
               </el-form-item>
             </template>
           </el-table-column>

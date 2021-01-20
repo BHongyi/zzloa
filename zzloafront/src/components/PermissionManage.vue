@@ -15,13 +15,26 @@
     <el-dialog title="权限编辑" :visible.sync="dialogVisible" width="25%">
       <el-form
         name="editpermissionform"
+        ref="editpermissionform"
         label-width="80px"
         :model="editformdata"
       >
-        <el-form-item label="权限名">
+        <el-form-item
+          label="权限名"
+          prop="name"
+          :rules="[
+            { required: true, message: '权限名不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="editformdata.name"></el-input>
         </el-form-item>
-        <el-form-item label="code">
+        <el-form-item
+          label="code"
+          prop="code"
+          :rules="[
+            { required: true, message: '权限code不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="editformdata.code"></el-input>
         </el-form-item>
       </el-form>
@@ -98,32 +111,31 @@ export default {
       this.editformdata.code = data.code;
     },
     editpermission() {
-      if (this.editformdata.name == "") {
-        alert("请输入名字");
-        return;
-      }
-      if (this.editformdata.code == "") {
-        alert("请输入code");
-        return;
-      }
-      let param = new URLSearchParams();
-      param.append("permissionid", this.editformdata.id);
-      param.append("name", this.editformdata.name);
-      param.append("parentid", this.editformdata.parentid);
-      param.append("code", this.editformdata.code);
+      this.$refs["editpermissionform"].validate((valid) => {
+        if (valid) {
+          let param = new URLSearchParams();
+          param.append("permissionid", this.editformdata.id);
+          param.append("name", this.editformdata.name);
+          param.append("parentid", this.editformdata.parentid);
+          param.append("code", this.editformdata.code);
 
-      axios({
-        url: "permissionmanage/edit_permission/",
-        method: "post",
-        data: param,
-      })
-        .then((res) => {
-          this.dialogVisible = false;
-          this.initpermissions();
-        })
-        .catch(function (error) {
-          alert("重复code,请更换");
-        });
+          axios({
+            url: "permissionmanage/edit_permission/",
+            method: "post",
+            data: param,
+          })
+            .then((res) => {
+              this.dialogVisible = false;
+              this.initpermissions();
+            })
+            .catch(function (error) {
+              alert("重复code,请更换");
+            });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
     },
     remove(node, data) {
       this.$confirm("确认删除？")
@@ -155,13 +167,18 @@ export default {
             >
               <i class="el-icon-circle-plus-outline"></i>
             </el-button>
-            <el-button size="mini" v-show={this.permissions.indexOf("000014") != -1 ? "ok" : ""} type="text" on-click={() => this.edit(data)}>
+            <el-button
+              size="mini"
+              v-show={this.permissions.indexOf("000014") != -1 ? "ok" : ""}
+              type="text"
+              on-click={() => this.edit(data)}
+            >
               <i class="el-icon-edit"></i>
             </el-button>
             <el-button
               size="mini"
               type="text"
-              v-show={this.permissions.indexOf("000013") != -1 ? "ok" : ""}
+              v-show={this.permissions.indexOf("000013") != -1 & node.level != 1 ? "ok" : ""}
               on-click={() => this.remove(node, data)}
             >
               <i class="el-icon-delete"></i>

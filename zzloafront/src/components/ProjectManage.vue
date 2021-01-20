@@ -383,7 +383,7 @@
             { required: true, message: '预计工作量不能为空', trigger: 'blur' },
           ]"
         >
-          <el-input v-model="createscheduleformdata.preworkload"></el-input>
+          <el-input type="number" v-model="createscheduleformdata.preworkload"></el-input>
         </el-form-item>
         <el-form-item
           label="预计开始日期"
@@ -502,10 +502,10 @@
         <el-form-item label="预计工作量(人/日)" prop="preworkload" :rules="[
             { required: true, message: '预计工作量不能为空', trigger: 'blur' },
           ]">
-          <el-input v-model="editscheduleformdata.preworkload"></el-input>
+          <el-input type="number" v-model="editscheduleformdata.preworkload"></el-input>
         </el-form-item>
         <el-form-item label="实际工作量(人/日)">
-          <el-input v-model="editscheduleformdata.realworkload"></el-input>
+          <el-input type="number" v-model="editscheduleformdata.realworkload"></el-input>
         </el-form-item>
         <el-form-item label="预计开始日期" prop="schedulestartdate" :rules="[
             {

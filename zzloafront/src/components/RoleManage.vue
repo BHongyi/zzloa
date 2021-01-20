@@ -1,10 +1,15 @@
 <template>
   <div>
     <el-row>
-      <el-button @click="dialogVisible = true" v-if="this.permissions.indexOf('000017') != -1"
+      <el-button
+        @click="dialogVisible = true"
+        v-if="this.permissions.indexOf('000017') != -1"
         ><i class="el-icon-plus"></i>新建</el-button
       >
-      <el-button type="danger" @click="deleterole()" v-if="this.permissions.indexOf('000018') != -1"
+      <el-button
+        type="danger"
+        @click="deleterole()"
+        v-if="this.permissions.indexOf('000018') != -1"
         ><i class="el-icon-delete"></i>删除</el-button
       >
     </el-row>
@@ -31,7 +36,10 @@
           scope.row.updatetime | dateYMDHMSFormat
         }}</template>
       </el-table-column>
-      <el-table-column v-if="this.permissions.indexOf('000019') != -1" label="操作">
+      <el-table-column
+        v-if="this.permissions.indexOf('000019') != -1"
+        label="操作"
+      >
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
             ><i class="el-icon-edit"></i>修改角色</el-button
@@ -71,11 +79,18 @@
     >
       <el-form
         name="createroleform"
+        ref="createroleform"
         :label-position="labelPosition"
         label-width="80px"
         :model="createformdata"
       >
-        <el-form-item label="角色名">
+        <el-form-item
+          label="角色名"
+          prop="rolename"
+          :rules="[
+            { required: true, message: '权限名不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="createformdata.rolename"></el-input>
         </el-form-item>
       </el-form>
@@ -89,11 +104,18 @@
     <el-dialog title="编辑角色" :visible.sync="editDialogVisible" width="25%">
       <el-form
         name="editroleform"
+        ref="editroleform"
         :label-position="labelPosition"
         label-width="80px"
         :model="editformdata"
       >
-        <el-form-item label="角色名">
+        <el-form-item
+          label="角色名"
+          prop="rolename"
+          :rules="[
+            { required: true, message: '权限名不能为空', trigger: 'blur' },
+          ]"
+        >
           <el-input v-model="editformdata.rolename"></el-input>
         </el-form-item>
       </el-form>
@@ -243,21 +265,23 @@ export default {
       this.multipleUserSelection = val;
     },
     createrole() {
-      if (this.createformdata.rolename == "") {
-        alert("请输入角色名");
-        return;
-      }
+      this.$refs["createroleform"].validate((valid) => {
+        if (valid) {
+          let param = new URLSearchParams();
+          param.append("rolename", this.createformdata.rolename);
 
-      let param = new URLSearchParams();
-      param.append("rolename", this.createformdata.rolename);
-
-      axios({
-        url: "rolemanage/create_role/",
-        method: "post",
-        data: param,
-      }).then((res) => {
-        this.dialogVisible = false;
-        this.initroles();
+          axios({
+            url: "rolemanage/create_role/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            this.dialogVisible = false;
+            this.initroles();
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
       });
     },
     deleterole() {
@@ -287,16 +311,23 @@ export default {
       }
     },
     editrole() {
-      let param = new URLSearchParams();
-      param.append("rolename", this.editformdata.rolename);
-      param.append("roleid", this.editformdata.roleid);
-      axios({
-        url: "rolemanage/edit_role/",
-        method: "post",
-        data: param,
-      }).then((res) => {
-        this.initroles();
-        this.editDialogVisible = false;
+      this.$refs["editroleform"].validate((valid) => {
+        if (valid) {
+          let param = new URLSearchParams();
+          param.append("rolename", this.editformdata.rolename);
+          param.append("roleid", this.editformdata.roleid);
+          axios({
+            url: "rolemanage/edit_role/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            this.initroles();
+            this.editDialogVisible = false;
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
       });
     },
     handleEdit(index, row) {
@@ -380,7 +411,7 @@ export default {
     },
     editroleuser() {
       var users = [];
-      this.multipleUserSelection.forEach(element => {
+      this.multipleUserSelection.forEach((element) => {
         users.push(element.id);
       });
       let param = new URLSearchParams();

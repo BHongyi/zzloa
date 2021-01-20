@@ -307,7 +307,7 @@ export default {
           </span>
           <i
             v-show={(node.key + "").indexOf("user") == -1 ? "ok" : ""}
-            class="el-icon-s-home"
+            class="el-icon-folder"
           ></i>
           <span v-show={(node.key + "").indexOf("user") == -1 ? "ok" : ""}>
             {node.label}

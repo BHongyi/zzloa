@@ -39,7 +39,9 @@
           </el-table>
         </template>
       </el-table-column>
-      <el-table-column prop="receptionists" label="接受人" style="width: 50%">
+      <el-table-column prop="receptionists" label="接收人" style="width: 25%">
+      </el-table-column>
+      <el-table-column prop="readreceptionists" label="已读接收人" style="width: 25%">
       </el-table-column>
       <el-table-column prop="dailypaperdate" label="日报日期" width="180">
         <template slot-scope="scope">{{
@@ -219,6 +221,7 @@
         </el-table>
       </el-form>
       <span slot="footer" class="dialog-footer">
+        <el-link type="info" @click="history()">一键带入历史</el-link>
         <el-button type="primary" @click="submitdailypaper()">提交</el-button>
       </span>
     </el-dialog>
@@ -421,7 +424,7 @@ export default {
       receptionists: "",
       userlist: [],
       returnjson: {
-        dailypaperdate: "",
+        dailypaperdate: new Date(),
         projectschedules: [],
         checkeduser: [],
         tableData: [],
@@ -480,7 +483,7 @@ export default {
     },
     cleardailypaperForm(){
       this.$refs["dailypaperForm"].clearValidate();
-      this.returnjson.dailypaperdate = "";
+      this.returnjson.dailypaperdate = new Date();
       this.returnjson.projectschedules = [];
       this.returnjson.checkeduser = [];
       this.returnjson.tableData = [];
@@ -570,6 +573,28 @@ export default {
             });
 
           });
+    },
+    history() {
+      this.returnjson.businesses = [];
+      this.returnjson.checkeduser = [];
+      this.returnjson.tableData = [];
+      axios({
+        url: "dailypaper/get_history/",
+        method: "post",
+      }).then((res) => {
+        res.data.forEach((element) => {
+          if(element.projectscheduleid == -1){
+              element.projectschedulename="自我学习";
+          }
+          console.log(element);
+          this.returnjson.projectschedules.push(element.projectscheduleid);
+          this.returnjson.tableData.push(element);
+        });
+
+        res.data[0].receptionistids.split(",").forEach((element) => {
+          this.returnjson.checkeduser.push(parseInt(element));
+        });
+      });
     },
     editprojectschedulechange(){
       //debugger

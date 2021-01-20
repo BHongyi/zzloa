@@ -47,7 +47,13 @@
           </el-table>
         </template>
       </el-table-column>
-      <el-table-column prop="receptionists" label="接受人" style="width: 50%">
+      <el-table-column prop="receptionists" label="接收人" style="width: 50%">
+      </el-table-column>
+      <el-table-column
+        prop="readreceptionists"
+        label="已读接收人"
+        style="width: 25%"
+      >
       </el-table-column>
       <el-table-column prop="dailypaperdate" label="日报日期" width="180">
         <template slot-scope="scope">{{
@@ -242,6 +248,7 @@
         </el-table>
       </el-form>
       <span slot="footer" class="dialog-footer">
+        <el-link type="info" @click="history()">一键带入历史</el-link>
         <el-button type="primary" @click="submitdailypaper()">提交</el-button>
       </span>
     </el-dialog>
@@ -462,7 +469,7 @@ export default {
       receptionists: "",
       userlist: [],
       returnjson: {
-        dailypaperdate: "",
+        dailypaperdate: new Date(),
         businesses: [],
         checkeduser: [],
         tableData: [],
@@ -520,7 +527,7 @@ export default {
     },
     cleardailypaperForm() {
       this.$refs["dailypaperForm"].clearValidate();
-      this.returnjson.dailypaperdate = "";
+      this.returnjson.dailypaperdate = new Date();
       this.returnjson.businesses = [];
       this.returnjson.checkeduser = [];
       this.returnjson.tableData = [];
@@ -531,7 +538,7 @@ export default {
     handleCurrentChange(val) {
       this.limitePage.page = val;
     },
-    submiteditdailypaper(){
+    submiteditdailypaper() {
       this.$refs["editdailypaperForm"].validate((valid) => {
         if (valid) {
           axios({
@@ -539,10 +546,9 @@ export default {
             data: this.editreturnjson,
             method: "post",
           }).then((res) => {
-            if(res.data != "OK"){
+            if (res.data != "OK") {
               alert(res.data);
-            }
-            else{
+            } else {
               this.initdailypapers();
               this.editDialogVisible = false;
             }
@@ -601,25 +607,59 @@ export default {
           this.editreturnjson.businesses.push(element.businessid);
 
           let param = new URLSearchParams();
-            param.append("businessid", element.businessid);
-            axios({
-              url: "dailypapersale/get_contacts/",
-              method: "post",
-              data: param,
-            }).then((res) => {
-              element.contacts = res.data;
-              element.contacts.push({
-                contactid: null,
-                contactname: "无",
-                });
-              this.editreturnjson.tableData.push(element);
+          param.append("businessid", element.businessid);
+          axios({
+            url: "dailypapersale/get_contacts/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            element.contacts = res.data;
+            element.contacts.push({
+              contactid: null,
+              contactname: "无",
             });
-
+            this.editreturnjson.tableData.push(element);
+          });
         });
 
         this.editoldbusinesses = this.editreturnjson.businesses;
         res.data[0].receptionistids.split(",").forEach((element) => {
           this.editreturnjson.checkeduser.push(parseInt(element));
+        });
+      });
+    },
+    history() {
+      this.returnjson.businesses = [];
+      this.returnjson.checkeduser = [];
+      this.returnjson.tableData = [];
+      axios({
+        url: "dailypapersale/get_history/",
+        method: "post",
+      }).then((res) => {
+        res.data.forEach((element) => {
+          if (element.businessid == -1) {
+            element.businessname = "自我学习";
+          }
+          this.returnjson.businesses.push(element.businessid);
+
+          let param = new URLSearchParams();
+          param.append("businessid", element.businessid);
+          axios({
+            url: "dailypapersale/get_contacts/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            element.contacts = res.data;
+            element.contacts.push({
+              contactid: null,
+              contactname: "无",
+            });
+            this.returnjson.tableData.push(element);
+          });
+        });
+
+        res.data[0].receptionistids.split(",").forEach((element) => {
+          this.returnjson.checkeduser.push(parseInt(element));
         });
       });
     },

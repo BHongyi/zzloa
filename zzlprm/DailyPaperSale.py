@@ -29,15 +29,26 @@ def get_dailypapers(request):
     cursor.execute(sql,[userid])
     dailypaperdetails = dictfetchall(cursor)
 
-    sql1 = "select tb_dailypaper.*,group_concat(auth_user.name) as receptionists from tb_dailypaper "\
-    "LEFT JOIN tb_dailypaper_user "\
-    "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
-    "LEFT JOIN auth_user "\
-    "on tb_dailypaper_user.userid = auth_user.id "\
-    "where tb_dailypaper.userid =  %s "\
-    "GROUP BY tb_dailypaper.dailypaperid "\
-    "ORDER BY tb_dailypaper.dailypaperdate desc "
-    cursor.execute(sql1,[userid])
+    sql1 = "select a.*,b.receptionists as readreceptionists from ( "\
+        "select tb_dailypaper.*,group_concat(auth_user.name) as receptionists from tb_dailypaper "\
+        "LEFT JOIN tb_dailypaper_user "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+        "LEFT JOIN auth_user "\
+        "on tb_dailypaper_user.userid = auth_user.id "\
+        "where tb_dailypaper.userid =  "+str(userid)+" "\
+        "GROUP BY tb_dailypaper.dailypaperid "\
+        "ORDER BY tb_dailypaper.dailypaperdate desc) a "\
+        "LEFT JOIN (select tb_dailypaper.*,group_concat(auth_user.name) as receptionists from tb_dailypaper "\
+        "LEFT JOIN tb_dailypaper_user "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+        "LEFT JOIN auth_user "\
+        "on tb_dailypaper_user.userid = auth_user.id "\
+        "where tb_dailypaper.userid =  "+str(userid)+" "\
+        "and tb_dailypaper_user.isread = 1 "\
+        "GROUP BY tb_dailypaper.dailypaperid "\
+        "ORDER BY tb_dailypaper.dailypaperdate desc) b "\
+        "on a.dailypaperid = b.dailypaperid "
+    cursor.execute(sql1)
     dailypapers = dictfetchall(cursor)
 
     returnjson = {
@@ -273,7 +284,6 @@ def read_dailypaperdetail(request):
     dailypaper = dictfetchall(cursor)
 
     username = request.user.username
-    cursor=connection.cursor()
     sqlu = "select * from auth_user where username = '"+ username +"' "
     cursor.execute(sqlu)
     readuserid = dictfetchall(cursor)[0]["id"]
@@ -282,4 +292,36 @@ def read_dailypaperdetail(request):
             isread = 1,
             readtime = datetime.datetime.now()
             )
+    return JsonResponse(dailypaper, safe=False)
+
+@api_view(['GET','POST'])
+def get_history(request):
+    username = request.user.username
+    cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    userid = dictfetchall(cursor)[0]["id"]
+
+    cursor=connection.cursor()
+    sql = "select * from ( "\
+        "select tb_dailypaper.*,GROUP_CONCAT(auth_user.name) as receptionists,GROUP_CONCAT(auth_user.id) as receptionistids from tb_dailypaper "\
+        "LEFT JOIN tb_dailypaper_user "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+        "LEFT JOIN auth_user "\
+        "on tb_dailypaper_user.userid = auth_user.id "\
+        "GROUP BY tb_dailypaper.dailypaperid) a "\
+        "LEFT JOIN ( "\
+        "select tb_dailypaperdetail_sale.*,tb_business.businessname  "\
+        "from tb_dailypaperdetail_sale "\
+        "LEFT JOIN tb_business "\
+        "on tb_dailypaperdetail_sale.businessid = tb_business.businessid "\
+        ") b "\
+        "ON a.dailypaperid = b.dailypaperid "\
+        "where a.dailypaperid = (select dailypaperid from tb_dailypaper "\
+        "where userid = %s "\
+        "ORDER BY dailypaperdate desc "\
+        "LIMIT 1)"
+    cursor.execute(sql,[userid])
+    dailypaper = dictfetchall(cursor)
+
     return JsonResponse(dailypaper, safe=False)

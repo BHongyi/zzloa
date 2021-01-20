@@ -65,6 +65,7 @@ urlpatterns = [
     path('dailypaper/read_dailypaperdetail/', DailyPaper.read_dailypaperdetail),
     path('dailypaper/get_dailypaperbyid/', DailyPaper.get_dailypaperbyid),
     path('dailypaper/edit_dailypaper/', DailyPaper.edit_dailypaper),
+    path('dailypaper/get_history/', DailyPaper.get_history),
 
     path('personalpage/edit_password/', PersonalPage.edit_password),
 
@@ -97,4 +98,5 @@ urlpatterns = [
     path('dailypapersale/get_dailypaperbyid/', DailyPaperSale.get_dailypaperbyid),
     path('dailypapersale/edit_dailypaper/', DailyPaperSale.edit_dailypaper),
     path('dailypapersale/read_dailypaperdetail/', DailyPaperSale.read_dailypaperdetail),
+    path('dailypapersale/get_history/', DailyPaperSale.get_history),
 ]

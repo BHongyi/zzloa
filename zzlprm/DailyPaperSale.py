@@ -171,6 +171,8 @@ def create_dailypaper(request):
         worktime = contents[j].get("worktime")
         workcontent = contents[j].get("workcontent")
         cost = contents[j].get("cost")
+        if cost == '':
+            cost = None
         contactid = contents[j].get("contactid")
         TbDailypaperdetailSale.objects.create(
             dailypaperid = d.pk,
@@ -251,6 +253,8 @@ def edit_dailypaper(request):
         worktime = contents[j].get("worktime")
         workcontent = contents[j].get("workcontent")
         cost = contents[j].get("cost")
+        if cost == '':
+            cost = None
         contactid = contents[j].get("contactid")
         TbDailypaperdetailSale.objects.create(
             dailypaperid = dailypaperid,
@@ -268,18 +272,20 @@ def read_dailypaperdetail(request):
 
     cursor=connection.cursor()
     sql = "select * from ( "\
-        "select tb_dailypaper.*,GROUP_CONCAT(auth_user.name) as receptionists from tb_dailypaper "\
-        "LEFT JOIN tb_dailypaper_user "\
-        "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
-        "LEFT JOIN auth_user "\
-        "on tb_dailypaper_user.userid = auth_user.id "\
-        "GROUP BY tb_dailypaper.dailypaperid) a "\
-        "LEFT JOIN (select tb_dailypaperdetail_sale.*,tb_business.businessname "\
-        "from tb_dailypaperdetail_sale "\
-        "LEFT JOIN tb_business "\
-        "on tb_dailypaperdetail_sale.businessid = tb_business.businessid ) b "\
-        "ON a.dailypaperid = b.dailypaperid "\
-        "where a.dailypaperid = %s"
+    "select tb_dailypaper.*,GROUP_CONCAT(auth_user.name) as receptionists from tb_dailypaper "\
+    "LEFT JOIN tb_dailypaper_user "\
+    "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+    "LEFT JOIN auth_user "\
+    "on tb_dailypaper_user.userid = auth_user.id "\
+    "GROUP BY tb_dailypaper.dailypaperid) a "\
+    "LEFT JOIN (select tb_dailypaperdetail_sale.*,tb_business.businessname,tb_contact.contactname "\
+    "from tb_dailypaperdetail_sale "\
+    "LEFT JOIN tb_business "\
+    "on tb_dailypaperdetail_sale.businessid = tb_business.businessid "\
+    "LEFT JOIN tb_contact "\
+    "on tb_dailypaperdetail_sale.contactid = tb_contact.contactid ) b "\
+    "ON a.dailypaperid = b.dailypaperid "\
+    "where a.dailypaperid = %s"
     cursor.execute(sql,[dailypaperid])
     dailypaper = dictfetchall(cursor)
 

@@ -107,7 +107,7 @@
         </el-table-column>
         <el-table-column prop="worktime" label="工时(单位:h)" width="120">
         </el-table-column>
-        <el-table-column prop="contactid" label="联系人" width="100">
+        <el-table-column prop="contactname" label="联系人" width="100">
         </el-table-column>
         <el-table-column prop="cost" label="费用(单位:元)" width="120">
         </el-table-column>

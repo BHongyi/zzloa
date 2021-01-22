@@ -11,6 +11,8 @@ from zzlprm import PersonalPage
 from zzlprm import ClientManage
 from zzlprm import BusinessManage
 from zzlprm import DailyPaperSale
+from zzlprm import LeaveFlow
+from zzlprm import Audit
 
 urlpatterns = [
     path('login/login/', Login.login),
@@ -99,4 +101,12 @@ urlpatterns = [
     path('dailypapersale/edit_dailypaper/', DailyPaperSale.edit_dailypaper),
     path('dailypapersale/read_dailypaperdetail/', DailyPaperSale.read_dailypaperdetail),
     path('dailypapersale/get_history/', DailyPaperSale.get_history),
+
+    path('leaveflow/get_leaves/', LeaveFlow.get_leaves),
+    path('leaveflow/get_leavetypes/', LeaveFlow.get_leavetypes),
+    path('leaveflow/get_flowuserlists/', LeaveFlow.get_flowuserlists),
+    path('leaveflow/create_leave/', LeaveFlow.create_leave),
+    path('leaveflow/get_leave_byid/', LeaveFlow.get_leave_byid),
+
+    path('audit/get_audits/', Audit.get_audits),
 ]

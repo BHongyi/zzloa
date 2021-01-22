@@ -67,13 +67,13 @@
         :formatter="ownerFormat"
       >
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         prop="writer"
         label="填报人"
         width="100"
         :formatter="writerFormat"
       >
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column prop="createtime" label="创建日期" width="180">
         <template slot-scope="scope">{{
           scope.row.createtime | dateYMDHMSFormat
@@ -88,12 +88,24 @@
         v-if="this.permissions.indexOf('000034') != -1"
         label="操作"
         fixed="right"
-        width="220"
+        width="320"
       >
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
             ><i class="el-icon-edit"></i>修改商机</el-button
           >
+          <el-popover trigger="click" placement="top" width="300">
+            <p>
+              <el-timeline :reverse="false">
+                <el-timeline-item v-for="(activity, businessrecordid) in businessrecord.filter((f) => f.businessid == scope.row.businessid)"
+                :key="businessrecordid"
+                :timestamp="activity.createtime.replace('T',' ')">
+                {{activity.typename}}
+                </el-timeline-item>
+              </el-timeline>
+            </p>
+            <el-button size="mini" type="info" slot="reference">查看记录</el-button>
+          </el-popover>
           <el-button
             size="mini"
             @click="handleEnd(scope.$index, scope.row)"
@@ -151,7 +163,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="所有者" prop="owner">
+        <!-- <el-form-item label="所有者" prop="owner">
           <el-select v-model="createformdata.owner" placeholder="请选择">
             <el-option
               v-for="item in userlist"
@@ -161,7 +173,7 @@
             >
             </el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="描述" prop="description">
           <el-input
             type="textarea"
@@ -216,7 +228,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="所有者" prop="owner">
+        <!-- <el-form-item label="所有者" prop="owner">
           <el-select v-model="editformdata.owner" placeholder="请选择">
             <el-option
               v-for="item in userlist"
@@ -226,7 +238,7 @@
             >
             </el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="描述" prop="description">
           <el-input
             type="textarea"
@@ -399,6 +411,7 @@ export default {
         page: 1,
       },
       tableData: [],
+      businessrecord:[],
       statuslist: [],
       userlist: [],
       clientlist: [],
@@ -461,7 +474,9 @@ export default {
         method: "get",
         data: {},
       }).then((res) => {
-        this.tableData = res.data;
+        this.tableData = res.data.businesses;
+        this.businessrecord = res.data.businessrecord;
+        console.log(this.businessrecord);
         this.total = res.data.length;
       });
     },

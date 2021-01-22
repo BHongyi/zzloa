@@ -344,16 +344,16 @@
         <el-form-item label="职位" prop="position">
           <el-input v-model="createcontactformdata.position"></el-input>
         </el-form-item>
-        <el-form-item label="手机" prop="phone">
+        <el-form-item label="手机" prop="phone" :rules="rules.contactvalidate">
           <el-input v-model="createcontactformdata.phone"></el-input>
         </el-form-item>
-        <el-form-item label="座机" prop="telephone">
+        <el-form-item label="座机" prop="telephone" :rules="rules.contactvalidate">
           <el-input v-model="createcontactformdata.telephone"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
+        <el-form-item label="邮箱" prop="email" :rules="rules.contactvalidate">
           <el-input v-model="createcontactformdata.email"></el-input>
         </el-form-item>
-        <el-form-item label="微信号" prop="wx">
+        <el-form-item label="微信号" prop="wx" :rules="rules.contactvalidate">
           <el-input v-model="createcontactformdata.wx"></el-input>
         </el-form-item>
         <el-form-item label="传真" prop="fax">
@@ -415,16 +415,16 @@
         <el-form-item label="职位" prop="position">
           <el-input v-model="editcontactformdata.position"></el-input>
         </el-form-item>
-        <el-form-item label="手机" prop="phone">
+        <el-form-item label="手机" prop="phone" :rules="rules.editcontactvalidate">
           <el-input v-model="editcontactformdata.phone"></el-input>
         </el-form-item>
-        <el-form-item label="座机" prop="telephone">
+        <el-form-item label="座机" prop="telephone" :rules="rules.editcontactvalidate">
           <el-input v-model="editcontactformdata.telephone"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
+        <el-form-item label="邮箱" prop="email" :rules="rules.editcontactvalidate">
           <el-input v-model="editcontactformdata.email"></el-input>
         </el-form-item>
-        <el-form-item label="微信号" prop="wx">
+        <el-form-item label="微信号" prop="wx" :rules="rules.editcontactvalidate">
           <el-input v-model="editcontactformdata.wx"></el-input>
         </el-form-item>
         <el-form-item label="传真" prop="fax">
@@ -476,10 +476,37 @@ import axios from "../utils/httpRequest";
 export default {
   name: "ClientManage",
   data() {
+    var contactvalidate = (rule, value, callback) => {
+      if(this.createcontactformdata.phone != "" | this.createcontactformdata.telephone != ""
+      | this.createcontactformdata.email != "" | this.createcontactformdata.wx != ""){
+        callback();
+      }
+      else{
+        callback(new Error("联系方式至少填写一种"));
+      }
+    };
+
+    var editcontactvalidate = (rule, value, callback) => {
+      if(this.editcontactformdata.phone != "" | this.editcontactformdata.telephone != ""
+      | this.editcontactformdata.email != "" | this.editcontactformdata.wx != ""){
+        callback();
+      }
+      else{
+        callback(new Error("联系方式至少填写一种"));
+      }
+    };
     return {
       limitePage: {
         limit: 10,
         page: 1,
+      },
+      rules: {
+        contactvalidate: [
+          { required: true, validator: contactvalidate, trigger: "blur" },
+        ],
+        editcontactvalidate: [
+          { required: true, validator: editcontactvalidate, trigger: "blur" },
+        ],
       },
       tableData: [],
       tableContactData: [],
@@ -701,12 +728,12 @@ export default {
     },
     clearcreatecontactform() {
       this.$refs["createcontactform"].clearValidate();
-      this.createcontactformdata.clientid = null;
+      //this.createcontactformdata.clientid = null;
       this.createcontactformdata.contactname = "";
       this.createcontactformdata.position = null;
       this.createcontactformdata.description = null;
       this.createcontactformdata.ismanager = "0";
-      this.createcontactformdata.phone = null;
+      this.createcontactformdata.phone = "";
       this.createcontactformdata.telephone = "";
       this.createcontactformdata.email = "";
       this.createcontactformdata.wx = "";

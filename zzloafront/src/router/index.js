@@ -14,6 +14,8 @@ import PersonalPage from '@/components/PersonalPage'
 import ClientManage from '@/components/ClientManage'
 import BusinessManage from '@/components/BusinessManage'
 import DailyPaperSale from '@/components/DailyPaperSale'
+import LeaveFlow from '@/components/LeaveFlow'
+import Audit from '@/components/Audit'
 
 Vue.use(Router)
 const originalPush = Router.prototype.push
@@ -98,6 +100,16 @@ export default new Router({
           path: '/dailypapersale',
           name: 'DailyPaperSale',
           component: DailyPaperSale
+        },
+        {
+          path: '/leaveflow',
+          name: 'LeaveFlow',
+          component: LeaveFlow
+        },
+        {
+          path: '/audit',
+          name: 'Audit',
+          component: Audit
         }
       ]
     }

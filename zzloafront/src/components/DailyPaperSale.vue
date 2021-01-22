@@ -47,6 +47,11 @@
           </el-table>
         </template>
       </el-table-column>
+      <el-table-column prop="dailypaperdate" label="日报日期" width="180">
+        <template slot-scope="scope">{{
+          scope.row.dailypaperdate | dateYMDHMSFormat
+        }}</template>
+      </el-table-column>
       <el-table-column prop="receptionists" label="接收人" style="width: 50%">
       </el-table-column>
       <el-table-column
@@ -54,11 +59,6 @@
         label="已读接收人"
         style="width: 25%"
       >
-      </el-table-column>
-      <el-table-column prop="dailypaperdate" label="日报日期" width="180">
-        <template slot-scope="scope">{{
-          scope.row.dailypaperdate | dateYMDHMSFormat
-        }}</template>
       </el-table-column>
       <el-table-column prop="createtime" label="提交日期" width="180">
         <template slot-scope="scope">{{

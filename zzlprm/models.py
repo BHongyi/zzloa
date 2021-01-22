@@ -133,6 +133,19 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
+class TbAudit(models.Model):
+    auditid = models.AutoField(primary_key=True)
+    leaveid = models.IntegerField()
+    flownodeid = models.IntegerField()
+    userid = models.IntegerField()
+    auditinfo = models.CharField(max_length=200, blank=True, null=True)
+    audittime = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tb_audit'
+
+
 class TbBusiness(models.Model):
     businessid = models.AutoField(primary_key=True)
     businessname = models.CharField(max_length=100)
@@ -183,6 +196,18 @@ class TbBusinessUser(models.Model):
     class Meta:
         managed = False
         db_table = 'tb_business_user'
+
+
+class TbBusinessrecord(models.Model):
+    businessrecordid = models.AutoField(primary_key=True)
+    businessid = models.IntegerField()
+    typeid = models.IntegerField()
+    userid = models.IntegerField()
+    createtime = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_businessrecord'
 
 
 class TbClient(models.Model):
@@ -301,15 +326,39 @@ class TbFlow(models.Model):
         db_table = 'tb_flow'
 
 
+class TbFlowline(models.Model):
+    flowlineid = models.AutoField(primary_key=True)
+    flowno = models.IntegerField()
+    prevnodeid = models.IntegerField()
+    nextnodeid = models.IntegerField()
+    remark = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tb_flowline'
+
+
 class TbFlownode(models.Model):
     flownodeid = models.AutoField(primary_key=True)
     flowno = models.IntegerField()
     flownodename = models.CharField(max_length=50)
     flownodetype = models.IntegerField()
+    remark = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'tb_flownode'
+
+
+class TbFlownodeuser(models.Model):
+    flownodeuserid = models.AutoField(primary_key=True)
+    flownodename = models.CharField(max_length=50)
+    userid = models.IntegerField()
+    remark = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tb_flownodeuser'
 
 
 class TbGroup(models.Model):
@@ -333,6 +382,23 @@ class TbGroupUser(models.Model):
     class Meta:
         managed = False
         db_table = 'tb_group_user'
+
+
+class TbLeave(models.Model):
+    leaveid = models.AutoField(primary_key=True)
+    userid = models.IntegerField()
+    leavetype = models.IntegerField()
+    leavereason = models.CharField(max_length=200)
+    starttime = models.DateTimeField()
+    finishtime = models.DateTimeField()
+    createtime = models.DateTimeField()
+    updatetime = models.DateTimeField()
+    flowno = models.IntegerField()
+    currentnode = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_leave'
 
 
 class TbPermission(models.Model):

@@ -49,8 +49,10 @@
           >
             <i class="el-icon-s-custom"></i>客户管理
           </el-menu-item>
-          <el-menu-item index="businessmanage"
-          v-if="this.permissions.indexOf('000035') != -1">
+          <el-menu-item
+            index="businessmanage"
+            v-if="this.permissions.indexOf('000035') != -1"
+          >
             <i class="el-icon-s-opportunity"></i>商机管理
           </el-menu-item>
           <el-menu-item
@@ -59,15 +61,24 @@
           >
             <i class="el-icon-files"></i>项目管理
           </el-menu-item>
-          <el-menu-item v-if="positiontype==2" index="dailypapersale">
-              <i class="el-icon-edit"></i>填写日报
-            </el-menu-item>
-            <el-menu-item v-if="positiontype==1" index="dailypaper">
-              <i class="el-icon-edit"></i>填写日报
-            </el-menu-item>
-            <el-menu-item v-if="this.permissions.indexOf('000037') != -1" index="readdailypaper">
-              <i class="el-icon-view"></i>查看日报
-            </el-menu-item>
+          <el-menu-item v-if="positiontype == 2" index="dailypapersale">
+            <i class="el-icon-edit"></i>填写日报
+          </el-menu-item>
+          <el-menu-item v-if="positiontype == 1" index="dailypaper">
+            <i class="el-icon-edit"></i>填写日报
+          </el-menu-item>
+          <el-menu-item
+            v-if="this.permissions.indexOf('000037') != -1"
+            index="readdailypaper"
+          >
+            <i class="el-icon-view"></i>查看日报
+          </el-menu-item>
+          <el-menu-item v-if="true" index="leaveflow">
+            <i class="el-icon-s-fold"></i>请假申请
+          </el-menu-item>
+          <el-menu-item v-if="true" index="audit">
+            <i class="el-icon-s-check"></i>审批
+          </el-menu-item>
           <el-menu-item index="personalpage">
             <i class="el-icon-setting"></i>个人中心
           </el-menu-item>
@@ -94,13 +105,13 @@
 </style>
 
 <script>
-//这是zhengzhenhong 
+//这是zhengzhenhong
 export default {
   name: "Index",
   data() {
     return {
       permissions: "",
-      positiontype:null
+      positiontype: null,
     };
   },
   mounted: function () {

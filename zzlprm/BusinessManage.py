@@ -3,6 +3,7 @@ from zzlprm.models import TbBusiness
 from zzlprm.models import TbBusinessClient
 from zzlprm.models import TbBusinessContact
 from zzlprm.models import TbBusinessUser
+from zzlprm.models import TbBusinessrecord
 from zzlprm.models import TbProject
 from zzlprm.Common import dictfetchall
 
@@ -38,7 +39,22 @@ def get_businesses(request):
 "order by b.updatetime desc"
     cursor.execute(sql)
     businesses = dictfetchall(cursor)
-    return JsonResponse(businesses, safe=False)
+
+    sqlrecord = "select tb_businessrecord.*,tb_dict.typename "\
+",auth_user.name as uname from tb_businessrecord "\
+"LEFT JOIN tb_dict "\
+"on tb_businessrecord.typeid = tb_dict.typeid "\
+"LEFT JOIN auth_user "\
+"on auth_user.id = tb_businessrecord.userid "\
+"where tb_dict.type = 3"
+    cursor.execute(sqlrecord)
+    businesserecord = dictfetchall(cursor)
+
+    returnjson = {
+        'businesses':businesses,
+        'businessrecord':businesserecord
+    }
+    return JsonResponse(returnjson, safe=False)
 
 @api_view(['GET','POST'])
 def get_statuses(request):
@@ -60,18 +76,24 @@ def create_business(request):
     cursor.execute(sqlu)
     userid = dictfetchall(cursor)[0]["id"]
 
-    TbBusiness.objects.create(
-            businessname = json_data.get("businessname"),
-            status = json_data.get("status"),
-            description = json_data.get("description"),
-            possibility = json_data.get("possibility"),
-            budget = json_data.get("budget"),
-            owner = json_data.get("owner"),
-            writer = userid,
-            createtime = datetime.datetime.now(),
-            updatetime = datetime.datetime.now()
+    b = TbBusiness.objects.create(
+        businessname = json_data.get("businessname"),
+        status = json_data.get("status"),
+        description = json_data.get("description"),
+        possibility = json_data.get("possibility"),
+        budget = json_data.get("budget"),
+        owner = userid, #填报人就是所有人
+        writer = userid,
+        createtime = datetime.datetime.now(),
+        updatetime = datetime.datetime.now()
         )
-
+    
+    TbBusinessrecord.objects.create(
+        businessid = b.pk,
+        typeid = json_data.get("status"),
+        userid = userid,
+        createtime = datetime.datetime.now(),
+        )
     return HttpResponse("OK")
 
 @api_view(['GET','POST'])
@@ -127,13 +149,29 @@ def edit_business(request):
     data = request.body.decode("utf-8")
     json_data = json.loads(data)
 
+    cursor=connection.cursor()
+    sqlbusiness = "select * from tb_business where businessid = "+ str(json_data.get("businessid")) +" "
+    cursor.execute(sqlbusiness)
+    business = dictfetchall(cursor)[0]
+    if business.get("status") != json_data.get("status"):
+        username = request.user.username
+        sqlu = "select * from auth_user where username = '"+ username +"' "
+        cursor.execute(sqlu)
+        userid = dictfetchall(cursor)[0]["id"]
+        TbBusinessrecord.objects.create(
+            businessid = json_data.get("businessid"),
+            typeid = json_data.get("status"),
+            userid = userid,
+            createtime = datetime.datetime.now(),
+        )
+        
     TbBusiness.objects.filter(businessid=json_data.get("businessid")).update(
             businessname = json_data.get("businessname"),
             status = json_data.get("status"),
             description = json_data.get("description"),
             possibility = json_data.get("possibility"),
             budget = json_data.get("budget"),
-            owner = json_data.get("owner"),
+            # owner = json_data.get("owner"),
             updatetime = datetime.datetime.now()
         )
 
@@ -174,6 +212,7 @@ def edit_business(request):
                 userid = members[i],
                 ismanager = 0
                 )
+
     return HttpResponse("OK")
 
 @api_view(['GET','POST'])
@@ -201,8 +240,9 @@ def end_business(request):
     projectname = json_data.get("projectname")
     projecttype = json_data.get("projecttype")
     description = json_data.get("description")
-    
+    tempstatus = None
     if status == "0":
+        tempstatus = 5
         TbBusiness.objects.filter(businessid=json_data.get("businessid")).update(
             status = 5,
             lossreason = lossreason,
@@ -210,6 +250,7 @@ def end_business(request):
             updatetime = datetime.datetime.now()
         )
     else:
+        tempstatus = 4
         TbBusiness.objects.filter(businessid=json_data.get("businessid")).update(
             status = 4,
             finishtime = datetime.datetime.now(),
@@ -223,5 +264,17 @@ def end_business(request):
                 createtime = datetime.datetime.now(),
                 updatetime = datetime.datetime.now()
                 )
+    
+    username = request.user.username
+    cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    userid = dictfetchall(cursor)[0]["id"]
 
+    TbBusinessrecord.objects.create(
+        businessid = businessid,
+        typeid = tempstatus,
+        userid = userid,
+        createtime = datetime.datetime.now(),
+        )
     return HttpResponse("OK")

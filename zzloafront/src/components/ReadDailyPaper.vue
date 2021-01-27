@@ -13,17 +13,75 @@
         >
         </el-tree>
       </el-col>
-      <el-col :span="14">
+      <el-col :span="18">
+        <el-row>
+          <el-button @click="expandall()"
+            ><i class="el-icon-folder-opened"></i>展开/合上(全部)</el-button
+          >
+          <span style="margin-left: 20px; font-size: 15px; color: darkgrey"
+          v-if="currentuser != null"
+            >您正在查看<span style="color: black">{{ currentuser }}</span
+            >的日报</span
+          >
+        </el-row>
         <el-table
-          :data="
-            tableData.slice(
-              (limitePage.page - 1) * limitePage.limit,
-              limitePage.limit * limitePage.page
-            )
-          "
+          :data="tableData"
           style="width: 100%"
-          @row-click="openDetails"
+          :expand-row-keys="expandrowkeys"
+          row-key="dailypaperid"
+          @expand-change="exChange"
         >
+          <el-table-column type="expand">
+            <template slot-scope="props">
+              <el-table
+                :data="
+                  tableDailypaperDetail.filter(
+                    (f) => f.dailypaperid == props.row.dailypaperid
+                  )
+                "
+                stripe
+                style="width: 100%"
+              >
+                <el-table-column type="index" width="20"> </el-table-column>
+                <el-table-column
+                  prop="projectname"
+                  label="项目-阶段名"
+                  width="200"
+                  v-if="positiontype == 1"
+                >
+                </el-table-column>
+                <el-table-column
+                  prop="businessname"
+                  label="商机名"
+                  width="200"
+                  v-if="positiontype == 2"
+                >
+                </el-table-column>
+                <el-table-column
+                  prop="worktime"
+                  label="用时(单位:h)"
+                  width="120"
+                >
+                </el-table-column>
+                <el-table-column
+                  prop="cost"
+                  v-if="positiontype == 2"
+                  label="费用(单位:元)"
+                  width="120"
+                >
+                </el-table-column>
+                <el-table-column
+                  prop="contactname"
+                  v-if="positiontype == 2"
+                  label="联系人"
+                  width="100"
+                >
+                </el-table-column>
+                <el-table-column prop="workcontent" label="工作内容">
+                </el-table-column>
+              </el-table>
+            </template>
+          </el-table-column>
           <el-table-column width="50">
             <template slot-scope="scope">
               <i v-if="scope.row.isread == 1" class="el-icon-folder-opened"></i>
@@ -37,7 +95,19 @@
               scope.row.dailypaperdate | dateYMDHMSFormat
             }}</template>
           </el-table-column>
-          <el-table-column prop="createtime" label="提交日期" width="180">
+          <el-table-column
+            prop="receptionists"
+            label="接收人"
+            style="width: 25%"
+          >
+          </el-table-column>
+          <el-table-column
+            prop="readreceptionists"
+            label="已读接收人"
+            style="width: 25%"
+          >
+          </el-table-column>
+          <el-table-column prop="createtime" label="提交日期">
             <template slot-scope="scope">{{
               scope.row.createtime | dateYMDHMSFormat
             }}</template>
@@ -51,8 +121,8 @@
             :current-page="limitePage.page"
             :page-sizes="[5, 10, 20]"
             :page-size="limitePage.limit"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="tableData.length"
+            layout="total, prev, pager, next, jumper"
+            :total="total"
           >
           </el-pagination>
         </div>
@@ -153,15 +223,21 @@ export default {
   data() {
     return {
       dialogVisible: false,
-      saleDialogVisible:false,
+      saleDialogVisible: false,
       treeData: [],
       userlist: [],
+      expandrowkeys: [],
+      unexpandrowkeys: [],
       positiontype: null,
       limitePage: {
-        limit: 10,
+        limit: 5,
         page: 1,
       },
       tableData: [],
+      total: null,
+      currentnode: null,
+      currentuser: null,
+      tableDailypaperDetail: [],
       dailypaperdata: {
         receptionists: null,
         dailypaperdate: "",
@@ -182,6 +258,12 @@ export default {
         this.treeData = res.data.grouptree.children;
         this.userlist = res.data.users;
         this.recursion(this.treeData[0]);
+        //console.log(this.currentnode);
+        if (this.currentnode != null) {
+          this.$nextTick(() => {
+            this.$refs.tree.setCurrentKey(this.currentnode.groupid);
+          });
+        }
       });
     },
     recursion(node) {
@@ -205,73 +287,181 @@ export default {
         node.children.forEach((item) => this.recursion(item));
       }
     },
-    openDetails(row) {
-      row.isread = 1;
-      let param = new URLSearchParams();
-      param.append("dailypaperid", row.dailypaperid);
+    // openDetails(row) {
+    //   row.isread = 1;
+    //   let param = new URLSearchParams();
+    //   param.append("dailypaperid", row.dailypaperid);
 
-      if (this.positiontype == 1) {
-        axios({
-          url: "dailypaper/read_dailypaperdetail/",
-          method: "post",
-          data: param,
-        }).then((res) => {
-          this.dialogVisible = true;
-          res.data.forEach((element) => {
-            if (element.projectscheduleid == -1) {
-              element.projectname = "自我学习";
-            }
-          });
-          this.dailypaperdetail = res.data;
-          this.dailypaperdata.receptionists = res.data[0].receptionists;
-          this.dailypaperdata.dailypaperdate = res.data[0].dailypaperdate;
-          this.dailypaperdata.createdate = res.data[0].createtime.replace(
-            "T",
-            " "
-          );
-          this.initorganization();
-        });
-      }
-      else if(this.positiontype == 2){
-        axios({
-          url: "dailypapersale/read_dailypaperdetail/",
-          method: "post",
-          data: param,
-        }).then((res) => {
-          this.saleDialogVisible = true;
-          res.data.forEach((element) => {
-            if (element.businessid == -1) {
-              element.businessname = "自我学习";
-            }
-          });
-          this.dailypaperdetail = res.data;
-          this.dailypaperdata.receptionists = res.data[0].receptionists;
-          this.dailypaperdata.dailypaperdate = res.data[0].dailypaperdate;
-          this.dailypaperdata.createdate = res.data[0].createtime.replace(
-            "T",
-            " "
-          );
-          this.initorganization();
-        });
-      }
-    },
+    //   if (this.positiontype == 1) {
+    //     axios({
+    //       url: "dailypaper/read_dailypaperdetail/",
+    //       method: "post",
+    //       data: param,
+    //     }).then((res) => {
+    //       this.dialogVisible = true;
+    //       res.data.forEach((element) => {
+    //         if (element.projectscheduleid == -1) {
+    //           element.projectname = "自我学习";
+    //         }
+    //       });
+    //       this.dailypaperdetail = res.data;
+    //       this.dailypaperdata.receptionists = res.data[0].receptionists;
+    //       this.dailypaperdata.dailypaperdate = res.data[0].dailypaperdate;
+    //       this.dailypaperdata.createdate = res.data[0].createtime.replace(
+    //         "T",
+    //         " "
+    //       );
+    //       this.initorganization();
+    //     });
+    //   } else if (this.positiontype == 2) {
+    //     axios({
+    //       url: "dailypapersale/read_dailypaperdetail/",
+    //       method: "post",
+    //       data: param,
+    //     }).then((res) => {
+    //       this.saleDialogVisible = true;
+    //       res.data.forEach((element) => {
+    //         if (element.businessid == -1) {
+    //           element.businessname = "自我学习";
+    //         }
+    //       });
+    //       this.dailypaperdetail = res.data;
+    //       this.dailypaperdata.receptionists = res.data[0].receptionists;
+    //       this.dailypaperdata.dailypaperdate = res.data[0].dailypaperdate;
+    //       this.dailypaperdata.createdate = res.data[0].createtime.replace(
+    //         "T",
+    //         " "
+    //       );
+    //       this.initorganization();
+    //     });
+    //   }
+    // },
     handleSizeChange(val) {
       this.limitePage.limit = val;
     },
     handleCurrentChange(val) {
+      //alert(1);
       this.limitePage.page = val;
+      if ((this.currentnode.groupid + "").indexOf("user") != -1) {
+        let param = new URLSearchParams();
+        param.append("userid", this.currentnode.groupid.split("_")[1]);
+        param.append("limit", this.limitePage.limit);
+        param.append("page", this.limitePage.page);
+        axios({
+          url: "dailypaper/load_userdailypaper/",
+          method: "post",
+          data: param,
+        }).then((res) => {
+          //console.log(res.data);
+          this.tableData = res.data.dailypapers;
+          this.total = res.data.total;
+          this.unexpandrowkeys = [];
+          this.tableData.forEach((element) => {
+            this.unexpandrowkeys.push(element.dailypaperid);
+          });
+          this.tableDailypaperDetail = res.data.dailypaperdetails;
+          this.positiontype = res.data.positiontype;
+          this.tableDailypaperDetail.forEach((element) => {
+            if (this.positiontype == 1) {
+              if (element.projectscheduleid == -1) {
+                element.projectname = "自我学习";
+              }
+            } else {
+              if (element.businessid == -1) {
+                element.businessname = "自我学习";
+              }
+            }
+          });
+        });
+      }
     },
     handleNodeClick(data) {
+      //console.log(data);
+      this.currentnode = data;
       if ((data.groupid + "").indexOf("user") != -1) {
+        this.currentuser = this.currentnode.label;
         let param = new URLSearchParams();
         param.append("userid", data.groupid.split("_")[1]);
+        param.append("limit", this.limitePage.limit);
+        param.append("page", this.limitePage.page);
         axios({
           url: "dailypaper/load_userdailypaper/",
           method: "post",
           data: param,
         }).then((res) => {
           this.tableData = res.data.dailypapers;
+          this.total = res.data.total;
+          this.unexpandrowkeys = [];
+          this.tableData.forEach((element) => {
+            this.unexpandrowkeys.push(element.dailypaperid);
+          });
           this.positiontype = res.data.positiontype;
+          this.tableDailypaperDetail = res.data.dailypaperdetails;
+          this.tableDailypaperDetail.forEach((element) => {
+            if (this.positiontype == 1) {
+              if (element.projectscheduleid == -1) {
+                element.projectname = "自我学习";
+              }
+            } else {
+              if (element.businessid == -1) {
+                element.businessname = "自我学习";
+              }
+            }
+          });
+        });
+      }
+    },
+    expandall() {
+      if (this.expandrowkeys.length > 0) {
+        this.expandrowkeys = [];
+      } else {
+        this.expandrowkeys = this.unexpandrowkeys;
+        let param = new URLSearchParams();
+        param.append("dailypaperids", this.unexpandrowkeys);
+        axios({
+          url: "dailypaper/readdailypaper_list/",
+          method: "post",
+          data: param,
+        }).then((res) => {
+          this.tableData.forEach((element) => {
+            element.isread = 1;
+            if (element.readreceptionists == null) {
+              element.readreceptionists = sessionStorage.getItem("uname");
+            } else {
+              if (
+                element.readreceptionists.indexOf(
+                  sessionStorage.getItem("uname")
+                ) > -1
+              ) {
+              } else {
+                element.readreceptionists =
+                  element.readreceptionists +
+                  "," +
+                  sessionStorage.getItem("uname");
+              }
+            }
+          });
+          this.initorganization();
+        });
+      }
+    },
+    exChange(row, rowList) {
+      if (row.isread == 0) {
+        let param = new URLSearchParams();
+        param.append("dailypaperid", row.dailypaperid);
+        axios({
+          url: "dailypaper/readdailypaper_byid/",
+          method: "post",
+          data: param,
+        }).then((res) => {
+          row.isread = 1;
+          if (row.readreceptionists == null) {
+            row.readreceptionists = sessionStorage.getItem("uname");
+          } else {
+            row.readreceptionists =
+              row.readreceptionists + "," + sessionStorage.getItem("uname");
+          }
+          this.initorganization();
         });
       }
     },

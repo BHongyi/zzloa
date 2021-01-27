@@ -159,6 +159,7 @@ class TbBusiness(models.Model):
     finishtime = models.DateTimeField(blank=True, null=True)
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
+    isdeleted = models.IntegerField()
 
     class Meta:
         managed = False
@@ -226,6 +227,7 @@ class TbClient(models.Model):
     phone = models.CharField(max_length=50, blank=True, null=True)
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
+    isdeleted = models.IntegerField()
 
     class Meta:
         managed = False
@@ -248,6 +250,7 @@ class TbContact(models.Model):
     age = models.IntegerField(blank=True, null=True)
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
+    isdeleted = models.IntegerField()
 
     class Meta:
         managed = False
@@ -419,6 +422,7 @@ class TbProject(models.Model):
     typeid = models.IntegerField()
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
+    isdeleted = models.IntegerField()
 
     class Meta:
         managed = False
@@ -440,6 +444,7 @@ class TbProjectschedule(models.Model):
     isfinished = models.IntegerField()
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
+    isdeleted = models.IntegerField()
 
     class Meta:
         managed = False

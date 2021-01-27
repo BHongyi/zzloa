@@ -4,12 +4,12 @@
     <el-header
       ><img src="../assets/img/logo.png" style="width: 30px" />
       中智联项目管理系统
+      <span style="position: absolute; top: 0px; right: 20px">{{this.uname}}
       <el-link
         @click="logout()"
-        style="position: absolute; top: 0px; right: 20px"
         type="primary"
         >退出</el-link
-      >
+      ></span>
     </el-header>
     <el-container>
       <!-- 页面左侧菜单 -->
@@ -71,12 +71,18 @@
             v-if="this.permissions.indexOf('000037') != -1"
             index="readdailypaper"
           >
-            <i class="el-icon-view"></i>查看日报
+            <i class="el-icon-view"></i>查看日报(按人)
           </el-menu-item>
-          <el-menu-item v-if="true" index="leaveflow">
+          <el-menu-item
+            v-if="this.permissions.indexOf('000037') != -1"
+            index="readdailypaperbydate"
+          >
+            <i class="el-icon-view"></i>查看日报(按日)
+          </el-menu-item>
+          <el-menu-item v-if="false" index="leaveflow">
             <i class="el-icon-s-fold"></i>请假申请
           </el-menu-item>
-          <el-menu-item v-if="true" index="audit">
+          <el-menu-item v-if="false" index="audit">
             <i class="el-icon-s-check"></i>审批
           </el-menu-item>
           <el-menu-item index="personalpage">
@@ -112,6 +118,7 @@ export default {
     return {
       permissions: "",
       positiontype: null,
+      uname:""
     };
   },
   mounted: function () {
@@ -121,6 +128,7 @@ export default {
     initpermissions() {
       this.permissions = sessionStorage.getItem("permissions");
       this.positiontype = sessionStorage.getItem("positiontype");
+      this.uname = sessionStorage.getItem("uname");
     },
     logout() {
       this.$confirm("确认退出？")

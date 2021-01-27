@@ -24,7 +24,7 @@ def get_clients(request):
     "ON tb_client.clienttype = tb_dict.typeid "\
     "and tb_dict.type = 4 "\
     "LEFT JOIN auth_user "\
-    "on tb_client.staff = auth_user.id "\
+    "on tb_client.staff = auth_user.id where tb_client.isdeleted = 0 "\
     "order by tb_client.updatetime desc"
     cursor.execute(sql)
     clients = dictfetchall(cursor)
@@ -72,7 +72,8 @@ def create_client(request):
             phone = phone,
             description = description,
             createtime = createtime,
-            updatetime = updatetime
+            updatetime = updatetime,
+            isdeleted=0
         )
 
     return HttpResponse("OK")
@@ -120,7 +121,9 @@ def delete_client(request):
 
     delete_ids_list = delete_ids.split(',')
     for i in range(0,len(delete_ids_list)):
-        TbClient.objects.filter(clientid=delete_ids_list[i]).delete()
+        TbClient.objects.filter(clientid=delete_ids_list[i]).update(
+            isdeleted = 1
+            )
 
     return HttpResponse("OK")
 
@@ -138,7 +141,7 @@ def get_client_byid(request):
 @api_view(['GET','POST'])
 def get_contacts(request):
     cursor=connection.cursor()
-    sql = "select * from tb_contact "
+    sql = "select * from tb_contact where isdeleted=0 "
     cursor.execute(sql)
     contacts = dictfetchall(cursor)
     return JsonResponse(contacts, safe=False)
@@ -176,7 +179,8 @@ def create_contact(request):
             sex = sex,
             age = age,
             createtime = createtime,
-            updatetime = updatetime
+            updatetime = updatetime,
+            isdeleted=0
         )
 
     return HttpResponse("OK")
@@ -232,5 +236,7 @@ def edit_contact(request):
 @api_view(['GET','POST'])
 def delete_contact(request):
     contactid = request.POST.get("contactid")
-    TbContact.objects.filter(contactid=contactid).delete()
+    TbContact.objects.filter(contactid=contactid).update(
+        isdeleted = 1
+        )
     return HttpResponse("OK")

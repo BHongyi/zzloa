@@ -16,6 +16,7 @@ import BusinessManage from '@/components/BusinessManage'
 import DailyPaperSale from '@/components/DailyPaperSale'
 import LeaveFlow from '@/components/LeaveFlow'
 import Audit from '@/components/Audit'
+import ReadDailypaperBydate from '@/components/ReadDailypaperBydate'
 
 Vue.use(Router)
 const originalPush = Router.prototype.push
@@ -110,6 +111,11 @@ export default new Router({
           path: '/audit',
           name: 'Audit',
           component: Audit
+        },
+        {
+          path: '/readdailypaperbydate',
+          name: 'ReadDailypaperBydate',
+          component: ReadDailypaperBydate
         }
       ]
     }

@@ -74,6 +74,14 @@ export default {
     if (localStorage.getItem("rememberPsw") == "true") {
       this.getCookie();
     }
+
+    let that = this;
+    document.onkeydown =function(e){
+      e = window.event || e;
+      if(e.code=='Enter'||e.code=='enter'){//验证在登录界面和按得键是回车键enter
+        that.doSubmit();
+      }
+    }
   },
   methods: {
     doSubmit() {
@@ -98,6 +106,7 @@ export default {
               });
               sessionStorage.setItem("permissions", permission);
               sessionStorage.setItem("positiontype", res.data.positiontype);
+              sessionStorage.setItem("uname", res.data.uname);
               if (this.remember) {
                 this.setCookie(
                   this.loginfrom.username,

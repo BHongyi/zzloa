@@ -68,6 +68,10 @@ urlpatterns = [
     path('dailypaper/get_dailypaperbyid/', DailyPaper.get_dailypaperbyid),
     path('dailypaper/edit_dailypaper/', DailyPaper.edit_dailypaper),
     path('dailypaper/get_history/', DailyPaper.get_history),
+    path('dailypaper/readdailypaper_byid/', DailyPaper.readdailypaper_byid),
+    path('dailypaper/readdailypaper_list/', DailyPaper.readdailypaper_list),
+    path('dailypaper/load_userdailypaper_bydate/', DailyPaper.load_userdailypaper_bydate),
+    path('dailypaper/delete_dailypaper/', DailyPaper.delete_dailypaper),
 
     path('personalpage/edit_password/', PersonalPage.edit_password),
 
@@ -101,6 +105,7 @@ urlpatterns = [
     path('dailypapersale/edit_dailypaper/', DailyPaperSale.edit_dailypaper),
     path('dailypapersale/read_dailypaperdetail/', DailyPaperSale.read_dailypaperdetail),
     path('dailypapersale/get_history/', DailyPaperSale.get_history),
+    path('dailypapersale/delete_dailypaper/', DailyPaperSale.delete_dailypaper),
 
     path('leaveflow/get_leaves/', LeaveFlow.get_leaves),
     path('leaveflow/get_leavetypes/', LeaveFlow.get_leavetypes),
@@ -109,4 +114,6 @@ urlpatterns = [
     path('leaveflow/get_leave_byid/', LeaveFlow.get_leave_byid),
 
     path('audit/get_audits/', Audit.get_audits),
+    path('audit/approve_leave/', Audit.approve_leave),
+    path('audit/reject_leave/', Audit.reject_leave),
 ]

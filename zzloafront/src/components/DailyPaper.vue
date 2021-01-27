@@ -1,8 +1,15 @@
 <template>
   <div>
     <el-row>
-      <el-button @click="dialogVisible = true;cleardailypaperForm()"
+      <el-button
+        @click="
+          dialogVisible = true;
+          cleardailypaperForm();
+        "
         ><i class="el-icon-plus"></i>填写日报</el-button
+      >
+      <el-button @click="expandall()"
+        ><i class="el-icon-folder-opened"></i>展开/合上(全部)</el-button
       >
     </el-row>
     <el-table
@@ -13,6 +20,8 @@
         )
       "
       style="width: 100%"
+      :expand-row-keys="expandrowkeys"
+      row-key="dailypaperid"
     >
       <el-table-column type="expand">
         <template slot-scope="props">
@@ -46,20 +55,31 @@
       </el-table-column>
       <el-table-column prop="receptionists" label="接收人" style="width: 25%">
       </el-table-column>
-      <el-table-column prop="readreceptionists" label="已读接收人" style="width: 25%">
+      <el-table-column
+        prop="readreceptionists"
+        label="已读接收人"
+        style="width: 25%"
+      >
       </el-table-column>
       <el-table-column prop="createtime" label="提交日期" width="180">
         <template slot-scope="scope">{{
           scope.row.createtime | dateYMDHMSFormat
         }}</template>
       </el-table-column>
-      <el-table-column
-        label="操作"
-        width="180"
-      >
+      <el-table-column label="操作" width="180">
         <template slot-scope="scope">
-          <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+          <el-button
+            size="mini"
+            v-if="comparedate(scope.row.dailypaperdate, threedayago)"
+            @click="handleEdit(scope.$index, scope.row)"
             ><i class="el-icon-edit"></i>修改</el-button
+          >
+          <el-button
+            size="mini"
+            type="danger"
+            v-if="comparedate(scope.row.dailypaperdate, threedayago)"
+            @click="deletedailypaper(scope.$index, scope.row)"
+            ><i class="el-icon-delete"></i>删除</el-button
           >
         </template>
       </el-table-column>
@@ -93,13 +113,7 @@
         <el-form-item
           label="日期:"
           prop="dailypaperdate"
-          :rules="[
-            {
-              required: true,
-              message: '日报日期不能为空',
-              trigger: 'blur',
-            },
-          ]"
+          :rules="rules.dailypaperDate"
         >
           <el-date-picker
             v-model="returnjson.dailypaperdate"
@@ -168,6 +182,16 @@
           empty-text="请选择项目"
           style="width: 100%"
         >
+          <el-table-column width="35">
+            <template slot-scope="scope">
+              <el-link
+                type="info"
+                :underline="false"
+                @click="cutprojectschedule(scope.$index, scope.row)"
+                ><i class="el-icon-error"></i
+              ></el-link>
+            </template>
+          </el-table-column>
           <el-table-column
             prop="projectschedulename"
             label="项目-阶段"
@@ -187,7 +211,11 @@
                   },
                 ]"
               >
-                <el-select v-model="scope.row.worktime" placeholder="请选择">
+                <el-select
+                  v-model="scope.row.worktime"
+                  filterable
+                  placeholder="请选择"
+                >
                   <el-option
                     v-for="item in timelist"
                     :key="item.id"
@@ -226,11 +254,7 @@
       </span>
     </el-dialog>
 
-    <el-dialog
-      title="编辑日报"
-      :visible.sync="editDialogVisible"
-      width="650px"
-    >
+    <el-dialog title="编辑日报" :visible.sync="editDialogVisible" width="650px">
       <el-form
         :model="editreturnjson"
         label-position="left"
@@ -240,13 +264,7 @@
         <el-form-item
           label="日期:"
           prop="dailypaperdate"
-          :rules="[
-            {
-              required: true,
-              message: '日报日期不能为空',
-              trigger: 'blur',
-            },
-          ]"
+          :rules="rules.editdailypaperDate"
         >
           <el-date-picker
             v-model="editreturnjson.dailypaperdate"
@@ -315,11 +333,17 @@
           empty-text="请选择项目"
           style="width: 100%"
         >
-          <el-table-column
-            prop="projectname"
-            label="项目-阶段"
-            width="180"
-          >
+          <el-table-column width="35">
+            <template slot-scope="scope">
+              <el-link
+                type="info"
+                :underline="false"
+                @click="editcutprojectschedule(scope.$index, scope.row)"
+                ><i class="el-icon-error"></i
+              ></el-link>
+            </template>
+          </el-table-column>
+          <el-table-column prop="projectname" label="项目-阶段" width="180">
           </el-table-column>
           <el-table-column prop="worktime" label="工时(单位:h)" width="120">
             <template slot-scope="scope">
@@ -334,7 +358,11 @@
                   },
                 ]"
               >
-                <el-select v-model="scope.row.worktime" placeholder="请选择">
+                <el-select
+                  v-model="scope.row.worktime"
+                  filterable
+                  placeholder="请选择"
+                >
                   <el-option
                     v-for="item in timelist"
                     :key="item.id"
@@ -368,7 +396,9 @@
         </el-table>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submiteditdailypaper()">提交</el-button>
+        <el-button type="primary" @click="submiteditdailypaper()"
+          >提交</el-button
+        >
       </span>
     </el-dialog>
   </div>
@@ -385,19 +415,71 @@ import axios from "../utils/httpRequest";
 export default {
   name: "DailyPaper",
   data() {
+    var validateDate = (rule, value, callback) => {
+      var oDate1 = new Date(this.returnjson.dailypaperdate);
+      var oDate2 = new Date(this.threedayago);
+      var timecompareflag = null;
+      if (oDate1.getTime() >= oDate2.getTime()) {
+        timecompareflag = true;
+      } else {
+        timecompareflag = false;
+      }
+      if (
+        (this.returnjson.dailypaperdate == "") |
+        (this.returnjson.dailypaperdate == null)
+      ) {
+        callback(new Error("日报日期不能为空"));
+      } else if (!timecompareflag) {
+        callback(new Error("不可以填写3个工作日以前的日报"));
+      } else {
+        callback();
+      }
+    };
+
+    var editvalidateDate = (rule, value, callback) => {
+      var oDate1 = new Date(this.editreturnjson.dailypaperdate);
+      var oDate2 = new Date(this.threedayago);
+      var timecompareflag = null;
+      if (oDate1.getTime() >= oDate2.getTime()) {
+        timecompareflag = true;
+      } else {
+        timecompareflag = false;
+      }
+      if (
+        (this.editreturnjson.dailypaperdate == "") |
+        (this.editreturnjson.dailypaperdate == null)
+      ) {
+        callback(new Error("日报日期不能为空"));
+      } else if (!timecompareflag) {
+        callback(new Error("不可以填写3个工作日以前的日报"));
+      } else {
+        callback();
+      }
+    };
     return {
       dialogVisible: false,
-      editDialogVisible:false,
+      editDialogVisible: false,
       limitePage: {
         limit: 10,
         page: 1,
       },
       tableData: [],
+      threedayago: null,
+      today:null,
+      expandrowkeys: [],
+      unexpandrowkeys: [],
       tableDailypaperDetail: [],
       pickerOptions: {
         disabledDate(time) {
           var curTime = new Date().getTime();
-          var startDate = curTime - 3 * 3600 * 24 * 1000;
+          var _day = 3;
+          if(new Date().getDay() == 1){
+            _day = _day + 2;
+          }
+          else if(new Date().getDay() == 2){
+            _day = _day + 2;
+          }
+          var startDate = curTime - _day * 3600 * 24 * 1000;
           startDate = new Date(startDate);
           return time.getTime() > Date.now() || time.getTime() < startDate;
         },
@@ -407,15 +489,25 @@ export default {
         { id: 1, name: "1.0" },
         { id: 1.5, name: "1.5" },
         { id: 2, name: "2.0" },
+        { id: 2.5, name: "2.5" },
         { id: 3.0, name: "3.0" },
+        { id: 3.5, name: "3.5" },
         { id: 4.0, name: "4.0" },
+        { id: 4.5, name: "4.5" },
         { id: 5.0, name: "5.0" },
+        { id: 5.5, name: "5.5" },
         { id: 6.0, name: "6.0" },
+        { id: 6.5, name: "6.5" },
         { id: 7.0, name: "7.0" },
+        { id: 7.5, name: "7.5" },
         { id: 8.0, name: "8.0" },
+        { id: 8.5, name: "8.5" },
         { id: 9.0, name: "9.0" },
+        { id: 9.5, name: "9.5" },
         { id: 10.0, name: "10.0" },
+        { id: 10.5, name: "10.5" },
         { id: 11.0, name: "11.0" },
+        { id: 11.5, name: "11.5" },
         { id: 12.0, name: "12.0" },
       ],
       projectschedulelist: [],
@@ -430,11 +522,19 @@ export default {
         tableData: [],
       },
       editreturnjson: {
-        dailypaperid:null,
+        dailypaperid: null,
         dailypaperdate: "",
         projectschedules: [],
         checkeduser: [],
         tableData: [],
+      },
+      rules: {
+        dailypaperDate: [
+          { required: true, validator: validateDate, trigger: "blur" },
+        ],
+        editdailypaperDate: [
+          { required: true, validator: editvalidateDate, trigger: "blur" },
+        ],
       },
     };
   },
@@ -450,7 +550,12 @@ export default {
         url: "dailypaper/get_dailypapers/",
         method: "post",
       }).then((res) => {
+        this.threedayago = res.data.threedayago;
+        this.today = res.data.today;
         this.tableData = res.data.dailypapers;
+        this.tableData.forEach((element) => {
+          this.unexpandrowkeys.push(element.dailypaperid);
+        });
         this.tableDailypaperDetail = res.data.dailypaperdetails;
         this.tableDailypaperDetail.forEach((element) => {
           if (element.projectscheduleid == -1) {
@@ -481,8 +586,10 @@ export default {
         this.userlist = res.data;
       });
     },
-    cleardailypaperForm(){
-      this.$refs["dailypaperForm"].clearValidate();
+    cleardailypaperForm() {
+      if(this.$refs["dailypaperForm"] != undefined){
+        this.$refs["dailypaperForm"].clearValidate();
+      }
       this.returnjson.dailypaperdate = new Date();
       this.returnjson.projectschedules = [];
       this.returnjson.checkeduser = [];
@@ -496,10 +603,9 @@ export default {
             data: this.returnjson,
             method: "post",
           }).then((res) => {
-            if(res.data != "OK"){
+            if (res.data != "OK") {
               alert(res.data);
-            }
-            else{
+            } else {
               this.initdailypapers();
               this.dialogVisible = false;
             }
@@ -510,7 +616,7 @@ export default {
         }
       });
     },
-    submiteditdailypaper(){
+    submiteditdailypaper() {
       this.$refs["editdailypaperForm"].validate((valid) => {
         if (valid) {
           axios({
@@ -518,10 +624,9 @@ export default {
             data: this.editreturnjson,
             method: "post",
           }).then((res) => {
-            if(res.data != "OK"){
+            if (res.data != "OK") {
               alert(res.data);
-            }
-            else{
+            } else {
               this.initdailypapers();
               this.editDialogVisible = false;
             }
@@ -532,6 +637,15 @@ export default {
         }
       });
     },
+    comparedate(firstdate, seconddate) {
+      var oDate1 = new Date(firstdate.split("T")[0]);
+      var oDate2 = new Date(seconddate);
+      if (oDate1.getTime() >= oDate2.getTime()) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     handleClose(done) {
       done();
     },
@@ -541,7 +655,36 @@ export default {
     handleCurrentChange(val) {
       this.limitePage.page = val;
     },
-    handleEdit(index, row){
+    cutprojectschedule(index, row) {
+      this.returnjson.projectschedules = this.returnjson.projectschedules.filter(
+        (t) => t != row.projectscheduleid
+      );
+      this.projectschedulechange();
+    },
+    editcutprojectschedule(index, row) {
+      this.editreturnjson.projectschedules = this.editreturnjson.projectschedules.filter(
+        (t) => t != row.projectscheduleid
+      );
+      this.editprojectschedulechange();
+    },
+    deletedailypaper(index, row) {
+      this.$confirm("确认删除？")
+        .then((_) => {
+          let param = new URLSearchParams();
+          param.append("dailypaperid", row.dailypaperid);
+          axios({
+            url: "dailypaper/delete_dailypaper/",
+            data: param,
+            method: "post",
+          }).then((res) => {
+            this.initdailypapers();
+          });
+        })
+        .catch((_) => {
+          return;
+        });
+    },
+    handleEdit(index, row) {
       this.editreturnjson.dailypaperid = null;
       this.editreturnjson.dailypaperdate = "";
       this.editreturnjson.projectschedules = [];
@@ -552,51 +695,61 @@ export default {
       let param = new URLSearchParams();
       param.append("dailypaperid", row.dailypaperid);
       axios({
-            url: "dailypaper/get_dailypaperbyid/",
-            data: param,
-            method: "post",
-          }).then((res) => {
-            console.log(res.data);
-            this.editreturnjson.dailypaperid = res.data[0].dailypaperid;
-            this.editreturnjson.dailypaperdate = res.data[0].dailypaperdate.split('T')[0];
-            res.data.forEach(element => {
-              if(element.projectscheduleid == -1){
-                element.projectname="自我学习";
-              }
-              this.editreturnjson.projectschedules.push(element.projectscheduleid);
-              this.editreturnjson.tableData.push(element);
-            });
+        url: "dailypaper/get_dailypaperbyid/",
+        data: param,
+        method: "post",
+      }).then((res) => {
+        console.log(res.data);
+        this.editreturnjson.dailypaperid = res.data[0].dailypaperid;
+        this.editreturnjson.dailypaperdate = res.data[0].dailypaperdate.split(
+          "T"
+        )[0];
+        res.data.forEach((element) => {
+          if (element.projectscheduleid == -1) {
+            element.projectname = "自我学习";
+          }
+          this.editreturnjson.projectschedules.push(element.projectscheduleid);
+          this.editreturnjson.tableData.push(element);
+        });
 
-            this.editoldprojectschedules = this.editreturnjson.projectschedules;
-            res.data[0].receptionistids.split(',').forEach(element => {
-              this.editreturnjson.checkeduser.push(parseInt(element));
-            });
-
-          });
+        this.editoldprojectschedules = this.editreturnjson.projectschedules;
+        res.data[0].receptionistids.split(",").forEach((element) => {
+          this.editreturnjson.checkeduser.push(parseInt(element));
+        });
+      });
+    },
+    expandall() {
+      if (this.expandrowkeys.length > 0) {
+        this.expandrowkeys = [];
+      } else {
+        this.expandrowkeys = this.unexpandrowkeys;
+      }
     },
     history() {
       this.returnjson.businesses = [];
       this.returnjson.checkeduser = [];
       this.returnjson.tableData = [];
+      this.returnjson.projectschedules = [];
       axios({
         url: "dailypaper/get_history/",
         method: "post",
       }).then((res) => {
         res.data.forEach((element) => {
-          if(element.projectscheduleid == -1){
-              element.projectschedulename="自我学习";
+          if (element.projectscheduleid == -1) {
+            element.projectschedulename = "自我学习";
           }
-          console.log(element);
+          //console.log(element);
           this.returnjson.projectschedules.push(element.projectscheduleid);
           this.returnjson.tableData.push(element);
         });
 
+        this.oldprojectschedules = this.returnjson.projectschedules;
         res.data[0].receptionistids.split(",").forEach((element) => {
           this.returnjson.checkeduser.push(parseInt(element));
         });
       });
     },
-    editprojectschedulechange(){
+    editprojectschedulechange() {
       //debugger
       this.editoldprojectschedules.forEach((element) => {
         var flag = 0;
@@ -656,7 +809,7 @@ export default {
         res.data.forEach((element) => {
           var flag = 0;
           this.editreturnjson.checkeduser.forEach((element1) => {
-            if (element.userid == element1) {
+            if ((element.userid == element1) | (element.is_active == 0)) {
               flag = 1;
             }
           });
@@ -730,6 +883,7 @@ export default {
               flag = 1;
             }
           });
+          //console.log(element);
           if (flag == 0) {
             this.returnjson.checkeduser.push(element.userid);
           }

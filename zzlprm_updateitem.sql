@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50505
 File Encoding         : 65001
 
-Date: 2021-01-21 09:46:18
+Date: 2021-01-27 17:27:38
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -90,21 +90,22 @@ CREATE TABLE `auth_user` (
   `positiontype` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of auth_user
 -- ----------------------------
-INSERT INTO `auth_user` VALUES ('1', 'pbkdf2_sha256$216000$AqNOxAN9iwyE$K0ZE3aVPNFk1/Rg2hdJRbnW1JT8mcKXba96f+aMQGPM=', '2021-01-12 05:00:02.571006', '1', 'admin', '', '', 'zzl@qq.com', '1', '1', '2020-12-18 06:28:27.497579', '管理员', '123', '0000-00-00 00:00:00', '2020-12-31 13:57:57', '1');
-INSERT INTO `auth_user` VALUES ('13', 'pbkdf2_sha256$180000$vHoU1GZsCAFe$5fCzaZykUipQ1eGDYlP8s3CkjKKr57foVXtFI/UMPQc=', null, '0', 'lp', null, null, 'lp@qq.com', null, '1', null, '李鹏', '13900001234', '2021-01-12 07:42:39', '2021-01-12 07:42:39', '3');
-INSERT INTO `auth_user` VALUES ('14', 'pbkdf2_sha256$180000$BeC9JQs044uk$AhqRfYJGSl3n5+JfrOCH5AmSxu84T/pD5LW3NqnE0t4=', null, '0', 'ly', null, null, 'ly@qq.com', null, '1', null, '李杨', '13500000000', '2021-01-12 07:43:19', '2021-01-12 07:43:19', '3');
-INSERT INTO `auth_user` VALUES ('15', 'pbkdf2_sha256$180000$9t3qGkrux4Sd$LXAsIVly+OFQP6r897RbOzJ/Zdu7OkXRgFX7DQxwmG0=', null, '0', 'zzh', null, null, 'zzh@qq.com', null, '1', null, '郑镇洪', '15800000000', '2021-01-12 07:44:00', '2021-01-12 07:44:00', '1');
-INSERT INTO `auth_user` VALUES ('16', 'pbkdf2_sha256$180000$jdRZHyhldQPd$i3dETVZMN58Si/rYjTApxXUZiWWGYObgLxV4xnIOZVc=', null, '0', 'zrr', null, null, 'zrr@qq.com', null, '1', null, '张瑞蕊', '15600000000', '2021-01-12 07:44:33', '2021-01-13 15:14:19', '1');
-INSERT INTO `auth_user` VALUES ('18', 'pbkdf2_sha256$180000$9oWyF3ClnXwR$CMHoEC2jGX/AlK6Yj9j3Do0+fp09ODFaDmpnirhYzQk=', null, '0', 'zgm', null, null, 'zgm@qq.com', null, '1', null, '张国茂', '13600000000', '2021-01-12 07:46:05', '2021-01-12 07:46:05', '3');
+INSERT INTO `auth_user` VALUES ('1', 'pbkdf2_sha256$216000$AqNOxAN9iwyE$K0ZE3aVPNFk1/Rg2hdJRbnW1JT8mcKXba96f+aMQGPM=', '2021-01-27 17:05:12.299921', '1', 'admin', '', '', 'zzl@qq.com', '1', '1', '2020-12-18 06:28:27.497579', '管理员', '123', '0000-00-00 00:00:00', '2021-01-27 15:45:02', '1');
+INSERT INTO `auth_user` VALUES ('13', 'pbkdf2_sha256$180000$vHoU1GZsCAFe$5fCzaZykUipQ1eGDYlP8s3CkjKKr57foVXtFI/UMPQc=', '2021-01-27 17:02:34.575708', '0', 'lp', null, null, 'lp@qq.com', null, '1', null, '李鹏', '13900001234', '2021-01-12 07:42:39', '2021-01-27 15:45:40', '1');
+INSERT INTO `auth_user` VALUES ('14', 'pbkdf2_sha256$180000$BeC9JQs044uk$AhqRfYJGSl3n5+JfrOCH5AmSxu84T/pD5LW3NqnE0t4=', '2021-01-27 15:47:12.135434', '0', 'ly', null, null, 'ly@qq.com', null, '1', null, '李杨', '13500000000', '2021-01-12 07:43:19', '2021-01-27 15:45:31', '1');
+INSERT INTO `auth_user` VALUES ('15', 'pbkdf2_sha256$180000$9t3qGkrux4Sd$LXAsIVly+OFQP6r897RbOzJ/Zdu7OkXRgFX7DQxwmG0=', '2021-01-27 16:59:17.505968', '0', 'zzh', null, null, 'zzh@qq.com', null, '1', null, '郑镇洪', '15800000000', '2021-01-12 07:44:00', '2021-01-12 07:44:00', '1');
+INSERT INTO `auth_user` VALUES ('18', 'pbkdf2_sha256$180000$9oWyF3ClnXwR$CMHoEC2jGX/AlK6Yj9j3Do0+fp09ODFaDmpnirhYzQk=', null, '0', 'zgm', null, null, 'zgm@qq.com', null, '1', null, '张国茂', '13600000000', '2021-01-12 07:46:05', '2021-01-27 15:45:25', '1');
 INSERT INTO `auth_user` VALUES ('19', 'pbkdf2_sha256$180000$pAjJ8dt1APNu$ZrpsfurpmRy1ZbsyUt09tBgLJ/wGtzQ4hz9tUEWsL/s=', null, '0', 'wyx', null, null, 'wyx@qq.com', null, '1', null, '王玉鑫', '15600000000', '2021-01-12 07:46:38', '2021-01-13 15:14:09', '1');
-INSERT INTO `auth_user` VALUES ('20', 'pbkdf2_sha256$180000$pOyjX1wtZqMf$BiAOj6K0+23xWfkU6icZS+JJuQZZOSsMGHWwSGD/QmQ=', null, '0', 'lgh', null, null, 'lgh@qq.com', null, '1', null, '卢国宏', '13560000000', '2021-01-12 07:47:21', '2021-01-12 07:47:21', '3');
-INSERT INTO `auth_user` VALUES ('21', 'pbkdf2_sha256$180000$ERZ3LS7BmZI3$GbVIX7YidVRyVsR5iaH55FCqJqBQBERPY1VZC5ZusPI=', null, '0', 'xszg', null, null, 'qq@qq.com', null, '1', null, '销售主管', '18612341234', '2021-01-21 08:58:50', '2021-01-21 08:58:50', '3');
-INSERT INTO `auth_user` VALUES ('22', 'pbkdf2_sha256$180000$ZXkypopHpZnN$dM4Veqvo4Xp71uZSJVtqfsPWVhffUaVzsjIcwu9FyVg=', null, '0', 'xsyg', null, null, 'qq@qq.com', null, '1', null, '销售员工', '18612341861234', '2021-01-21 08:59:18', '2021-01-21 08:59:18', '2');
+INSERT INTO `auth_user` VALUES ('20', 'pbkdf2_sha256$180000$pOyjX1wtZqMf$BiAOj6K0+23xWfkU6icZS+JJuQZZOSsMGHWwSGD/QmQ=', '2021-01-27 15:00:52.833445', '0', 'lgh', null, null, 'lgh@qq.com', null, '1', null, '卢国宏', '13560000000', '2021-01-12 07:47:21', '2021-01-27 15:45:17', '1');
+INSERT INTO `auth_user` VALUES ('21', 'pbkdf2_sha256$180000$ERZ3LS7BmZI3$GbVIX7YidVRyVsR5iaH55FCqJqBQBERPY1VZC5ZusPI=', '2021-01-27 14:52:05.081855', '0', 'xszg', null, null, 'qq@qq.com', null, '1', null, '销售主管', '18612341234', '2021-01-21 08:58:50', '2021-01-27 15:45:09', '2');
+INSERT INTO `auth_user` VALUES ('22', 'pbkdf2_sha256$180000$ZXkypopHpZnN$dM4Veqvo4Xp71uZSJVtqfsPWVhffUaVzsjIcwu9FyVg=', '2021-01-27 17:00:05.149514', '0', 'xsyg', null, null, 'qq@qq.com', null, '1', null, '销售员工', '18612341861234', '2021-01-21 08:59:18', '2021-01-21 08:59:18', '2');
+INSERT INTO `auth_user` VALUES ('23', 'pbkdf2_sha256$180000$i4fFVUY0mpbS$BuuZW1bJTdBZ2ndT7AyO76ecX+wg42C4hpsA7eu2uEk=', null, '0', 'zrr', null, null, '66333', null, '1', null, '张瑞蕊', '135', '2021-01-25 10:24:41', '2021-01-25 10:24:41', '1');
+INSERT INTO `auth_user` VALUES ('24', 'pbkdf2_sha256$180000$bq6TP3blcz9C$m//3phDz6xP99182EaPtCUoD8dvinEifclU4n9N3d0Q=', '2021-01-27 14:51:04.376761', '0', 'lzcs', null, null, '123123', null, '1', null, '离职测试员工', '123123', '2021-01-27 14:46:21', '2021-01-27 14:46:31', '1');
 
 -- ----------------------------
 -- Table structure for auth_user_groups
@@ -251,13 +252,18 @@ CREATE TABLE `tb_business` (
   `finishtime` datetime DEFAULT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL,
+  `isdeleted` int(11) NOT NULL,
   PRIMARY KEY (`businessid`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_business
 -- ----------------------------
-INSERT INTO `tb_business` VALUES ('12', '搭建平台', '1', '', '50', '500.00', null, '21', '21', null, '2021-01-21 09:09:03', '2021-01-21 09:09:42');
+INSERT INTO `tb_business` VALUES ('12', '搭建平台', '1', '', '50', '500.00', null, '21', '21', null, '2021-01-21 09:09:03', '2021-01-21 09:09:42', '0');
+INSERT INTO `tb_business` VALUES ('13', '测试商机', '2', '', null, null, '111', null, '21', '2021-01-22 16:08:42', '2021-01-22 13:18:31', '2021-01-22 16:08:53', '0');
+INSERT INTO `tb_business` VALUES ('14', '测试商机记录', '1', '', null, null, null, '21', '21', null, '2021-01-22 16:09:25', '2021-01-22 16:09:36', '0');
+INSERT INTO `tb_business` VALUES ('15', '1111', '5', '123', '1', '55.00', '333', '21', '21', '2021-01-25 12:41:25', '2021-01-25 12:39:44', '2021-01-25 12:41:25', '0');
+INSERT INTO `tb_business` VALUES ('16', '软删除测试', '1', '', null, null, null, '1', '1', null, '2021-01-27 14:58:02', '2021-01-27 14:59:35', '1');
 
 -- ----------------------------
 -- Table structure for tb_business_client
@@ -269,12 +275,15 @@ CREATE TABLE `tb_business_client` (
   `clientid` int(11) NOT NULL,
   `ismanager` int(11) NOT NULL,
   PRIMARY KEY (`business_client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_business_client
 -- ----------------------------
 INSERT INTO `tb_business_client` VALUES ('28', '12', '8', '0');
+INSERT INTO `tb_business_client` VALUES ('32', '13', '9', '0');
+INSERT INTO `tb_business_client` VALUES ('33', '14', '9', '0');
+INSERT INTO `tb_business_client` VALUES ('35', '16', '10', '0');
 
 -- ----------------------------
 -- Table structure for tb_business_contact
@@ -286,12 +295,15 @@ CREATE TABLE `tb_business_contact` (
   `contactid` int(11) NOT NULL,
   `ismanager` int(11) NOT NULL,
   PRIMARY KEY (`business_contact_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_business_contact
 -- ----------------------------
 INSERT INTO `tb_business_contact` VALUES ('30', '12', '6', '0');
+INSERT INTO `tb_business_contact` VALUES ('34', '13', '7', '0');
+INSERT INTO `tb_business_contact` VALUES ('35', '14', '7', '0');
+INSERT INTO `tb_business_contact` VALUES ('37', '16', '9', '0');
 
 -- ----------------------------
 -- Table structure for tb_business_user
@@ -303,13 +315,47 @@ CREATE TABLE `tb_business_user` (
   `userid` int(11) NOT NULL,
   `ismanager` int(11) NOT NULL,
   PRIMARY KEY (`business_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_business_user
 -- ----------------------------
 INSERT INTO `tb_business_user` VALUES ('32', '12', '21', '1');
 INSERT INTO `tb_business_user` VALUES ('33', '12', '22', '0');
+INSERT INTO `tb_business_user` VALUES ('34', '15', '20', '1');
+INSERT INTO `tb_business_user` VALUES ('35', '15', '18', '0');
+INSERT INTO `tb_business_user` VALUES ('36', '15', '19', '0');
+INSERT INTO `tb_business_user` VALUES ('39', '16', '20', '1');
+INSERT INTO `tb_business_user` VALUES ('40', '16', '24', '0');
+INSERT INTO `tb_business_user` VALUES ('41', '16', '22', '0');
+
+-- ----------------------------
+-- Table structure for tb_businessrecord
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_businessrecord`;
+CREATE TABLE `tb_businessrecord` (
+  `businessrecordid` int(11) NOT NULL AUTO_INCREMENT,
+  `businessid` int(11) NOT NULL,
+  `typeid` int(11) NOT NULL,
+  `userid` int(11) NOT NULL,
+  `createtime` datetime NOT NULL,
+  PRIMARY KEY (`businessrecordid`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of tb_businessrecord
+-- ----------------------------
+INSERT INTO `tb_businessrecord` VALUES ('10', '13', '2', '21', '2021-01-22 16:08:19');
+INSERT INTO `tb_businessrecord` VALUES ('11', '13', '3', '21', '2021-01-22 16:08:31');
+INSERT INTO `tb_businessrecord` VALUES ('12', '13', '5', '21', '2021-01-22 16:08:42');
+INSERT INTO `tb_businessrecord` VALUES ('13', '13', '2', '21', '2021-01-22 16:08:53');
+INSERT INTO `tb_businessrecord` VALUES ('14', '14', '1', '21', '2021-01-22 16:09:25');
+INSERT INTO `tb_businessrecord` VALUES ('15', '15', '2', '21', '2021-01-25 12:39:44');
+INSERT INTO `tb_businessrecord` VALUES ('16', '15', '3', '21', '2021-01-25 12:39:57');
+INSERT INTO `tb_businessrecord` VALUES ('17', '15', '4', '21', '2021-01-25 12:40:26');
+INSERT INTO `tb_businessrecord` VALUES ('18', '15', '4', '21', '2021-01-25 12:40:37');
+INSERT INTO `tb_businessrecord` VALUES ('19', '15', '5', '21', '2021-01-25 12:41:25');
+INSERT INTO `tb_businessrecord` VALUES ('20', '16', '1', '1', '2021-01-27 14:58:02');
 
 -- ----------------------------
 -- Table structure for tb_client
@@ -331,13 +377,16 @@ CREATE TABLE `tb_client` (
   `phone` varchar(50) DEFAULT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL,
+  `isdeleted` int(11) NOT NULL,
   PRIMARY KEY (`clientid`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_client
 -- ----------------------------
-INSERT INTO `tb_client` VALUES ('8', '世界500强', '1', '22', '张三', '', '50000', '各行各业', 'www.baidu.com', '', '', '大连高新区', '0411-12341234', '2021-01-21 09:06:41', '2021-01-21 09:06:41');
+INSERT INTO `tb_client` VALUES ('8', '世界500强', '1', '19', '张三', '', '50000', '各行各业', 'www.baidu.com', '', '', '大连高新区', '0411-12341234', '2021-01-21 09:06:41', '2021-01-25 13:00:14', '0');
+INSERT INTO `tb_client` VALUES ('9', '大连XX公司', '1', '21', '', '', null, '', '', '', '', '', '', '2021-01-22 13:17:28', '2021-01-22 13:17:28', '0');
+INSERT INTO `tb_client` VALUES ('10', '软删除测试客户', '1', '24', '', '', null, '', '', '', '', '', '', '2021-01-27 14:58:29', '2021-01-27 14:58:29', '0');
 
 -- ----------------------------
 -- Table structure for tb_contact
@@ -359,13 +408,17 @@ CREATE TABLE `tb_contact` (
   `age` int(11) DEFAULT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL,
+  `isdeleted` int(11) NOT NULL,
   PRIMARY KEY (`contactid`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_contact
 -- ----------------------------
-INSERT INTO `tb_contact` VALUES ('6', '李四', '处长', '', '8', '1', '18612341234', '', '', '', '', '女', '35', '2021-01-21 09:08:05', '2021-01-21 09:08:05');
+INSERT INTO `tb_contact` VALUES ('6', '李四', '处长', '', '8', '1', '18612341234', '', '', '', '', '女', '35', '2021-01-21 09:08:05', '2021-01-21 09:08:05', '0');
+INSERT INTO `tb_contact` VALUES ('7', '大鹏', '', '', '9', '0', '13998530749', '', '', '', '', '', null, '2021-01-22 13:17:48', '2021-01-22 13:17:48', '0');
+INSERT INTO `tb_contact` VALUES ('8', 'tgb', '经理', '1233', '9', '1', '1358', '1358', '46442771@qq.com', '1358', '', '女', null, '2021-01-25 13:01:13', '2021-01-25 13:01:39', '0');
+INSERT INTO `tb_contact` VALUES ('9', '软删除测试客', '', '', '10', '0', '186000000', '', '', '', '', '', null, '2021-01-27 14:58:54', '2021-01-27 14:58:54', '0');
 
 -- ----------------------------
 -- Table structure for tb_dailypaper
@@ -378,7 +431,7 @@ CREATE TABLE `tb_dailypaper` (
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL,
   PRIMARY KEY (`dailypaperid`)
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_dailypaper
@@ -393,6 +446,13 @@ INSERT INTO `tb_dailypaper` VALUES ('42', '15', '2021-01-13 00:00:00', '2021-01-
 INSERT INTO `tb_dailypaper` VALUES ('43', '16', '2021-01-14 00:00:00', '2021-01-14 14:57:34', '2021-01-14 14:57:34');
 INSERT INTO `tb_dailypaper` VALUES ('44', '22', '2021-01-19 00:00:00', '2021-01-21 09:10:53', '2021-01-21 09:40:50');
 INSERT INTO `tb_dailypaper` VALUES ('47', '22', '2021-01-20 00:00:00', '2021-01-21 09:16:23', '2021-01-21 09:40:22');
+INSERT INTO `tb_dailypaper` VALUES ('48', '15', '2021-01-21 00:00:00', '2021-01-21 16:47:16', '2021-01-21 16:47:16');
+INSERT INTO `tb_dailypaper` VALUES ('49', '15', '2021-01-23 00:00:00', '2021-01-25 09:15:27', '2021-01-25 09:41:19');
+INSERT INTO `tb_dailypaper` VALUES ('50', '15', '2021-01-25 00:00:00', '2021-01-25 09:51:32', '2021-01-25 09:51:32');
+INSERT INTO `tb_dailypaper` VALUES ('51', '15', '2021-01-24 00:00:00', '2021-01-25 09:52:33', '2021-01-25 09:52:33');
+INSERT INTO `tb_dailypaper` VALUES ('52', '23', '2021-01-25 00:00:00', '2021-01-25 10:47:57', '2021-01-25 10:47:57');
+INSERT INTO `tb_dailypaper` VALUES ('54', '24', '2021-01-26 00:00:00', '2021-01-27 14:48:21', '2021-01-27 14:48:21');
+INSERT INTO `tb_dailypaper` VALUES ('55', '22', '2021-01-26 00:00:00', '2021-01-27 15:00:03', '2021-01-27 15:00:10');
 
 -- ----------------------------
 -- Table structure for tb_dailypaper_user
@@ -405,31 +465,47 @@ CREATE TABLE `tb_dailypaper_user` (
   `isread` int(11) NOT NULL,
   `readtime` datetime DEFAULT NULL,
   PRIMARY KEY (`dailypaper_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_dailypaper_user
 -- ----------------------------
-INSERT INTO `tb_dailypaper_user` VALUES ('44', '36', '14', '0', null);
+INSERT INTO `tb_dailypaper_user` VALUES ('44', '36', '14', '1', '2021-01-27 15:49:00');
 INSERT INTO `tb_dailypaper_user` VALUES ('45', '36', '13', '1', '2021-01-21 08:57:10');
-INSERT INTO `tb_dailypaper_user` VALUES ('46', '37', '14', '0', null);
+INSERT INTO `tb_dailypaper_user` VALUES ('46', '37', '14', '1', '2021-01-27 15:06:40');
 INSERT INTO `tb_dailypaper_user` VALUES ('47', '37', '13', '1', '2021-01-14 14:55:08');
-INSERT INTO `tb_dailypaper_user` VALUES ('48', '38', '14', '0', null);
-INSERT INTO `tb_dailypaper_user` VALUES ('49', '38', '13', '1', '2021-01-14 10:07:09');
-INSERT INTO `tb_dailypaper_user` VALUES ('50', '39', '14', '0', null);
-INSERT INTO `tb_dailypaper_user` VALUES ('51', '39', '13', '1', '2021-01-14 14:56:12');
-INSERT INTO `tb_dailypaper_user` VALUES ('52', '40', '14', '0', null);
-INSERT INTO `tb_dailypaper_user` VALUES ('53', '40', '13', '1', '2021-01-14 14:56:09');
-INSERT INTO `tb_dailypaper_user` VALUES ('54', '41', '14', '0', null);
-INSERT INTO `tb_dailypaper_user` VALUES ('55', '41', '13', '1', '2021-01-14 14:56:22');
-INSERT INTO `tb_dailypaper_user` VALUES ('60', '42', '14', '0', null);
-INSERT INTO `tb_dailypaper_user` VALUES ('61', '42', '13', '0', null);
+INSERT INTO `tb_dailypaper_user` VALUES ('48', '38', '14', '1', '2021-01-27 15:46:33');
+INSERT INTO `tb_dailypaper_user` VALUES ('49', '38', '13', '1', '2021-01-27 15:46:16');
+INSERT INTO `tb_dailypaper_user` VALUES ('50', '39', '14', '1', '2021-01-27 15:46:33');
+INSERT INTO `tb_dailypaper_user` VALUES ('51', '39', '13', '1', '2021-01-27 15:46:16');
+INSERT INTO `tb_dailypaper_user` VALUES ('52', '40', '14', '1', '2021-01-27 15:46:33');
+INSERT INTO `tb_dailypaper_user` VALUES ('53', '40', '13', '1', '2021-01-27 15:46:16');
+INSERT INTO `tb_dailypaper_user` VALUES ('54', '41', '14', '1', '2021-01-27 15:46:33');
+INSERT INTO `tb_dailypaper_user` VALUES ('55', '41', '13', '1', '2021-01-27 15:46:15');
+INSERT INTO `tb_dailypaper_user` VALUES ('60', '42', '14', '1', '2021-01-27 15:49:00');
+INSERT INTO `tb_dailypaper_user` VALUES ('61', '42', '13', '1', '2021-01-25 09:42:07');
 INSERT INTO `tb_dailypaper_user` VALUES ('62', '43', '14', '0', null);
-INSERT INTO `tb_dailypaper_user` VALUES ('63', '43', '13', '1', '2021-01-21 08:57:05');
-INSERT INTO `tb_dailypaper_user` VALUES ('76', '47', '14', '0', null);
-INSERT INTO `tb_dailypaper_user` VALUES ('77', '47', '21', '0', null);
-INSERT INTO `tb_dailypaper_user` VALUES ('78', '44', '14', '0', null);
-INSERT INTO `tb_dailypaper_user` VALUES ('79', '44', '21', '0', null);
+INSERT INTO `tb_dailypaper_user` VALUES ('63', '43', '13', '1', '2021-01-25 09:43:26');
+INSERT INTO `tb_dailypaper_user` VALUES ('76', '47', '14', '1', '2021-01-27 15:05:44');
+INSERT INTO `tb_dailypaper_user` VALUES ('77', '47', '21', '1', '2021-01-22 14:17:18');
+INSERT INTO `tb_dailypaper_user` VALUES ('78', '44', '14', '1', '2021-01-27 15:05:44');
+INSERT INTO `tb_dailypaper_user` VALUES ('79', '44', '21', '1', '2021-01-22 14:17:11');
+INSERT INTO `tb_dailypaper_user` VALUES ('80', '48', '14', '1', '2021-01-27 15:49:00');
+INSERT INTO `tb_dailypaper_user` VALUES ('81', '48', '13', '1', '2021-01-25 09:50:53');
+INSERT INTO `tb_dailypaper_user` VALUES ('82', '48', '20', '1', '2021-01-25 10:31:40');
+INSERT INTO `tb_dailypaper_user` VALUES ('85', '49', '13', '1', '2021-01-25 10:07:32');
+INSERT INTO `tb_dailypaper_user` VALUES ('86', '50', '14', '1', '2021-01-27 15:49:00');
+INSERT INTO `tb_dailypaper_user` VALUES ('87', '50', '13', '1', '2021-01-25 12:26:48');
+INSERT INTO `tb_dailypaper_user` VALUES ('88', '50', '20', '1', '2021-01-25 10:31:44');
+INSERT INTO `tb_dailypaper_user` VALUES ('89', '51', '14', '1', '2021-01-27 15:49:00');
+INSERT INTO `tb_dailypaper_user` VALUES ('90', '51', '13', '1', '2021-01-25 10:07:12');
+INSERT INTO `tb_dailypaper_user` VALUES ('91', '52', '14', '1', '2021-01-27 15:43:45');
+INSERT INTO `tb_dailypaper_user` VALUES ('92', '52', '13', '1', '2021-01-25 12:27:57');
+INSERT INTO `tb_dailypaper_user` VALUES ('93', '52', '20', '0', null);
+INSERT INTO `tb_dailypaper_user` VALUES ('96', '54', '21', '1', '2021-01-27 14:48:56');
+INSERT INTO `tb_dailypaper_user` VALUES ('100', '55', '14', '1', '2021-01-27 15:05:44');
+INSERT INTO `tb_dailypaper_user` VALUES ('101', '55', '20', '1', '2021-01-27 15:01:49');
+INSERT INTO `tb_dailypaper_user` VALUES ('102', '55', '21', '0', null);
 
 -- ----------------------------
 -- Table structure for tb_dailypaperdetail
@@ -442,7 +518,7 @@ CREATE TABLE `tb_dailypaperdetail` (
   `worktime` float NOT NULL,
   `workcontent` varchar(1000) NOT NULL,
   PRIMARY KEY (`dailypaperdetailid`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_dailypaperdetail
@@ -455,6 +531,15 @@ INSERT INTO `tb_dailypaperdetail` VALUES ('40', '40', '18', '2', '2322');
 INSERT INTO `tb_dailypaperdetail` VALUES ('41', '41', '-1', '1', 'test');
 INSERT INTO `tb_dailypaperdetail` VALUES ('45', '42', '18', '3', '部署');
 INSERT INTO `tb_dailypaperdetail` VALUES ('46', '43', '-1', '1', '11');
+INSERT INTO `tb_dailypaperdetail` VALUES ('47', '48', '18', '2', '自己填');
+INSERT INTO `tb_dailypaperdetail` VALUES ('48', '48', '-1', '3', '学习内容');
+INSERT INTO `tb_dailypaperdetail` VALUES ('51', '49', '18', '2', '自己填');
+INSERT INTO `tb_dailypaperdetail` VALUES ('52', '49', '-1', '0.5', '学习内容');
+INSERT INTO `tb_dailypaperdetail` VALUES ('53', '50', '19', '0.5', '帮忙');
+INSERT INTO `tb_dailypaperdetail` VALUES ('54', '51', '19', '1', '不错');
+INSERT INTO `tb_dailypaperdetail` VALUES ('55', '52', '20', '0.5', '111');
+INSERT INTO `tb_dailypaperdetail` VALUES ('56', '52', '-1', '1', '111');
+INSERT INTO `tb_dailypaperdetail` VALUES ('57', '54', '21', '2', 'ccc');
 
 -- ----------------------------
 -- Table structure for tb_dailypaperdetail_sale
@@ -469,7 +554,7 @@ CREATE TABLE `tb_dailypaperdetail_sale` (
   `workcontent` varchar(1000) DEFAULT NULL,
   `contactid` int(11) DEFAULT NULL,
   PRIMARY KEY (`dailypaperdetail_saleid`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_dailypaperdetail_sale
@@ -477,6 +562,7 @@ CREATE TABLE `tb_dailypaperdetail_sale` (
 INSERT INTO `tb_dailypaperdetail_sale` VALUES ('38', '47', '12', '22.00', '5', '日常工作', null);
 INSERT INTO `tb_dailypaperdetail_sale` VALUES ('39', '44', '12', null, '5', '宴请：肯德基', '6');
 INSERT INTO `tb_dailypaperdetail_sale` VALUES ('40', '44', '-1', null, '3', '学习相关法规', null);
+INSERT INTO `tb_dailypaperdetail_sale` VALUES ('44', '55', '16', '11.00', '1.5', 'cccc', '9');
 
 -- ----------------------------
 -- Table structure for tb_dict
@@ -522,7 +608,7 @@ CREATE TABLE `tb_group` (
   `updatetime` datetime(6) NOT NULL,
   PRIMARY KEY (`groupid`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_group
@@ -530,9 +616,9 @@ CREATE TABLE `tb_group` (
 INSERT INTO `tb_group` VALUES ('1', '0', '中智联', '2020-12-21 16:26:15.000000', '2020-12-22 10:01:58.965286');
 INSERT INTO `tb_group` VALUES ('12', '1', '总经理室', '2021-01-12 07:48:18.858672', '2021-01-21 08:53:25.358505');
 INSERT INTO `tb_group` VALUES ('13', '12', '研发一部', '2021-01-12 07:48:37.736017', '2021-01-12 07:48:37.736010');
-INSERT INTO `tb_group` VALUES ('14', '12', '研发二部', '2021-01-12 07:48:46.270383', '2021-01-12 07:48:46.270376');
 INSERT INTO `tb_group` VALUES ('15', '12', '行政部门', '2021-01-12 07:48:56.720445', '2021-01-12 07:48:56.720439');
 INSERT INTO `tb_group` VALUES ('16', '12', '销售部门', '2021-01-21 08:58:11.132956', '2021-01-21 08:58:11.132919');
+INSERT INTO `tb_group` VALUES ('17', '12', '研发二部', '2021-01-25 10:15:12.041828', '2021-01-25 10:15:38.145423');
 
 -- ----------------------------
 -- Table structure for tb_group_user
@@ -544,20 +630,23 @@ CREATE TABLE `tb_group_user` (
   `groupid` int(11) NOT NULL,
   `ismanager` int(11) NOT NULL,
   PRIMARY KEY (`group_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_group_user
 -- ----------------------------
 INSERT INTO `tb_group_user` VALUES ('40', '14', '12', '1');
-INSERT INTO `tb_group_user` VALUES ('41', '13', '13', '1');
-INSERT INTO `tb_group_user` VALUES ('42', '15', '13', '0');
+INSERT INTO `tb_group_user` VALUES ('41', '13', '13', '0');
+INSERT INTO `tb_group_user` VALUES ('42', '15', '13', '1');
 INSERT INTO `tb_group_user` VALUES ('43', '16', '13', '0');
-INSERT INTO `tb_group_user` VALUES ('44', '18', '14', '1');
 INSERT INTO `tb_group_user` VALUES ('45', '19', '14', '0');
 INSERT INTO `tb_group_user` VALUES ('46', '20', '15', '1');
 INSERT INTO `tb_group_user` VALUES ('47', '21', '16', '1');
 INSERT INTO `tb_group_user` VALUES ('48', '22', '16', '0');
+INSERT INTO `tb_group_user` VALUES ('49', '19', '15', '0');
+INSERT INTO `tb_group_user` VALUES ('50', '18', '14', '1');
+INSERT INTO `tb_group_user` VALUES ('52', '19', '17', '0');
+INSERT INTO `tb_group_user` VALUES ('55', '23', '13', '0');
 
 -- ----------------------------
 -- Table structure for tb_permission
@@ -625,14 +714,18 @@ CREATE TABLE `tb_project` (
   `typeid` int(11) NOT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL,
+  `isdeleted` int(11) NOT NULL,
   PRIMARY KEY (`projectid`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_project
 -- ----------------------------
-INSERT INTO `tb_project` VALUES ('19', '对日docker项目', '.netcore+vue+docker', '2', '2021-01-12 07:53:17', '2021-01-12 07:53:17');
-INSERT INTO `tb_project` VALUES ('20', '项目管理系统', 'crm+prm', '1', '2021-01-12 07:56:52', '2021-01-12 07:56:52');
+INSERT INTO `tb_project` VALUES ('19', '对日docker项目', '.netcore+vue+docker', '2', '2021-01-12 07:53:17', '2021-01-12 07:53:17', '0');
+INSERT INTO `tb_project` VALUES ('20', '项目管理系统', 'crm+prm', '1', '2021-01-12 07:56:52', '2021-01-12 07:56:52', '0');
+INSERT INTO `tb_project` VALUES ('22', 'hr', 'lj', '1', '2021-01-25 10:04:59', '2021-01-25 10:04:59', '0');
+INSERT INTO `tb_project` VALUES ('23', '1111', '123', '1', '2021-01-25 12:40:37', '2021-01-25 12:40:37', '0');
+INSERT INTO `tb_project` VALUES ('24', '软删除测试', '软删除测试', '1', '2021-01-27 14:47:10', '2021-01-27 14:47:10', '0');
 
 -- ----------------------------
 -- Table structure for tb_projectschedule
@@ -653,14 +746,17 @@ CREATE TABLE `tb_projectschedule` (
   `isfinished` int(11) NOT NULL,
   `createtime` datetime NOT NULL,
   `updatetime` datetime NOT NULL,
+  `isdeleted` int(11) NOT NULL,
   PRIMARY KEY (`projectscheduleid`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_projectschedule
 -- ----------------------------
-INSERT INTO `tb_projectschedule` VALUES ('17', '19', '开发阶段', '开发及部署', '13', '30', '60', '2020-09-07 00:00:00', '2020-12-15 00:00:00', '2020-09-07 00:00:00', '2020-12-15 00:00:00', '1', '2021-01-12 07:54:39', '2021-01-12 07:55:40');
-INSERT INTO `tb_projectschedule` VALUES ('18', '20', '设计-开发', '基础后台管理+日报填写+项目管理', '13', '30', null, '2020-12-22 00:00:00', '2021-02-15 00:00:00', null, null, '0', '2021-01-12 07:58:19', '2021-01-12 07:58:19');
+INSERT INTO `tb_projectschedule` VALUES ('17', '19', '开发阶段', '开发及部署', '13', '30', '60', '2020-09-07 00:00:00', '2020-12-15 00:00:00', '2020-09-07 00:00:00', '2020-12-15 00:00:00', '1', '2021-01-12 07:54:39', '2021-01-12 07:55:40', '0');
+INSERT INTO `tb_projectschedule` VALUES ('18', '20', '设计-开发', '基础后台管理+日报填写+项目管理', '13', '30', null, '2020-12-22 00:00:00', '2021-02-25 00:00:00', null, null, '0', '2021-01-12 07:58:19', '2021-01-25 09:56:58', '0');
+INSERT INTO `tb_projectschedule` VALUES ('20', '22', 'hr-1', '', '13', '2', null, '2021-01-01 00:00:00', '2021-01-25 00:00:00', null, null, '0', '2021-01-25 10:05:34', '2021-01-25 10:45:56', '0');
+INSERT INTO `tb_projectschedule` VALUES ('21', '24', '软删除测试阶段', '123', '13', '12', null, '2021-01-26 00:00:00', '2021-01-29 00:00:00', null, null, '0', '2021-01-27 14:47:53', '2021-01-27 14:47:53', '0');
 
 -- ----------------------------
 -- Table structure for tb_projectschedule_user
@@ -672,7 +768,7 @@ CREATE TABLE `tb_projectschedule_user` (
   `userid` int(11) NOT NULL,
   `ismanager` int(11) NOT NULL,
   PRIMARY KEY (`projectschedule_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=150 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_projectschedule_user
@@ -680,8 +776,19 @@ CREATE TABLE `tb_projectschedule_user` (
 INSERT INTO `tb_projectschedule_user` VALUES ('84', '17', '13', '1');
 INSERT INTO `tb_projectschedule_user` VALUES ('85', '17', '15', '0');
 INSERT INTO `tb_projectschedule_user` VALUES ('86', '17', '16', '0');
-INSERT INTO `tb_projectschedule_user` VALUES ('87', '18', '13', '1');
-INSERT INTO `tb_projectschedule_user` VALUES ('88', '18', '15', '0');
+INSERT INTO `tb_projectschedule_user` VALUES ('129', '18', '13', '1');
+INSERT INTO `tb_projectschedule_user` VALUES ('130', '18', '15', '0');
+INSERT INTO `tb_projectschedule_user` VALUES ('136', '19', '13', '1');
+INSERT INTO `tb_projectschedule_user` VALUES ('137', '19', '16', '0');
+INSERT INTO `tb_projectschedule_user` VALUES ('138', '19', '19', '0');
+INSERT INTO `tb_projectschedule_user` VALUES ('139', '19', '20', '0');
+INSERT INTO `tb_projectschedule_user` VALUES ('140', '19', '15', '0');
+INSERT INTO `tb_projectschedule_user` VALUES ('144', '20', '20', '1');
+INSERT INTO `tb_projectschedule_user` VALUES ('145', '20', '16', '0');
+INSERT INTO `tb_projectschedule_user` VALUES ('146', '20', '15', '0');
+INSERT INTO `tb_projectschedule_user` VALUES ('147', '20', '23', '0');
+INSERT INTO `tb_projectschedule_user` VALUES ('148', '21', '21', '1');
+INSERT INTO `tb_projectschedule_user` VALUES ('149', '21', '24', '0');
 
 -- ----------------------------
 -- Table structure for tb_role
@@ -711,7 +818,7 @@ CREATE TABLE `tb_role_permission` (
   `roleid` int(11) NOT NULL,
   `permissionid` int(11) NOT NULL,
   PRIMARY KEY (`role_permission_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=514 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=526 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_role_permission
@@ -761,18 +868,18 @@ INSERT INTO `tb_role_permission` VALUES ('498', '7', '35');
 INSERT INTO `tb_role_permission` VALUES ('499', '7', '36');
 INSERT INTO `tb_role_permission` VALUES ('500', '7', '47');
 INSERT INTO `tb_role_permission` VALUES ('501', '7', '48');
-INSERT INTO `tb_role_permission` VALUES ('502', '8', '37');
-INSERT INTO `tb_role_permission` VALUES ('503', '8', '38');
-INSERT INTO `tb_role_permission` VALUES ('504', '8', '39');
-INSERT INTO `tb_role_permission` VALUES ('505', '8', '40');
-INSERT INTO `tb_role_permission` VALUES ('506', '8', '41');
-INSERT INTO `tb_role_permission` VALUES ('507', '8', '42');
-INSERT INTO `tb_role_permission` VALUES ('508', '8', '43');
-INSERT INTO `tb_role_permission` VALUES ('509', '8', '44');
-INSERT INTO `tb_role_permission` VALUES ('510', '8', '45');
-INSERT INTO `tb_role_permission` VALUES ('511', '8', '46');
-INSERT INTO `tb_role_permission` VALUES ('512', '8', '47');
-INSERT INTO `tb_role_permission` VALUES ('513', '8', '48');
+INSERT INTO `tb_role_permission` VALUES ('514', '8', '37');
+INSERT INTO `tb_role_permission` VALUES ('515', '8', '38');
+INSERT INTO `tb_role_permission` VALUES ('516', '8', '39');
+INSERT INTO `tb_role_permission` VALUES ('517', '8', '40');
+INSERT INTO `tb_role_permission` VALUES ('518', '8', '41');
+INSERT INTO `tb_role_permission` VALUES ('519', '8', '42');
+INSERT INTO `tb_role_permission` VALUES ('520', '8', '43');
+INSERT INTO `tb_role_permission` VALUES ('521', '8', '44');
+INSERT INTO `tb_role_permission` VALUES ('522', '8', '45');
+INSERT INTO `tb_role_permission` VALUES ('523', '8', '46');
+INSERT INTO `tb_role_permission` VALUES ('524', '8', '47');
+INSERT INTO `tb_role_permission` VALUES ('525', '8', '48');
 
 -- ----------------------------
 -- Table structure for tb_user_role
@@ -783,17 +890,18 @@ CREATE TABLE `tb_user_role` (
   `userid` int(11) NOT NULL,
   `roleid` int(11) NOT NULL,
   PRIMARY KEY (`user_role_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of tb_user_role
 -- ----------------------------
-INSERT INTO `tb_user_role` VALUES ('9', '1', '1');
-INSERT INTO `tb_user_role` VALUES ('11', '20', '7');
-INSERT INTO `tb_user_role` VALUES ('12', '18', '7');
-INSERT INTO `tb_user_role` VALUES ('13', '14', '7');
-INSERT INTO `tb_user_role` VALUES ('14', '13', '7');
-INSERT INTO `tb_user_role` VALUES ('15', '21', '8');
+INSERT INTO `tb_user_role` VALUES ('34', '1', '1');
+INSERT INTO `tb_user_role` VALUES ('35', '21', '8');
+INSERT INTO `tb_user_role` VALUES ('36', '20', '7');
+INSERT INTO `tb_user_role` VALUES ('37', '20', '8');
+INSERT INTO `tb_user_role` VALUES ('38', '18', '7');
+INSERT INTO `tb_user_role` VALUES ('39', '14', '7');
+INSERT INTO `tb_user_role` VALUES ('40', '13', '7');
 
 -- ----------------------------
 -- Procedure structure for getManagerList

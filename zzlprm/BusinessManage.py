@@ -26,7 +26,7 @@ def get_businesses(request):
 "LEFT JOIN tb_business_client "\
 "on tb_business.businessid = tb_business_client.businessid "\
 "LEFT JOIN tb_client "\
-"on tb_business_client.clientid = tb_client.clientid "\
+"on tb_business_client.clientid = tb_client.clientid where tb_business.isdeleted=0 "\
 "GROUP BY businessid) a "\
 "LEFT JOIN tb_business_contact "\
 "on a.businessid = tb_business_contact.businessid "\
@@ -85,7 +85,8 @@ def create_business(request):
         owner = userid, #填报人就是所有人
         writer = userid,
         createtime = datetime.datetime.now(),
-        updatetime = datetime.datetime.now()
+        updatetime = datetime.datetime.now(),
+        isdeleted=0
         )
     
     TbBusinessrecord.objects.create(
@@ -139,7 +140,7 @@ def get_contacts(request):
     "as contactname from tb_contact "\
     "LEFT JOIN tb_client "\
     "on tb_contact.clientid = tb_client.clientid "\
-    "where tb_contact.clientid in ("+clientlist+") "
+    "where tb_contact.isdeleted=0 and tb_contact.clientid in ("+clientlist+") "
     cursor.execute(sql)
     contacts = dictfetchall(cursor)
     return JsonResponse(contacts, safe=False)
@@ -221,10 +222,9 @@ def delete_business(request):
 
     delete_ids_list = delete_ids.split(',')
     for i in range(0,len(delete_ids_list)):
-        TbBusiness.objects.filter(businessid=delete_ids_list[i]).delete()
-        TbBusinessClient.objects.filter(businessid=delete_ids_list[i]).delete()
-        TbBusinessContact.objects.filter(businessid=delete_ids_list[i]).delete()
-        TbBusinessUser.objects.filter(businessid=delete_ids_list[i]).delete()
+        TbBusiness.objects.filter(businessid=delete_ids_list[i]).update(
+            isdeleted = 1
+            )
 
     return HttpResponse("OK")
 

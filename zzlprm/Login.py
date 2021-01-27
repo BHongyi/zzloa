@@ -23,8 +23,8 @@ def login(request):
     password = request.POST.get("password")
 
     cursor=connection.cursor()
-    sql = "select password,positiontype from auth_user "\
-        "where username=%s"
+    sql = "select password,positiontype,name,id from auth_user "\
+        "where username=%s and is_active=1"
     cursor.execute(sql,[username])
     result = dictfetchall(cursor)
 
@@ -37,6 +37,8 @@ def login(request):
     user = AuthUser()
     user.username = username
     user.positiontype = result[0]["positiontype"]
+    uname = result[0]["name"]
+    uid = result[0]["id"]
 
     if ispass:
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -57,7 +59,12 @@ def login(request):
         cursor.execute(sql1,[username])
         permissions = dictfetchall(cursor)
 
+        AuthUser.objects.filter(id=uid).update(
+            last_login = datetime.datetime.now()
+            )
+        
         returnjson = {
+            'uname':uname,
             'token':token,
             'permissions':permissions,
             'positiontype':user.positiontype

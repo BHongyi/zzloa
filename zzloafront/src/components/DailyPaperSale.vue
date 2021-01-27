@@ -8,6 +8,12 @@
         "
         ><i class="el-icon-plus"></i>填写日报</el-button
       >
+      <el-button
+        @click="
+          expandall()
+        "
+        ><i class="el-icon-folder-opened"></i>展开/合上(全部)</el-button
+      >
     </el-row>
     <el-table
       :data="
@@ -17,6 +23,9 @@
         )
       "
       style="width: 100%"
+      ref="dailypaperlist"
+      :expand-row-keys="expandrowkeys"
+      row-key="dailypaperid"
     >
       <el-table-column type="expand">
         <template slot-scope="props">
@@ -67,8 +76,15 @@
       </el-table-column>
       <el-table-column label="操作" width="180">
         <template slot-scope="scope">
-          <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
+          <el-button size="mini" v-if="comparedate(scope.row.dailypaperdate, threedayago)" @click="handleEdit(scope.$index, scope.row)"
             ><i class="el-icon-edit"></i>修改</el-button
+          >
+          <el-button
+            size="mini"
+            type="danger"
+            v-if="comparedate(scope.row.dailypaperdate, threedayago)"
+            @click="deletedailypaper(scope.$index, scope.row)"
+            ><i class="el-icon-delete"></i>删除</el-button
           >
         </template>
       </el-table-column>
@@ -172,6 +188,16 @@
           empty-text="请选择商机"
           style="width: 100%"
         >
+        <el-table-column width="35">
+            <template slot-scope="scope">
+              <el-link
+                type="info"
+                :underline="false"
+                @click="cutbusiness(scope.$index, scope.row)"
+                ><i class="el-icon-error"></i
+              ></el-link>
+            </template>
+          </el-table-column>
           <el-table-column prop="businessname" label="商机名" width="180">
           </el-table-column>
           <el-table-column prop="worktime" label="工时(单位:h)" width="120">
@@ -187,7 +213,7 @@
                   },
                 ]"
               >
-                <el-select v-model="scope.row.worktime" placeholder="请选择">
+                <el-select v-model="scope.row.worktime" filterable placeholder="请选择">
                   <el-option
                     v-for="item in timelist"
                     :key="item.id"
@@ -338,6 +364,16 @@
           empty-text="请选择商机"
           style="width: 100%"
         >
+        <el-table-column width="35">
+            <template slot-scope="scope">
+              <el-link
+                type="info"
+                :underline="false"
+                @click="editcutbusiness(scope.$index, scope.row)"
+                ><i class="el-icon-error"></i
+              ></el-link>
+            </template>
+          </el-table-column>
           <el-table-column prop="businessname" label="商机名" width="180">
           </el-table-column>
           <el-table-column prop="worktime" label="工时(单位:h)" width="120">
@@ -353,7 +389,7 @@
                   },
                 ]"
               >
-                <el-select v-model="scope.row.worktime" placeholder="请选择">
+                <el-select v-model="scope.row.worktime" filterable placeholder="请选择">
                   <el-option
                     v-for="item in timelist"
                     :key="item.id"
@@ -438,11 +474,21 @@ export default {
         page: 1,
       },
       tableData: [],
+      threedayago: null,
+      expandrowkeys:[],
+      unexpandrowkeys:[],
       tableDailypaperDetail: [],
       pickerOptions: {
         disabledDate(time) {
           var curTime = new Date().getTime();
-          var startDate = curTime - 3 * 3600 * 24 * 1000;
+          var _day = 3;
+          if(new Date().getDay() == 1){
+            _day = _day + 2;
+          }
+          else if(new Date().getDay() == 2){
+            _day = _day + 2;
+          }
+          var startDate = curTime - _day * 3600 * 24 * 1000;
           startDate = new Date(startDate);
           return time.getTime() > Date.now() || time.getTime() < startDate;
         },
@@ -452,15 +498,25 @@ export default {
         { id: 1, name: "1.0" },
         { id: 1.5, name: "1.5" },
         { id: 2, name: "2.0" },
+        { id: 2.5, name: "2.5" },
         { id: 3.0, name: "3.0" },
+        { id: 3.5, name: "3.5" },
         { id: 4.0, name: "4.0" },
+        { id: 4.5, name: "4.5" },
         { id: 5.0, name: "5.0" },
+        { id: 5.5, name: "5.5" },
         { id: 6.0, name: "6.0" },
+        { id: 6.5, name: "6.5" },
         { id: 7.0, name: "7.0" },
+        { id: 7.5, name: "7.5" },
         { id: 8.0, name: "8.0" },
+        { id: 8.5, name: "8.5" },
         { id: 9.0, name: "9.0" },
+        { id: 9.5, name: "9.5" },
         { id: 10.0, name: "10.0" },
+        { id: 10.5, name: "10.5" },
         { id: 11.0, name: "11.0" },
+        { id: 11.5, name: "11.5" },
         { id: 12.0, name: "12.0" },
       ],
       businesslist: [],
@@ -495,7 +551,11 @@ export default {
         url: "dailypapersale/get_dailypapers/",
         method: "post",
       }).then((res) => {
+        this.threedayago = res.data.threedayago;
         this.tableData = res.data.dailypapers;
+        this.tableData.forEach(element => {
+          this.unexpandrowkeys.push(element.dailypaperid);
+        });
         this.tableDailypaperDetail = res.data.dailypaperdetails;
         this.tableDailypaperDetail.forEach((element) => {
           if (element.businessid == -1) {
@@ -658,10 +718,58 @@ export default {
           });
         });
 
+        this.oldbusiness = this.returnjson.businesses;
         res.data[0].receptionistids.split(",").forEach((element) => {
           this.returnjson.checkeduser.push(parseInt(element));
         });
       });
+    },
+    expandall(){
+      if(this.expandrowkeys.length > 0){
+        this.expandrowkeys = [];
+      }
+      else{
+        this.expandrowkeys = this.unexpandrowkeys;
+      }
+    },
+    cutbusiness(index, row) {
+      this.returnjson.businesses = this.returnjson.businesses.filter(
+        (t) => t != row.businessid
+      );
+      //console.log(this.returnjson.businesses);
+      this.businesschange();
+    },
+    editcutbusiness(index, row) {
+      this.editreturnjson.businesses = this.editreturnjson.businesses.filter(
+        (t) => t != row.businessid
+      );
+      this.editbusinesschange();
+    },
+    deletedailypaper(index, row) {
+      this.$confirm("确认删除？")
+        .then((_) => {
+          let param = new URLSearchParams();
+          param.append("dailypaperid", row.dailypaperid);
+          axios({
+            url: "dailypapersale/delete_dailypaper/",
+            data: param,
+            method: "post",
+          }).then((res) => {
+            this.initdailypapers();
+          });
+        })
+        .catch((_) => {
+          return;
+        });
+    },
+    comparedate(firstdate, seconddate) {
+      var oDate1 = new Date(firstdate.split("T")[0]);
+      var oDate2 = new Date(seconddate);
+      if (oDate1.getTime() >= oDate2.getTime()) {
+        return true;
+      } else {
+        return false;
+      }
     },
     editbusinesschange() {
       //debugger
@@ -743,6 +851,7 @@ export default {
       });
     },
     businesschange() {
+      //console.log(this.oldbusiness);
       this.oldbusiness.forEach((element) => {
         var flag = 0;
         this.returnjson.businesses.forEach((element1) => {

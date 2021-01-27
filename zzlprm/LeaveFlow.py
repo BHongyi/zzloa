@@ -62,11 +62,19 @@ def create_leave(request):
         updatetime = datetime.datetime.now()
         )
     for i in range(0,len(flowuserlists)):
-        TbAudit.objects.create(
-            leaveid = l.pk,
-            flownodeid = flowuserlists[i].get("flownodeid"),
-            userid = flowuserlists[i].get("userid"),
-        )
+        if i == 0:
+            TbAudit.objects.create(
+                leaveid = l.pk,
+                flownodeid = flowuserlists[i].get("flownodeid"),
+                userid = flowuserlists[i].get("userid"),
+                audittime = datetime.datetime.now()
+                )
+        else:
+            TbAudit.objects.create(
+                leaveid = l.pk,
+                flownodeid = flowuserlists[i].get("flownodeid"),
+                userid = flowuserlists[i].get("userid"),
+                )
 
     return HttpResponse("OK")
 

@@ -30,7 +30,7 @@
       <el-table-column prop="name" label="姓名" width="180"> </el-table-column>
       <el-table-column prop="username" label="用户名" width="180">
       </el-table-column>
-      <el-table-column prop="positiontype" label="岗位类别" width="180">
+      <el-table-column prop="positiontype" label="岗位类别" width="100">
         <template slot-scope="scope">
           <span v-if="scope.row.positiontype == 1">开发岗</span>
           <span v-else-if="scope.row.positiontype == 2">销售岗</span>
@@ -38,6 +38,13 @@
           <span v-else>其他岗</span>
         </template>
       </el-table-column>
+      <!-- <el-table-column prop="is_active" label="状态" width="100">
+        <template slot-scope="scope">
+          <span v-if="scope.row.is_active == 1" style="color:green;">已激活</span>
+          <span v-else-if="scope.row.is_active == 0" style="color:red;">未激活</span>
+          <span v-else>未激活</span>
+        </template>
+      </el-table-column> -->
       <el-table-column prop="phone" label="电话" width="180"> </el-table-column>
       <el-table-column prop="email" label="邮件" width="180"> </el-table-column>
       <el-table-column prop="createtime" label="创建日期" width="180">
@@ -141,6 +148,20 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item
+          label="角色"
+          prop="roles"
+        >
+          <el-select v-model="createformdata.roles" multiple placeholder="请选择">
+            <el-option
+              v-for="item in roleData"
+              :key="item.roleid"
+              :label="item.rolename"
+              :value="item.roleid"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -206,6 +227,29 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item
+          label="角色"
+          prop="roles"
+        >
+          <el-select v-model="editformdata.roles" multiple placeholder="请选择">
+            <el-option
+              v-for="item in roleData"
+              :key="item.roleid"
+              :label="item.rolename"
+              :value="item.roleid"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <!-- <el-form-item
+          label="状态"
+          prop="isactive"
+        >
+          <el-select v-model="editformdata.isactive" placeholder="请选择">
+            <el-option label="已激活" value="1"></el-option>
+            <el-option label="未激活" value="0"></el-option>
+          </el-select>
+        </el-form-item> -->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
@@ -231,6 +275,7 @@ export default {
       },
       tableData: [],
       positiontypeData: [],
+      roleData: [],
       dialogVisible: false,
       editDialogVisible: false,
       labelPosition: "right",
@@ -242,6 +287,7 @@ export default {
         isactive: 1,
         id: 0,
         positiontype: 0,
+        roles: [],
       },
       createformdata: {
         name: "",
@@ -249,6 +295,7 @@ export default {
         phone: "",
         email: "",
         positiontype: null,
+        roles: [],
       },
     };
   },
@@ -259,6 +306,7 @@ export default {
     //console.log(this.permissions);
     this.initusers(); //需要触发的函数
     this.positiontypes();
+    this.initroles();
   },
   methods: {
     initusers() {
@@ -278,6 +326,15 @@ export default {
         data: {},
       }).then((res) => {
         this.positiontypeData = res.data;
+      });
+    },
+    initroles(){
+      axios({
+        url: "rolemanage/get_roles/",
+        method: "get",
+        data: {},
+      }).then((res) => {
+        this.roleData = res.data;
       });
     },
     filterTag(value, row) {
@@ -305,6 +362,7 @@ export default {
       this.createformdata.phone = "";
       this.createformdata.email = "";
       this.createformdata.positiontype = null;
+      this.createformdata.roles = [];
     },
     createuser() {
       this.$refs["createuserform"].validate((valid) => {
@@ -315,6 +373,7 @@ export default {
           param.append("phone", this.createformdata.phone);
           param.append("email", this.createformdata.email);
           param.append("positiontype", this.createformdata.positiontype);
+          param.append("roles", this.createformdata.roles);
 
           axios({
             url: "usermanage/create_user/",
@@ -366,6 +425,7 @@ export default {
           param.append("email", this.editformdata.email);
           param.append("isactive", this.editformdata.isactive);
           param.append("positiontype", this.editformdata.positiontype);
+          param.append("roles", this.editformdata.roles);
 
           axios({
             url: "usermanage/edit_user/",
@@ -393,9 +453,13 @@ export default {
         this.editformdata.name = res.data[0].name;
         this.editformdata.email = res.data[0].email;
         this.editformdata.phone = res.data[0].phone;
-        this.editformdata.isactive = res.data[0].is_active;
+        this.editformdata.isactive = res.data[0].is_active + "";
         this.editformdata.id = res.data[0].id;
         this.editformdata.positiontype = res.data[0].positiontype;
+        this.editformdata.roles = [];
+        res.data[0].roles.forEach(element => {
+          this.editformdata.roles.push(element.roleid);
+        });
       });
     },
   },

@@ -8,6 +8,8 @@ from zzlprm.models import TbDailypaperdetail
 from zzlprm.models import TbDailypaperUser
 import json
 import datetime
+import time
+from datetime import date,timedelta
 
 @api_view(['GET','POST'])
 def get_dailypapers(request):
@@ -52,11 +54,22 @@ def get_dailypapers(request):
     cursor.execute(sql1)
     dailypapers = dictfetchall(cursor)
 
+    threedayago = date.today()
+    for i in range(0,2):
+        threedayago = prev_weekday(threedayago)
     returnjson = {
         'dailypapers':dailypapers,
-        'dailypaperdetails':dailypaperdetails
+        'dailypaperdetails':dailypaperdetails,
+        'threedayago':threedayago,
+        'today':date.today()
     }
     return JsonResponse(returnjson, safe=False)
+
+def prev_weekday(adate):
+    adate -= timedelta(days=1)
+    while adate.weekday() > 4: # Mon-Fri are 0-4
+        adate -= timedelta(days=1)
+    return adate
 
 @api_view(['GET','POST'])
 def get_projects(request):
@@ -75,7 +88,7 @@ def get_projects(request):
 "on  tb_projectschedule.projectscheduleid = tb_projectschedule_user.projectscheduleid "\
 "LEFT JOIN auth_user "\
 "on auth_user.id = tb_projectschedule_user.userid "\
-"where tb_projectschedule.isfinished = 0 "\
+"where tb_projectschedule.isfinished = 0 and tb_projectschedule.isdeleted=0 "\
 "and auth_user.id = %s) a "\
 "group by a.projectscheduleid"
     cursor.execute(sql,[userid])
@@ -111,6 +124,16 @@ def get_receptionists(request):
         users = dictfetchall(cursor)
         for user in users:
             managers.append(user)
+    
+    managerids = ''
+    for i in range(0,len(managers)):
+        managerids = managerids + str(managers[i].get("userid")) + ','
+    managerids =  managerids[:-1]
+
+    if managerids != '':
+        sql_manager = " select id as userid from auth_user where is_active=1 and id in ("+managerids+")"
+        cursor.execute(sql_manager)
+        managers = dictfetchall(cursor)
 
     return JsonResponse(managers, safe=False)
 
@@ -120,7 +143,6 @@ def create_dailypaper(request):
     json_data = json.loads(data)
 
     username = request.user.username
-    
     cursor=connection.cursor()
     sqlu = "select * from auth_user where username = '"+ username +"' "
     cursor.execute(sqlu)
@@ -195,7 +217,7 @@ def get_organization(request):
         "on tb_group.groupid = tb_group_user.groupid  "\
         "LEFT JOIN auth_user  "\
         "on tb_group_user.userid = auth_user.id  "\
-        "WHERE auth_user.name is not NULL) a,(select @rowNO :=0) b) c "\
+        "WHERE auth_user.name is not NULL and auth_user.is_active = 1) a,(select @rowNO :=0) b) c "\
         "LEFT JOIN (select tb_dailypaper.*,tb_dailypaper_user.isread from tb_dailypaper "\
         "LEFT JOIN tb_dailypaper_user "\
         "ON tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
@@ -214,36 +236,200 @@ def get_organization(request):
     return JsonResponse(returnjson, safe=False)
 
 @api_view(['GET','POST'])
+def load_userdailypaper_bydate(request):
+    username = request.user.username
+    
+    cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    userid = dictfetchall(cursor)[0]["id"]
+    dailypaperdate = request.POST.get("dailypaperdate")
+
+    sql = "select tb_dailypaper.*,auth_user.name as writer,auth_user.positiontype "\
+",tb_dailypaper_user.isread,z.receptionists,z.readreceptionists "\
+"from tb_dailypaper "\
+"LEFT JOIN tb_dailypaper_user "\
+"on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+"LEFT JOIN auth_user "\
+"on tb_dailypaper.userid = auth_user.id "\
+"LEFT JOIN (select x.*,y.readreceptionists from (  "\
+"SELECT tb_dailypaper.dailypaperid,group_concat(auth_user.name) as receptionists from tb_dailypaper "\
+"LEFT JOIN tb_dailypaper_user "\
+"on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+"LEFT JOIN auth_user "\
+"on tb_dailypaper_user.userid = auth_user.id "\
+"GROUP BY tb_dailypaper.dailypaperid) x "\
+"LEFT JOIN (SELECT tb_dailypaper.dailypaperid,group_concat(auth_user.name) as readreceptionists from tb_dailypaper "\
+"LEFT JOIN tb_dailypaper_user "\
+"on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+"LEFT JOIN auth_user "\
+"on tb_dailypaper_user.userid = auth_user.id "\
+"where tb_dailypaper_user.isread = 1 "\
+"GROUP BY tb_dailypaper.dailypaperid) y "\
+"ON x.dailypaperid = y.dailypaperid) z "\
+"on tb_dailypaper.dailypaperid = z.dailypaperid "\
+"where tb_dailypaper_user.userid = %s "\
+"and tb_dailypaper.dailypaperdate = %s"
+    cursor.execute(sql,[userid,dailypaperdate])
+    dailypapers = dictfetchall(cursor)
+
+    sql_detail_dev = "select tb_dailypaperdetail.*,CONCAT(tb_project.projectname,'-' "\
+        ",tb_projectschedule.schedulename) as projectname from tb_dailypaperdetail "\
+        "LEFT JOIN tb_projectschedule "\
+        "on tb_dailypaperdetail.projectscheduleid = tb_projectschedule.projectscheduleid "\
+        "LEFT JOIN tb_project "\
+        "on tb_project.projectid = tb_projectschedule.projectid "\
+        "LEFT JOIN tb_dailypaper "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaperdetail.dailypaperid "\
+        "where tb_dailypaper.dailypaperdate = %s "
+    cursor.execute(sql_detail_dev,[dailypaperdate])
+    dailypaperdetails_dev = dictfetchall(cursor)
+
+    sql_detail_business = "select tb_dailypaperdetail_sale.*,tb_business.businessname,tb_contact.contactname from tb_dailypaperdetail_sale "\
+        "LEFT JOIN tb_business "\
+        "on tb_dailypaperdetail_sale.businessid = tb_business.businessid "\
+        "LEFT JOIN tb_dailypaper "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaperdetail_sale.dailypaperid "\
+        "LEFT JOIN tb_contact "\
+        "on tb_contact.contactid = tb_dailypaperdetail_sale.contactid "\
+        "where tb_dailypaper.dailypaperdate = %s"
+    cursor.execute(sql_detail_business,[dailypaperdate])
+    dailypaperdetails_business = dictfetchall(cursor)
+
+    returnjson = {
+        'dailypapers':dailypapers,
+        'dailypaperdetails_dev':dailypaperdetails_dev,
+        'dailypaperdetails_business':dailypaperdetails_business
+    }
+    return JsonResponse(returnjson, safe=False)
+
+@api_view(['GET','POST'])
 def load_userdailypaper(request):
     writerid = request.POST.get("userid")
+    limit = request.POST.get("limit")
+    page = request.POST.get("page")
+    startindex = (int(page)-1)*int(limit)
     username = request.user.username
     cursor=connection.cursor()
     sqlu = "select * from auth_user where username = '"+ username +"' "
     cursor.execute(sqlu)
     receptionistid = dictfetchall(cursor)[0]["id"]
 
-    sql = "select tb_dailypaper.dailypaperid,tb_dailypaper.dailypaperdate "\
-        ",tb_dailypaper.createtime "\
-        ",tb_dailypaper.userid as writer "\
-        ",b.userid as receptionist,b.isread from tb_dailypaper "\
-        "LEFT JOIN (select * from tb_dailypaper_user where tb_dailypaper_user.userid = %s) b "\
-        "on tb_dailypaper.dailypaperid = b.dailypaperid "\
-        "where tb_dailypaper.userid = %s  and b.userid is not null "\
-        "GROUP BY tb_dailypaper.dailypaperid "\
-        "ORDER BY tb_dailypaper.dailypaperdate desc,tb_dailypaper.createtime DESC"
+    sql = "select a.*,z.receptionists,z.readreceptionists from ( "\
+"select tb_dailypaper.dailypaperid,tb_dailypaper.dailypaperdate "\
+",tb_dailypaper.createtime "\
+",tb_dailypaper.userid as writer "\
+",b.userid as receptionist,b.isread from tb_dailypaper "\
+"LEFT JOIN (select * from tb_dailypaper_user where tb_dailypaper_user.userid = %s) b "\
+"on tb_dailypaper.dailypaperid = b.dailypaperid "\
+"where tb_dailypaper.userid = %s  and b.userid is not null "\
+"GROUP BY tb_dailypaper.dailypaperid "\
+"ORDER BY tb_dailypaper.dailypaperdate desc,tb_dailypaper.createtime DESC) a "\
+"LEFT JOIN (select x.*,y.readreceptionists from ( "\
+"SELECT tb_dailypaper.dailypaperid,group_concat(auth_user.name) as receptionists from tb_dailypaper "\
+"LEFT JOIN tb_dailypaper_user "\
+"on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+"LEFT JOIN auth_user "\
+"on tb_dailypaper_user.userid = auth_user.id "\
+"GROUP BY tb_dailypaper.dailypaperid) x "\
+"LEFT JOIN (SELECT tb_dailypaper.dailypaperid,group_concat(auth_user.name) as readreceptionists from tb_dailypaper "\
+"LEFT JOIN tb_dailypaper_user "\
+"on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
+"LEFT JOIN auth_user "\
+"on tb_dailypaper_user.userid = auth_user.id "\
+"where tb_dailypaper_user.isread = 1 "\
+"GROUP BY tb_dailypaper.dailypaperid) y "\
+"ON x.dailypaperid = y.dailypaperid) z "\
+"on a.dailypaperid = z.dailypaperid limit "+str(startindex)+","+str(limit)+";"
     cursor.execute(sql,[receptionistid,writerid])
     dailypapers = dictfetchall(cursor)
+    dailypaperids = ''
+    for i in range(0,len(dailypapers)):
+        dailypaperids = dailypaperids + str(dailypapers[i].get("dailypaperid")) + ','
+    dailypaperids =  dailypaperids[:-1]
+    sql_total = "SELECT count(*) as total from ( "\
+"select tb_dailypaper.dailypaperid from tb_dailypaper "\
+"LEFT JOIN (select * from tb_dailypaper_user where tb_dailypaper_user.userid = %s) b "\
+"on tb_dailypaper.dailypaperid = b.dailypaperid "\
+"where tb_dailypaper.userid = %s  and b.userid is not null "\
+"GROUP BY tb_dailypaper.dailypaperid "\
+"ORDER BY tb_dailypaper.dailypaperdate desc,tb_dailypaper.createtime DESC) c"
+    cursor.execute(sql_total,[receptionistid,writerid])
+    total = dictfetchall(cursor)[0].get("total")
 
     sql_getusertype = "select * from auth_user where id = "+ writerid +" "
     cursor.execute(sql_getusertype)
     positiontype = dictfetchall(cursor)[0]["positiontype"]
 
+    dailypaperdetails = None
+    if positiontype == 1:
+        sql_detail = "select tb_dailypaperdetail.*,CONCAT(tb_project.projectname,'-' "\
+        ",tb_projectschedule.schedulename) as projectname from tb_dailypaperdetail "\
+        "LEFT JOIN tb_projectschedule "\
+        "on tb_dailypaperdetail.projectscheduleid = tb_projectschedule.projectscheduleid "\
+        "LEFT JOIN tb_project "\
+        "on tb_project.projectid = tb_projectschedule.projectid "\
+        "LEFT JOIN tb_dailypaper "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaperdetail.dailypaperid "\
+        "where tb_dailypaper.userid = %s "
+        if dailypaperids != '':
+            sql_detail = sql_detail + " and tb_dailypaper.dailypaperid in ("+dailypaperids+")"
+        cursor.execute(sql_detail,[writerid])
+        dailypaperdetails = dictfetchall(cursor)
+    elif positiontype == 2:
+        sql_detail = "select tb_dailypaperdetail_sale.*,tb_business.businessname,tb_contact.contactname from tb_dailypaperdetail_sale "\
+        "LEFT JOIN tb_business "\
+        "on tb_dailypaperdetail_sale.businessid = tb_business.businessid "\
+        "LEFT JOIN tb_dailypaper "\
+        "on tb_dailypaper.dailypaperid = tb_dailypaperdetail_sale.dailypaperid "\
+        "LEFT JOIN tb_contact "\
+        "on tb_contact.contactid = tb_dailypaperdetail_sale.contactid "\
+        "where tb_dailypaper.userid = %s"
+        if dailypaperids != '':
+            sql_detail = sql_detail + " and tb_dailypaper.dailypaperid in ("+dailypaperids+")"
+        cursor.execute(sql_detail,[writerid])
+        dailypaperdetails = dictfetchall(cursor)
     returnjson = {
         'dailypapers':dailypapers,
-        'positiontype':positiontype
+        'positiontype':positiontype,
+        'dailypaperdetails':dailypaperdetails,
+        "total":total
     }
 
     return JsonResponse(returnjson, safe=False)
+
+@api_view(['GET','POST'])
+def readdailypaper_byid(request):
+    dailypaperid = request.POST.get("dailypaperid")
+
+    username = request.user.username
+    cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    readuserid = dictfetchall(cursor)[0]["id"]
+
+    TbDailypaperUser.objects.filter(Q(dailypaperid=int(dailypaperid)) & Q(userid=int(readuserid))).update(
+            isread = 1,
+            readtime = datetime.datetime.now()
+            )
+    return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def readdailypaper_list(request):
+    dailypaperids = request.POST.get("dailypaperids").split(',')
+
+    username = request.user.username
+    cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    readuserid = dictfetchall(cursor)[0]["id"]
+
+    for i in range(0,len(dailypaperids)):
+        TbDailypaperUser.objects.filter(Q(dailypaperid=int(dailypaperids[i])) & Q(userid=int(readuserid))).update(
+            isread = 1,
+            readtime = datetime.datetime.now()
+            )
+    return HttpResponse("OK")
 
 @api_view(['GET','POST'])
 def read_dailypaperdetail(request):
@@ -281,6 +467,16 @@ def read_dailypaperdetail(request):
     return JsonResponse(dailypaper, safe=False)
 
 @api_view(['GET','POST'])
+def delete_dailypaper(request):
+    dailypaperid = request.POST.get("dailypaperid")
+
+    TbDailypaperUser.objects.filter(dailypaperid=dailypaperid).delete()
+    TbDailypaperdetail.objects.filter(dailypaperid=dailypaperid).delete()
+    TbDailypaper.objects.filter(dailypaperid=dailypaperid).delete()
+
+    return HttpResponse("OK")
+
+@api_view(['GET','POST'])
 def get_dailypaperbyid(request):
     dailypaperid = request.POST.get("dailypaperid")
 
@@ -297,7 +493,7 @@ def get_dailypaperbyid(request):
         "LEFT JOIN tb_projectschedule "\
         "on tb_dailypaperdetail.projectscheduleid = tb_projectschedule.projectscheduleid "\
         "LEFT JOIN tb_project "\
-        "on tb_projectschedule.projectid = tb_project.projectid) b "\
+        "on tb_projectschedule.projectid = tb_project.projectid ) b "\
         "ON a.dailypaperid = b.dailypaperid "\
         "where a.dailypaperid = %s"
     cursor.execute(sql,[dailypaperid])
@@ -371,13 +567,14 @@ def get_history(request):
         "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
         "LEFT JOIN auth_user "\
         "on tb_dailypaper_user.userid = auth_user.id "\
+        "where auth_user.is_active = 1 "\
         "GROUP BY tb_dailypaper.dailypaperid) a "\
         "LEFT JOIN (select tb_dailypaperdetail.*,CONCAT(tb_project.projectname,'-',tb_projectschedule.schedulename)  "\
         "as projectschedulename from tb_dailypaperdetail "\
         "LEFT JOIN tb_projectschedule "\
         "on tb_dailypaperdetail.projectscheduleid = tb_projectschedule.projectscheduleid "\
         "LEFT JOIN tb_project "\
-        "on tb_projectschedule.projectid = tb_project.projectid) b "\
+        "on tb_projectschedule.projectid = tb_project.projectid where tb_projectschedule.isdeleted = 0 or ISNULL(tb_projectschedule.isdeleted)) b "\
         "ON a.dailypaperid = b.dailypaperid "\
         "where a.dailypaperid  = (select dailypaperid from tb_dailypaper "\
         "where userid = %s "\

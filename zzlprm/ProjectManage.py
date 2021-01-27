@@ -16,7 +16,7 @@ def get_projects(request):
     sql = "select tb_project.*,tb_dict.typename projecttype from tb_project "\
 "LEFT JOIN tb_dict "\
 "on tb_project.typeid = tb_dict.dictid "\
-"and tb_dict.type = 1 "\
+"and tb_dict.type = 1 where tb_project.isdeleted = 0 "\
 "order by tb_project.updatetime desc"
     cursor.execute(sql)
     projects = dictfetchall(cursor)
@@ -44,7 +44,8 @@ def create_project(request):
             description = description,
             typeid = projecttype,
             createtime = createtime,
-            updatetime = updatetime
+            updatetime = updatetime,
+            isdeleted=0
         )
 
     return HttpResponse("OK")
@@ -55,8 +56,12 @@ def delete_project(request):
 
     delete_ids_list = delete_ids.split(',')
     for i in range(0,len(delete_ids_list)):
-        TbProjectschedule.objects.filter(projectid=delete_ids_list[i]).delete()
-        TbProject.objects.filter(projectid=delete_ids_list[i]).delete()
+        TbProjectschedule.objects.filter(projectid=delete_ids_list[i]).update(
+            isdeleted = 1
+        )
+        TbProject.objects.filter(projectid=delete_ids_list[i]).update(
+            isdeleted = 1
+        )
 
     return HttpResponse("OK")
 
@@ -102,7 +107,7 @@ def get_project_schedule(request):
 "LEFT JOIN auth_user "\
 "on tb_projectschedule_user.userid = auth_user.id "\
 "where tb_projectschedule_user.ismanager = 1) a "\
-"ON tb_projectschedule.projectscheduleid = a.projectscheduleid "\
+"ON tb_projectschedule.projectscheduleid = a.projectscheduleid where tb_projectschedule.isdeleted=0 "\
 "ORDER BY tb_projectschedule.schedulerealstartdate"
     cursor.execute(sql)
     projectschedule = dictfetchall(cursor)
@@ -133,14 +138,15 @@ def create_project_schedule(request):
             isfinished = isfinished,
             preworkload = preworkload,
             createtime = createtime,
-            updatetime = updatetime
+            updatetime = updatetime,
+            isdeleted=0
         )
-    
-    TbProjectscheduleUser.objects.create(
+    if managerid != 'null':
+        TbProjectscheduleUser.objects.create(
             projectscheduleid = p.pk,
             userid = managerid,
             ismanager = 1
-        )
+            )
     
     member_ids_list = members.split(',')
     if member_ids_list[0] != '':
@@ -221,11 +227,12 @@ def edit_project_schedule(request):
         )
 
     TbProjectscheduleUser.objects.filter(projectscheduleid=projectscheduleid).delete()
-    TbProjectscheduleUser.objects.create(
+    if managerid != 'null':
+        TbProjectscheduleUser.objects.create(
             projectscheduleid = projectscheduleid,
             userid = managerid,
             ismanager = 1
-        )
+            )
     
     member_ids_list = members.split(',')
     if member_ids_list[0] != '':
@@ -241,7 +248,8 @@ def edit_project_schedule(request):
 def delete_project_schedule(request):
     projectscheduleid = request.POST.get("projectscheduleid")
 
-    TbProjectscheduleUser.objects.filter(projectscheduleid=projectscheduleid).delete()
-    TbProjectschedule.objects.filter(projectscheduleid=projectscheduleid).delete()
+    TbProjectschedule.objects.filter(projectscheduleid=projectscheduleid).update(
+            isdeleted = 1
+        )
 
     return HttpResponse("OK")

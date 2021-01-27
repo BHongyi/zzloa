@@ -8,6 +8,8 @@ from zzlprm.models import TbDailypaperdetailSale
 from zzlprm.models import TbDailypaperUser
 import json
 import datetime
+import time
+from datetime import date,timedelta
 
 @api_view(['GET','POST'])
 def get_dailypapers(request):
@@ -51,11 +53,22 @@ def get_dailypapers(request):
     cursor.execute(sql1)
     dailypapers = dictfetchall(cursor)
 
+    threedayago = date.today()
+    for i in range(0,2):
+        threedayago = prev_weekday(threedayago)
+
     returnjson = {
         'dailypapers':dailypapers,
-        'dailypaperdetails':dailypaperdetails
+        'dailypaperdetails':dailypaperdetails,
+        'threedayago':threedayago
     }
     return JsonResponse(returnjson, safe=False)
+
+def prev_weekday(adate):
+    adate -= timedelta(days=1)
+    while adate.weekday() > 4: # Mon-Fri are 0-4
+        adate -= timedelta(days=1)
+    return adate
 
 @api_view(['GET','POST'])
 def get_businesses(request):
@@ -73,7 +86,7 @@ def get_businesses(request):
     "LEFT JOIN auth_user "\
     "on auth_user.id = tb_business_user.userid "\
     "where tb_business.status <> 4 and  tb_business.status <> 5 "\
-    "and auth_user.id = %s) a "\
+    "and auth_user.id = %s and tb_business.isdeleted=0) a "\
     "group by a.businessid"
     cursor.execute(sql,[userid])
     businesses = dictfetchall(cursor)
@@ -108,6 +121,16 @@ def get_receptionists(request):
         users = dictfetchall(cursor)
         for user in users:
             managers.append(user)
+    
+    managerids = ''
+    for i in range(0,len(managers)):
+        managerids = managerids + str(managers[i].get("userid")) + ','
+    managerids =  managerids[:-1]
+
+    if managerids != '':
+        sql_manager = " select id as userid from auth_user where is_active=1 and id in ("+managerids+")"
+        cursor.execute(sql_manager)
+        managers = dictfetchall(cursor)
 
     return JsonResponse(managers, safe=False)
 
@@ -120,7 +143,7 @@ def get_contacts(request):
     "on tb_business.businessid = tb_business_contact.businessid "\
     "LEFT JOIN tb_contact "\
     "on tb_business_contact.contactid = tb_contact.contactid "\
-    "where tb_business.businessid = %s "\
+    "where tb_business.businessid = %s and tb_contact.isdeleted=0 "\
     "GROUP BY tb_contact.contactid"
     cursor.execute(sql,[businessid])
     contacts = dictfetchall(cursor)
@@ -208,6 +231,16 @@ def get_dailypaperbyid(request):
     dailypaper = dictfetchall(cursor)
 
     return JsonResponse(dailypaper, safe=False)
+
+@api_view(['GET','POST'])
+def delete_dailypaper(request):
+    dailypaperid = request.POST.get("dailypaperid")
+
+    TbDailypaperUser.objects.filter(dailypaperid=dailypaperid).delete()
+    TbDailypaperdetailSale.objects.filter(dailypaperid=dailypaperid).delete()
+    TbDailypaper.objects.filter(dailypaperid=dailypaperid).delete()
+
+    return HttpResponse("OK")
 
 @api_view(['GET','POST'])
 def edit_dailypaper(request):
@@ -315,6 +348,7 @@ def get_history(request):
         "on tb_dailypaper.dailypaperid = tb_dailypaper_user.dailypaperid "\
         "LEFT JOIN auth_user "\
         "on tb_dailypaper_user.userid = auth_user.id "\
+        "where auth_user.is_active = 1 "\
         "GROUP BY tb_dailypaper.dailypaperid) a "\
         "LEFT JOIN ( "\
         "select tb_dailypaperdetail_sale.*,tb_business.businessname  "\

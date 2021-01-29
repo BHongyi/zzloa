@@ -15,7 +15,12 @@ from rest_framework.decorators import api_view
 # Create your views here.
 @api_view(['GET','POST'])
 def get_clients(request):
+    username = request.user.username
     cursor=connection.cursor()
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    userid = dictfetchall(cursor)[0]["id"]
+
     sql = "select tb_client.clientid,tb_client.companyname "\
     ",tb_client.description,tb_client.phone "\
     ",auth_user.name as staff,tb_client.createtime "\
@@ -24,8 +29,10 @@ def get_clients(request):
     "ON tb_client.clienttype = tb_dict.typeid "\
     "and tb_dict.type = 4 "\
     "LEFT JOIN auth_user "\
-    "on tb_client.staff = auth_user.id where tb_client.isdeleted = 0 "\
-    "order by tb_client.updatetime desc"
+    "on tb_client.staff = auth_user.id where tb_client.isdeleted = 0 "
+    if userid != 1: #客户超级管理员
+        sql = sql + "and tb_client.staff = " + str(userid) +" "
+    sql = sql + "order by tb_client.updatetime desc"
     cursor.execute(sql)
     clients = dictfetchall(cursor)
     return JsonResponse(clients, safe=False)
@@ -40,11 +47,21 @@ def get_clienttypes(request):
     return JsonResponse(types, safe=False)
 
 @api_view(['GET','POST'])
+def get_sources(request):
+    cursor=connection.cursor()
+    sql = "select * from tb_dict "\
+          "where type=8"
+    cursor.execute(sql)
+    types = dictfetchall(cursor)
+    return JsonResponse(types, safe=False)
+
+@api_view(['GET','POST'])
 def create_client(request):
     data = request.body.decode("utf-8")
     json_data = json.loads(data)
     companyname = json_data.get("companyname")
     clienttype = json_data.get("clienttype")
+    source = json_data.get("source")
     staff = json_data.get("staff")
     owner = json_data.get("owner")
     scale = json_data.get("scale")
@@ -61,6 +78,7 @@ def create_client(request):
     TbClient.objects.create(
             companyname = companyname,
             clienttype = clienttype,
+            source = source,
             staff = staff,
             owner = owner,
             scale = scale,
@@ -85,6 +103,7 @@ def edit_client(request):
     clientid = json_data.get("clientid")
     companyname = json_data.get("companyname")
     clienttype = json_data.get("clienttype")
+    source = json_data.get("source")
     staff = json_data.get("staff")
     owner = json_data.get("owner")
     scale = json_data.get("scale")
@@ -103,6 +122,7 @@ def edit_client(request):
             staff = staff,
             owner = owner,
             scale = scale,
+            source = source,
             profession = profession,
             website = website,
             fax = fax,

@@ -86,6 +86,7 @@ urlpatterns = [
     path('clientmanage/get_contact_byid/', ClientManage.get_contact_byid),
     path('clientmanage/edit_contact/', ClientManage.edit_contact),
     path('clientmanage/delete_contact/', ClientManage.delete_contact),
+    path('clientmanage/get_sources/', ClientManage.get_sources),
 
     path('businessmanage/get_businesses/', BusinessManage.get_businesses),
     path('businessmanage/get_statuses/', BusinessManage.get_statuses),

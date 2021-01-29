@@ -19,8 +19,13 @@ from rest_framework.decorators import api_view
 # Create your views here.
 @api_view(['GET','POST'])
 def get_businesses(request):
+    username = request.user.username
     cursor=connection.cursor()
-    sql = "select b.*,tb_business_user.userid as managerid from ( "\
+    sqlu = "select * from auth_user where username = '"+ username +"' "
+    cursor.execute(sqlu)
+    userid = dictfetchall(cursor)[0]["id"]
+
+    sql = "select b.*,c.userid as managerid from ( "\
 "SELECT a.*,GROUP_CONCAT(tb_contact.contactname) as contacts from ( "\
 "select tb_business.*,GROUP_CONCAT(tb_client.companyname) as companyname from tb_business "\
 "LEFT JOIN tb_business_client "\
@@ -33,10 +38,15 @@ def get_businesses(request):
 "LEFT JOIN tb_contact "\
 "on tb_business_contact.contactid = tb_contact.contactid "\
 "GROUP BY a.businessid) b "\
-"LEFT JOIN tb_business_user "\
-"on b.businessid = tb_business_user.businessid "\
-"GROUP BY b.businessid "\
-"order by b.updatetime desc"
+"LEFT JOIN (select * from tb_business_user "\
+"where ismanager=1) c "\
+"on b.businessid = c.businessid "
+    if userid != 1:#商机超级管理员
+        sql = sql + "where b.businessid in (select businessid from tb_business_user "\
+            "where userid = "+str(userid)+" "\
+            "GROUP BY businessid) or b.owner="+str(userid)+" "
+    sql = sql + "GROUP BY b.businessid "\
+        "order by b.updatetime desc"
     cursor.execute(sql)
     businesses = dictfetchall(cursor)
 
@@ -50,16 +60,27 @@ def get_businesses(request):
     cursor.execute(sqlrecord)
     businesserecord = dictfetchall(cursor)
 
+    sqlimportantrecord = "select tb_dailypaperdetail_sale.*,tb_dailypaper.dailypaperdate "\
+",auth_user.name as writer from tb_dailypaperdetail_sale "\
+"LEFT JOIN tb_dailypaper "\
+"on tb_dailypaperdetail_sale.dailypaperid = tb_dailypaper.dailypaperid "\
+"LEFT JOIN auth_user "\
+"on auth_user.id = tb_dailypaper.userid "\
+"where isimportant=1"
+    cursor.execute(sqlimportantrecord)
+    importantrecord = dictfetchall(cursor)
+
     returnjson = {
         'businesses':businesses,
-        'businessrecord':businesserecord
+        'businessrecord':businesserecord,
+        'importantrecord':importantrecord
     }
     return JsonResponse(returnjson, safe=False)
 
 @api_view(['GET','POST'])
 def get_statuses(request):
     cursor=connection.cursor()
-    sql = "SELECT * from tb_dict where type = 3 "
+    sql = "SELECT * from tb_dict where type = 3 order by tb_dict.order "
     cursor.execute(sql)
     statuses = dictfetchall(cursor)
     return JsonResponse(statuses, safe=False)

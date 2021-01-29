@@ -32,24 +32,31 @@
             style="width: 100%"
           >
             <el-table-column type="index" width="20"> </el-table-column>
+            <el-table-column prop="businessname" label="商机名" width="200">
+            </el-table-column>
             <el-table-column
-              prop="businessname"
-              label="商机名"
-              width="200"
+              prop="isimportant"
+              v-if="props.row.positiontype == 2"
+              label="重要活动"
+              width="100"
             >
+              <template slot-scope="scope">
+                <span v-if="scope.row.isimportant == 1">是</span>
+                <span v-else>否</span>
+              </template>
             </el-table-column>
             <el-table-column prop="worktime" label="用时(单位:h)" width="120">
             </el-table-column>
             <el-table-column
               prop="cost"
               label="费用(单位:元)"
-              v-if="props.row.positiontype==2"
+              v-if="props.row.positiontype == 2"
               width="120"
             >
             </el-table-column>
             <el-table-column
               prop="contactname"
-              v-if="props.row.positiontype==2"
+              v-if="props.row.positiontype == 2"
               label="联系人"
               width="100"
             >
@@ -95,7 +102,12 @@ export default {
   name: "ReadDailypaperBydate",
   data() {
     return {
-      dailypaperdate: new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(),
+      dailypaperdate:
+        new Date().getFullYear() +
+        "-" +
+        (new Date().getMonth() + 1) +
+        "-" +
+        new Date().getDate(),
       tableData: [],
       total: null,
       currentnode: null,
@@ -119,28 +131,27 @@ export default {
         this.tableData = res.data.dailypapers;
         this.unexpandrowkeys = [];
         this.tableDailypaperDetail = res.data.dailypaperdetails_business;
-        this.tableDailypaperDetail.forEach(element => {
-            this.unexpandrowkeys.push(element.dailypaperid);
-            if(element.businessid == -1){
-                element.businessname='自我学习';
-            }
+        this.tableDailypaperDetail.forEach((element) => {
+          this.unexpandrowkeys.push(element.dailypaperid);
+          if (element.businessid == -1) {
+            element.businessname = "自我学习";
+          }
         });
-        res.data.dailypaperdetails_dev.forEach(element => {
-            this.unexpandrowkeys.push(element.dailypaperid);
-            element["contactname"]="";
-            element["cost"]="";
-            if(element.projectscheduleid == -1){
-                element.businessname='自我学习';
-            }
-            else{
-                element.businessname=element.projectname;
-            }
-            this.tableDailypaperDetail.push(element);
+        res.data.dailypaperdetails_dev.forEach((element) => {
+          this.unexpandrowkeys.push(element.dailypaperid);
+          element["contactname"] = "";
+          element["cost"] = "";
+          if (element.projectscheduleid == -1) {
+            element.businessname = "自我学习";
+          } else {
+            element.businessname = element.projectname;
+          }
+          this.tableDailypaperDetail.push(element);
         });
       });
     },
-    datachange(){
-        this.initdailypapers();
+    datachange() {
+      this.initdailypapers();
     },
     expandall() {
       if (this.expandrowkeys.length > 0) {
@@ -159,10 +170,16 @@ export default {
             if (element.readreceptionists == null) {
               element.readreceptionists = sessionStorage.getItem("uname");
             } else {
-              if(element.readreceptionists.indexOf(sessionStorage.getItem("uname")) > -1){}
-              else{
+              if (
+                element.readreceptionists.indexOf(
+                  sessionStorage.getItem("uname")
+                ) > -1
+              ) {
+              } else {
                 element.readreceptionists =
-                element.readreceptionists + "," + sessionStorage.getItem("uname");
+                  element.readreceptionists +
+                  "," +
+                  sessionStorage.getItem("uname");
               }
             }
           });

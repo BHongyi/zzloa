@@ -18,8 +18,9 @@
           <el-button @click="expandall()"
             ><i class="el-icon-folder-opened"></i>展开/合上(全部)</el-button
           >
-          <span style="margin-left: 20px; font-size: 15px; color: darkgrey"
-          v-if="currentuser != null"
+          <span
+            style="margin-left: 20px; font-size: 15px; color: darkgrey"
+            v-if="currentuser != null"
             >您正在查看<span style="color: black">{{ currentuser }}</span
             >的日报</span
           >
@@ -56,6 +57,17 @@
                   width="200"
                   v-if="positiontype == 2"
                 >
+                </el-table-column>
+                <el-table-column
+                  prop="isimportant"
+                  v-if="positiontype == 2"
+                  label="重要活动"
+                  width="100"
+                >
+                  <template slot-scope="scope">
+                    <span v-if="scope.row.isimportant == 1">是</span>
+                    <span v-else>否</span>
+                  </template>
                 </el-table-column>
                 <el-table-column
                   prop="worktime"

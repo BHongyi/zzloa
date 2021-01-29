@@ -228,6 +228,7 @@ class TbClient(models.Model):
     createtime = models.DateTimeField()
     updatetime = models.DateTimeField()
     isdeleted = models.IntegerField()
+    source = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -301,6 +302,7 @@ class TbDailypaperdetailSale(models.Model):
     worktime = models.FloatField()
     workcontent = models.CharField(max_length=1000, blank=True, null=True)
     contactid = models.IntegerField(blank=True, null=True)
+    isimportant = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -312,6 +314,7 @@ class TbDict(models.Model):
     type = models.IntegerField()
     typeid = models.IntegerField()
     typename = models.CharField(max_length=50)
+    order = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False

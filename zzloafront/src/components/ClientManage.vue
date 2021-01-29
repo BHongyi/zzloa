@@ -199,6 +199,20 @@
             v-model="createformdata.description"
           ></el-input>
         </el-form-item>
+        <el-form-item
+          label="来源"
+          prop="source"
+        >
+          <el-select v-model="createformdata.source" placeholder="请选择">
+            <el-option
+              v-for="item in sourceData"
+              :key="item.typeid"
+              :label="item.typename"
+              :value="item.typeid"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="公司法人" prop="owner">
           <el-input v-model="createformdata.owner"></el-input>
         </el-form-item>
@@ -287,6 +301,20 @@
             type="textarea"
             v-model="editformdata.description"
           ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="来源"
+          prop="source"
+        >
+          <el-select v-model="editformdata.source" placeholder="请选择">
+            <el-option
+              v-for="item in sourceData"
+              :key="item.typeid"
+              :label="item.typename"
+              :value="item.typeid"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="公司法人" prop="owner">
           <el-input v-model="editformdata.owner"></el-input>
@@ -511,6 +539,7 @@ export default {
       tableData: [],
       tableContactData: [],
       clienttypeData: [],
+      sourceData: [],
       userlist: [],
       dialogVisible: false,
       editDialogVisible: false,
@@ -532,6 +561,7 @@ export default {
         email: "",
         address: "",
         phone: "",
+        source:null,
       },
       createformdata: {
         companyname: "",
@@ -546,6 +576,7 @@ export default {
         email: "",
         address: "",
         phone: "",
+        source:null,
       },
       createcontactformdata: {
         clientid: null,
@@ -584,6 +615,7 @@ export default {
   mounted: function () {
     this.initclients(); //需要触发的函数
     this.clienttypes();
+    this.sourcetypes();
     this.inituserlist();
     this.initContact();
   },
@@ -605,6 +637,15 @@ export default {
         data: {},
       }).then((res) => {
         this.clienttypeData = res.data;
+      });
+    },
+    sourcetypes(){
+      axios({
+        url: "clientmanage/get_sources/",
+        method: "get",
+        data: {},
+      }).then((res) => {
+        this.sourceData = res.data;
       });
     },
     inituserlist() {
@@ -648,6 +689,7 @@ export default {
       this.createformdata.email = "";
       this.createformdata.address = "";
       this.createformdata.phone = "";
+      this.createformdata.source = null;
     },
     createclient() {
       this.$refs["createclientform"].validate((valid) => {

@@ -88,7 +88,7 @@
         v-if="this.permissions.indexOf('000034') != -1"
         label="操作"
         fixed="right"
-        width="320"
+        width="380"
       >
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
@@ -105,6 +105,18 @@
               </el-timeline>
             </p>
             <el-button size="mini" type="info" slot="reference">查看记录</el-button>
+          </el-popover>
+          <el-popover trigger="click" placement="top" width="300">
+            <p>
+              <el-timeline :reverse="false">
+                <el-timeline-item v-for="(activity, dailypaperdetail_saleid) in importantrecord.filter((f) => f.businessid == scope.row.businessid)"
+                :key="dailypaperdetail_saleid"
+                :timestamp="activity.dailypaperdate.split('T')[0]">
+                {{activity.writer}}:{{activity.workcontent}}
+                </el-timeline-item>
+              </el-timeline>
+            </p>
+            <el-button size="mini" type="info" slot="reference">重要活动</el-button>
           </el-popover>
           <el-button
             size="mini"
@@ -412,6 +424,7 @@ export default {
       },
       tableData: [],
       businessrecord:[],
+      importantrecord:[],
       statuslist: [],
       userlist: [],
       clientlist: [],
@@ -476,6 +489,7 @@ export default {
       }).then((res) => {
         this.tableData = res.data.businesses;
         this.businessrecord = res.data.businessrecord;
+        this.importantrecord = res.data.importantrecord;
         console.log(this.businessrecord);
         this.total = res.data.length;
       });

@@ -41,6 +41,12 @@
             <el-table-column type="index" width="20"> </el-table-column>
             <el-table-column prop="businessname" label="商机名" width="200">
             </el-table-column>
+            <el-table-column prop="isimportant" label="重要活动" width="100">
+              <template slot-scope="scope">
+                <span v-if="scope.row.isimportant == 1">是</span>
+                <span v-else>否</span>
+                </template>
+            </el-table-column>
             <el-table-column prop="worktime" label="用时(单位:h)" width="200">
             </el-table-column>
             <el-table-column prop="cost" label="费用(单位:元)" width="200">
@@ -199,6 +205,17 @@
             </template>
           </el-table-column>
           <el-table-column prop="businessname" label="商机名" width="180">
+          </el-table-column>
+          <el-table-column prop="isimportant" label="重要活动" width="80">
+            
+             <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.cost'"
+              >
+                <el-checkbox v-model="scope.row.isimportant"></el-checkbox>
+              </el-form-item>
+            </template>
           </el-table-column>
           <el-table-column prop="worktime" label="工时(单位:h)" width="120">
             <template slot-scope="scope">
@@ -375,6 +392,16 @@
             </template>
           </el-table-column>
           <el-table-column prop="businessname" label="商机名" width="180">
+          </el-table-column>
+          <el-table-column prop="isimportant" label="重要活动" width="80">
+             <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.cost'"
+              >
+                <el-checkbox v-model="scope.row.isimportant"></el-checkbox>
+              </el-form-item>
+            </template>
           </el-table-column>
           <el-table-column prop="worktime" label="工时(单位:h)" width="120">
             <template slot-scope="scope">
@@ -665,7 +692,9 @@ export default {
             element.businessname = "自我学习";
           }
           this.editreturnjson.businesses.push(element.businessid);
-
+          if(element.isimportant==1){
+            element.isimportant=true;
+          }
           let param = new URLSearchParams();
           param.append("businessid", element.businessid);
           axios({
@@ -901,6 +930,7 @@ export default {
                 worktime: null,
                 workcontent: null,
                 contacts: res.data,
+                isimportant:false,
               };
 
               this.returnjson.tableData.push(node);

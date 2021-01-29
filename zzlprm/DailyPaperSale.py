@@ -193,6 +193,11 @@ def create_dailypaper(request):
         businessid = contents[j].get("businessid")
         worktime = contents[j].get("worktime")
         workcontent = contents[j].get("workcontent")
+        isimportant = None
+        if contents[j].get("isimportant")==True:
+            isimportant = 1
+        else:
+            isimportant = 0
         cost = contents[j].get("cost")
         if cost == '':
             cost = None
@@ -202,6 +207,7 @@ def create_dailypaper(request):
             businessid = businessid,
             worktime = worktime,
             cost = cost,
+            isimportant = isimportant,
             contactid = contactid,
             workcontent = workcontent
         )
@@ -285,6 +291,11 @@ def edit_dailypaper(request):
         businessid = contents[j].get("businessid")
         worktime = contents[j].get("worktime")
         workcontent = contents[j].get("workcontent")
+        isimportant = None
+        if contents[j].get("isimportant")==True:
+            isimportant = 1
+        else:
+            isimportant = 0
         cost = contents[j].get("cost")
         if cost == '':
             cost = None
@@ -295,6 +306,7 @@ def edit_dailypaper(request):
             worktime = worktime,
             workcontent = workcontent,
             cost = cost,
+            isimportant = isimportant,
             contactid = contactid
         )
     return HttpResponse("OK")

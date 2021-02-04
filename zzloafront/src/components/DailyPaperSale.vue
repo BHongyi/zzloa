@@ -8,10 +8,7 @@
         "
         ><i class="el-icon-plus"></i>填写日报</el-button
       >
-      <el-button
-        @click="
-          expandall()
-        "
+      <el-button @click="expandall()"
         ><i class="el-icon-folder-opened"></i>展开/合上(全部)</el-button
       >
     </el-row>
@@ -45,7 +42,7 @@
               <template slot-scope="scope">
                 <span v-if="scope.row.isimportant == 1">是</span>
                 <span v-else>否</span>
-                </template>
+              </template>
             </el-table-column>
             <el-table-column prop="worktime" label="用时(单位:h)" width="200">
             </el-table-column>
@@ -82,7 +79,10 @@
       </el-table-column>
       <el-table-column label="操作" width="180">
         <template slot-scope="scope">
-          <el-button size="mini" v-if="comparedate(scope.row.dailypaperdate, threedayago)" @click="handleEdit(scope.$index, scope.row)"
+          <el-button
+            size="mini"
+            v-if="comparedate(scope.row.dailypaperdate, threedayago)"
+            @click="handleEdit(scope.$index, scope.row)"
             ><i class="el-icon-edit"></i>修改</el-button
           >
           <el-button
@@ -109,7 +109,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog title="填写日报" :visible.sync="dialogVisible" width="850px">
+    <el-dialog title="填写日报" :visible.sync="dialogVisible" width="950px">
       <el-form
         :model="returnjson"
         label-position="left"
@@ -151,7 +151,7 @@
             v-model="returnjson.businesses"
             multiple
             placeholder="请选择商机"
-            style="width: 700px"
+            style="width: 800px"
             @change="businesschange()"
           >
             <el-option
@@ -178,7 +178,7 @@
             v-model="returnjson.checkeduser"
             multiple
             placeholder="请选择收件人"
-            style="width: 700px"
+            style="width: 800px"
           >
             <el-option
               v-for="item in userlist"
@@ -194,7 +194,7 @@
           empty-text="请选择商机"
           style="width: 100%"
         >
-        <el-table-column width="35">
+          <el-table-column width="60">
             <template slot-scope="scope">
               <el-link
                 type="info"
@@ -202,13 +202,18 @@
                 @click="cutbusiness(scope.$index, scope.row)"
                 ><i class="el-icon-error"></i
               ></el-link>
+              <el-link
+                type="info"
+                :underline="false"
+                @click="addbusiness(scope.$index, scope.row)"
+                ><i class="el-icon-circle-plus"></i
+              ></el-link>
             </template>
           </el-table-column>
           <el-table-column prop="businessname" label="商机名" width="180">
           </el-table-column>
           <el-table-column prop="isimportant" label="重要活动" width="80">
-            
-             <template slot-scope="scope">
+            <template slot-scope="scope">
               <el-form-item
                 label-width="0px"
                 :prop="'tableData.' + scope.$index + '.cost'"
@@ -230,7 +235,11 @@
                   },
                 ]"
               >
-                <el-select v-model="scope.row.worktime" filterable placeholder="请选择">
+                <el-select
+                  v-model="scope.row.worktime"
+                  filterable
+                  placeholder="请选择"
+                >
                   <el-option
                     v-for="item in timelist"
                     :key="item.id"
@@ -381,7 +390,7 @@
           empty-text="请选择商机"
           style="width: 100%"
         >
-        <el-table-column width="35">
+          <el-table-column width="60">
             <template slot-scope="scope">
               <el-link
                 type="info"
@@ -389,12 +398,18 @@
                 @click="editcutbusiness(scope.$index, scope.row)"
                 ><i class="el-icon-error"></i
               ></el-link>
+              <el-link
+                type="info"
+                :underline="false"
+                @click="editaddbusiness(scope.$index, scope.row)"
+                ><i class="el-icon-circle-plus"></i
+              ></el-link>
             </template>
           </el-table-column>
           <el-table-column prop="businessname" label="商机名" width="180">
           </el-table-column>
           <el-table-column prop="isimportant" label="重要活动" width="80">
-             <template slot-scope="scope">
+            <template slot-scope="scope">
               <el-form-item
                 label-width="0px"
                 :prop="'tableData.' + scope.$index + '.cost'"
@@ -416,7 +431,11 @@
                   },
                 ]"
               >
-                <el-select v-model="scope.row.worktime" filterable placeholder="请选择">
+                <el-select
+                  v-model="scope.row.worktime"
+                  filterable
+                  placeholder="请选择"
+                >
                   <el-option
                     v-for="item in timelist"
                     :key="item.id"
@@ -502,17 +521,16 @@ export default {
       },
       tableData: [],
       threedayago: null,
-      expandrowkeys:[],
-      unexpandrowkeys:[],
+      expandrowkeys: [],
+      unexpandrowkeys: [],
       tableDailypaperDetail: [],
       pickerOptions: {
         disabledDate(time) {
           var curTime = new Date().getTime();
           var _day = 3;
-          if(new Date().getDay() == 1){
+          if (new Date().getDay() == 1) {
             _day = _day + 2;
-          }
-          else if(new Date().getDay() == 2){
+          } else if (new Date().getDay() == 2) {
             _day = _day + 2;
           }
           var startDate = curTime - _day * 3600 * 24 * 1000;
@@ -580,7 +598,7 @@ export default {
       }).then((res) => {
         this.threedayago = res.data.threedayago;
         this.tableData = res.data.dailypapers;
-        this.tableData.forEach(element => {
+        this.tableData.forEach((element) => {
           this.unexpandrowkeys.push(element.dailypaperid);
         });
         this.tableDailypaperDetail = res.data.dailypaperdetails;
@@ -692,8 +710,8 @@ export default {
             element.businessname = "自我学习";
           }
           this.editreturnjson.businesses.push(element.businessid);
-          if(element.isimportant==1){
-            element.isimportant=true;
+          if (element.isimportant == 1) {
+            element.isimportant = true;
           }
           let param = new URLSearchParams();
           param.append("businessid", element.businessid);
@@ -753,26 +771,70 @@ export default {
         });
       });
     },
-    expandall(){
-      if(this.expandrowkeys.length > 0){
+    expandall() {
+      if (this.expandrowkeys.length > 0) {
         this.expandrowkeys = [];
-      }
-      else{
+      } else {
         this.expandrowkeys = this.unexpandrowkeys;
       }
     },
+    addbusiness(index, row) {
+      //console.log(row);
+      var node = {
+        businessid: row.businessid,
+        businessname: row.businessname,
+        worktime: null,
+        workcontent: null,
+        contacts: row.contacts,
+        isimportant: false,
+      };
+
+      this.returnjson.tableData.push(node);
+      //this.returnjson.businesses.push(row);
+    },
     cutbusiness(index, row) {
-      this.returnjson.businesses = this.returnjson.businesses.filter(
-        (t) => t != row.businessid
-      );
-      //console.log(this.returnjson.businesses);
-      this.businesschange();
+      this.returnjson.tableData.splice(index, 1);
+      var existinTable = 0;
+      this.returnjson.tableData.forEach((element) => {
+        if (element.businessid == row.businessid) {
+          existinTable = 1;
+        }
+      });
+
+      if (existinTable == 0) {
+        this.returnjson.businesses = this.returnjson.businesses.filter(
+          (t) => t != row.businessid
+        );
+        this.businesschange();
+      }
+    },
+    editaddbusiness(index, row) {
+      var node = {
+        businessid: row.businessid,
+        businessname: row.businessname,
+        worktime: null,
+        workcontent: null,
+        contacts: row.contacts,
+        isimportant: false,
+      };
+
+      this.editreturnjson.tableData.push(node);
     },
     editcutbusiness(index, row) {
-      this.editreturnjson.businesses = this.editreturnjson.businesses.filter(
-        (t) => t != row.businessid
-      );
-      this.editbusinesschange();
+      this.editreturnjson.tableData.splice(index, 1);
+      var existinTable = 0;
+      this.editreturnjson.tableData.forEach((element) => {
+        if (element.businessid == row.businessid) {
+          existinTable = 1;
+        }
+      });
+
+      if (existinTable == 0) {
+        this.editreturnjson.businesses = this.editreturnjson.businesses.filter(
+          (t) => t != row.businessid
+        );
+        this.editbusinesschange();
+      }
     },
     deletedailypaper(index, row) {
       this.$confirm("确认删除？")
@@ -930,7 +992,7 @@ export default {
                 worktime: null,
                 workcontent: null,
                 contacts: res.data,
-                isimportant:false,
+                isimportant: false,
               };
 
               this.returnjson.tableData.push(node);

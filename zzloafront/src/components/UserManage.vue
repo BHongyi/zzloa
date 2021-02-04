@@ -125,9 +125,6 @@
         <el-form-item
           label="邮件"
           prop="email"
-          :rules="[
-            { required: true, message: '邮件不能为空', trigger: 'blur' },
-          ]"
         >
           <el-input v-model="createformdata.email"></el-input>
         </el-form-item>
@@ -204,9 +201,6 @@
         <el-form-item
           label="邮件"
           prop="email"
-          :rules="[
-            { required: true, message: '邮件不能为空', trigger: 'blur' },
-          ]"
         >
           <el-input v-model="editformdata.email"></el-input>
         </el-form-item>

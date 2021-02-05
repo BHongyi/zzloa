@@ -57,6 +57,7 @@ urlpatterns = [
     path('projectmanage/edit_project_schedule/', ProjectManage.edit_project_schedule),
     path('projectmanage/delete_project_schedule/', ProjectManage.delete_project_schedule),
     path('projectmanage/get_project_schedule_byid/', ProjectManage.get_project_schedule_byid),
+    path('projectmanage/get_project_worktypes/', ProjectManage.get_project_worktypes),
 
     path('dailypaper/get_projects/', DailyPaper.get_projects),
     path('dailypaper/get_receptionists/', DailyPaper.get_receptionists),
@@ -72,6 +73,7 @@ urlpatterns = [
     path('dailypaper/readdailypaper_list/', DailyPaper.readdailypaper_list),
     path('dailypaper/load_userdailypaper_bydate/', DailyPaper.load_userdailypaper_bydate),
     path('dailypaper/delete_dailypaper/', DailyPaper.delete_dailypaper),
+    path('dailypaper/get_worktypes/', DailyPaper.get_worktypes),
 
     path('personalpage/edit_password/', PersonalPage.edit_password),
 
@@ -96,6 +98,7 @@ urlpatterns = [
     path('businessmanage/edit_business/', BusinessManage.edit_business),
     path('businessmanage/delete_business/', BusinessManage.delete_business),
     path('businessmanage/end_business/', BusinessManage.end_business),
+    path('businessmanage/get_business_worktypes/', BusinessManage.get_business_worktypes),
 
     path('dailypapersale/get_dailypapers/', DailyPaperSale.get_dailypapers),
     path('dailypapersale/get_businesses/', DailyPaperSale.get_businesses),
@@ -107,6 +110,7 @@ urlpatterns = [
     path('dailypapersale/read_dailypaperdetail/', DailyPaperSale.read_dailypaperdetail),
     path('dailypapersale/get_history/', DailyPaperSale.get_history),
     path('dailypapersale/delete_dailypaper/', DailyPaperSale.delete_dailypaper),
+    path('dailypapersale/get_worktypes/', DailyPaperSale.get_worktypes),
 
     path('leaveflow/get_leaves/', LeaveFlow.get_leaves),
     path('leaveflow/get_leavetypes/', LeaveFlow.get_leavetypes),

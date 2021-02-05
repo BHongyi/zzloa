@@ -124,7 +124,7 @@
               label="实际结束时间"
             >
               <template slot-scope="scope">{{
-                scope.row.schedulefinishdate | dateYMDHMSFormat
+                scope.row.schedulerealfinishdate | dateYMDHMSFormat
               }}</template>
             </el-table-column>
             <el-table-column prop="createtime" width="110" label="创建时间">
@@ -376,6 +376,21 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="工作类型" prop="worktypes">
+          <el-select
+            v-model="createscheduleformdata.worktypes"
+            multiple
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in worktypes"
+              :key="item.typeid"
+              :label="item.typename"
+              :value="item.typeid"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item
           label="预计工作量(人/日)"
           prop="preworkload"
@@ -499,6 +514,21 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="工作类型" prop="worktypes">
+          <el-select
+            v-model="editscheduleformdata.worktypes"
+            multiple
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in worktypes"
+              :key="item.typeid"
+              :label="item.typename"
+              :value="item.typeid"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="预计工作量(人/日)" prop="preworkload" :rules="[
             { required: true, message: '预计工作量不能为空', trigger: 'blur' },
           ]">
@@ -616,6 +646,7 @@ export default {
         groupid: "",
         managerid: null,
         members: [],
+        worktypes: [],
         schedulestartdate: "",
         schedulefinishdate: "",
         preworkload: null,
@@ -628,6 +659,7 @@ export default {
         groupid: "",
         managerid: null,
         members: [],
+        worktypes: [],
         schedulestartdate: "",
         schedulefinishdate: "",
         preworkload: null,
@@ -650,6 +682,7 @@ export default {
       types: [],
       options: [],
       userlist: [],
+      worktypes: [],
     };
   },
   components: {
@@ -664,6 +697,7 @@ export default {
     this.initgroups();
     this.initusers();
     this.inittypes();
+    this.initworktypes();
   },
   methods: {
     initprojects() {
@@ -711,6 +745,15 @@ export default {
         data: {},
       }).then((res) => {
         this.types = res.data;
+      });
+    },
+    initworktypes(){
+      axios({
+        url: "projectmanage/get_project_worktypes/",
+        method: "get",
+        data: {},
+      }).then((res) => {
+        this.worktypes = res.data;
       });
     },
     clearcreateprojectform() {
@@ -851,6 +894,7 @@ export default {
           param.append("groupid", this.createscheduleformdata.groupid);
           param.append("managerid", this.createscheduleformdata.managerid);
           param.append("members", this.createscheduleformdata.members);
+          param.append("worktypes", this.createscheduleformdata.worktypes);
           param.append(
             "schedulestartdate",
             this.createscheduleformdata.schedulestartdate
@@ -879,6 +923,7 @@ export default {
     handleScheduleEdit(index, row) {
       this.editScheduleDialogVisible = true;
       this.editscheduleformdata.members = [];
+      this.editscheduleformdata.worktypes = [];
       let param = new URLSearchParams();
       param.append("projectscheduleid", row.projectscheduleid);
       axios({
@@ -917,6 +962,9 @@ export default {
             this.editscheduleformdata.members.push(element.userid);
           }
         });
+        res.data.worktypes.forEach((element) => {
+          this.editscheduleformdata.worktypes.push(element.typeid);
+        });
       });
     },
     editprojectschedule() {
@@ -936,6 +984,7 @@ export default {
           param.append("groupid", this.editscheduleformdata.groupid);
           param.append("managerid", this.editscheduleformdata.managerid);
           param.append("members", this.editscheduleformdata.members);
+          param.append("worktypes", this.editscheduleformdata.worktypes);
           param.append(
             "schedulestartdate",
             this.editscheduleformdata.schedulestartdate

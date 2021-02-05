@@ -37,7 +37,9 @@
             <el-table-column type="index" width="20"> </el-table-column>
             <el-table-column prop="projectname" label="项目-阶段名" width="200">
             </el-table-column>
-            <el-table-column prop="worktime" label="用时(单位:h)" width="200">
+            <el-table-column prop="worktime" label="用时(单位:h)" width="150">
+            </el-table-column>
+            <el-table-column prop="typename" label="工作类型" width="150">
             </el-table-column>
             <el-table-column
               prop="workcontent"
@@ -101,7 +103,7 @@
     <el-dialog
       title="填写日报"
       :visible.sync="dialogVisible"
-      width="650px"
+      width="750px"
       :before-close="handleClose"
     >
       <el-form
@@ -139,7 +141,7 @@
             v-model="returnjson.projectschedules"
             multiple
             placeholder="请选择项目"
-            style="width: 500px"
+            style="width: 600px"
             @change="projectschedulechange()"
           >
             <el-option
@@ -166,7 +168,7 @@
             v-model="returnjson.checkeduser"
             multiple
             placeholder="请选择收件人"
-            style="width: 500px"
+            style="width: 600px"
           >
             <el-option
               v-for="item in userlist"
@@ -182,13 +184,19 @@
           empty-text="请选择项目"
           style="width: 100%"
         >
-          <el-table-column width="35">
+          <el-table-column width="60">
             <template slot-scope="scope">
               <el-link
                 type="info"
                 :underline="false"
                 @click="cutprojectschedule(scope.$index, scope.row)"
                 ><i class="el-icon-error"></i
+              ></el-link>
+              <el-link
+                type="info"
+                :underline="false"
+                @click="addprojectschedule(scope.$index, scope.row)"
+                ><i class="el-icon-circle-plus"></i
               ></el-link>
             </template>
           </el-table-column>
@@ -206,7 +214,7 @@
                 :rules="[
                   {
                     required: true,
-                    message: '工作内容不能为空',
+                    message: '工时不能为空',
                     trigger: 'blur',
                   },
                 ]"
@@ -221,6 +229,23 @@
                     :key="item.id"
                     :value="item.id"
                     :label="item.name"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </template>
+          </el-table-column>
+          <el-table-column prop="worktype" label="工作类型" width="120">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.worktype'"
+              >
+                <el-select v-model="scope.row.worktype" placeholder="请选择">
+                  <el-option
+                    v-for="item in scope.row.worktypes"
+                    :key="item.typeid"
+                    :value="item.typeid"
+                    :label="item.typename"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -254,7 +279,7 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="编辑日报" :visible.sync="editDialogVisible" width="650px">
+    <el-dialog title="编辑日报" :visible.sync="editDialogVisible" width="750px">
       <el-form
         :model="editreturnjson"
         label-position="left"
@@ -290,7 +315,7 @@
             v-model="editreturnjson.projectschedules"
             multiple
             placeholder="请选择项目"
-            style="width: 500px"
+            style="width: 600px"
             @change="editprojectschedulechange()"
           >
             <el-option
@@ -317,7 +342,7 @@
             v-model="editreturnjson.checkeduser"
             multiple
             placeholder="请选择收件人"
-            style="width: 500px"
+            style="width: 600px"
           >
             <el-option
               v-for="item in userlist"
@@ -333,13 +358,19 @@
           empty-text="请选择项目"
           style="width: 100%"
         >
-          <el-table-column width="35">
+          <el-table-column width="60">
             <template slot-scope="scope">
               <el-link
                 type="info"
                 :underline="false"
                 @click="editcutprojectschedule(scope.$index, scope.row)"
                 ><i class="el-icon-error"></i
+              ></el-link>
+              <el-link
+                type="info"
+                :underline="false"
+                @click="editaddprojectschedule(scope.$index, scope.row)"
+                ><i class="el-icon-circle-plus"></i
               ></el-link>
             </template>
           </el-table-column>
@@ -353,7 +384,7 @@
                 :rules="[
                   {
                     required: true,
-                    message: '工作内容不能为空',
+                    message: '工时不能为空',
                     trigger: 'blur',
                   },
                 ]"
@@ -368,6 +399,23 @@
                     :key="item.id"
                     :value="item.id"
                     :label="item.name"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </template>
+          </el-table-column>
+          <el-table-column prop="worktype" label="工作类型" width="150">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.worktype'"
+              >
+                <el-select v-model="scope.row.worktype" placeholder="请选择">
+                  <el-option
+                    v-for="item in scope.row.worktypes"
+                    :key="item.typeid"
+                    :value="item.typeid"
+                    :label="item.typename"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -465,7 +513,7 @@ export default {
       },
       tableData: [],
       threedayago: null,
-      today:null,
+      today: null,
       expandrowkeys: [],
       unexpandrowkeys: [],
       tableDailypaperDetail: [],
@@ -473,10 +521,9 @@ export default {
         disabledDate(time) {
           var curTime = new Date().getTime();
           var _day = 3;
-          if(new Date().getDay() == 1){
+          if (new Date().getDay() == 1) {
             _day = _day + 2;
-          }
-          else if(new Date().getDay() == 2){
+          } else if (new Date().getDay() == 2) {
             _day = _day + 2;
           }
           var startDate = curTime - _day * 3600 * 24 * 1000;
@@ -587,7 +634,7 @@ export default {
       });
     },
     cleardailypaperForm() {
-      if(this.$refs["dailypaperForm"] != undefined){
+      if (this.$refs["dailypaperForm"] != undefined) {
         this.$refs["dailypaperForm"].clearValidate();
       }
       this.returnjson.dailypaperdate = new Date();
@@ -655,17 +702,59 @@ export default {
     handleCurrentChange(val) {
       this.limitePage.page = val;
     },
+    addprojectschedule(index, row) {
+      var node = {
+        projectscheduleid: row.projectscheduleid,
+        projectschedulename: row.projectschedulename,
+        worktypes: row.worktypes,
+        worktime: null,
+        workcontent: null,
+      };
+
+      this.returnjson.tableData.push(node);
+    },
     cutprojectschedule(index, row) {
-      this.returnjson.projectschedules = this.returnjson.projectschedules.filter(
-        (t) => t != row.projectscheduleid
-      );
-      this.projectschedulechange();
+      this.returnjson.tableData.splice(index, 1);
+      var existinTable = 0;
+      this.returnjson.tableData.forEach((element) => {
+        if (element.projectscheduleid == row.projectscheduleid) {
+          existinTable = 1;
+        }
+      });
+
+      if (existinTable == 0) {
+        this.returnjson.projectschedules = this.returnjson.projectschedules.filter(
+          (t) => t != row.projectscheduleid
+        );
+        this.projectschedulechange();
+      }
+    },
+    editaddprojectschedule(index, row) {
+      var node = {
+        projectscheduleid: row.projectscheduleid,
+        projectname: row.projectname,
+        worktypes: row.worktypes,
+        worktime: null,
+        workcontent: null,
+      };
+
+      this.editreturnjson.tableData.push(node);
     },
     editcutprojectschedule(index, row) {
-      this.editreturnjson.projectschedules = this.editreturnjson.projectschedules.filter(
-        (t) => t != row.projectscheduleid
-      );
-      this.editprojectschedulechange();
+      this.editreturnjson.tableData.splice(index, 1);
+      var existinTable = 0;
+      this.editreturnjson.tableData.forEach((element) => {
+        if (element.projectscheduleid == row.projectscheduleid) {
+          existinTable = 1;
+        }
+      });
+
+      if (existinTable == 0) {
+        this.editreturnjson.projectschedules = this.editreturnjson.projectschedules.filter(
+          (t) => t != row.projectscheduleid
+        );
+        this.editprojectschedulechange();
+      }
     },
     deletedailypaper(index, row) {
       this.$confirm("确认删除？")
@@ -699,7 +788,7 @@ export default {
         data: param,
         method: "post",
       }).then((res) => {
-        console.log(res.data);
+        //console.log(res.data);
         this.editreturnjson.dailypaperid = res.data[0].dailypaperid;
         this.editreturnjson.dailypaperdate = res.data[0].dailypaperdate.split(
           "T"
@@ -708,8 +797,34 @@ export default {
           if (element.projectscheduleid == -1) {
             element.projectname = "自我学习";
           }
-          this.editreturnjson.projectschedules.push(element.projectscheduleid);
-          this.editreturnjson.tableData.push(element);
+          var existid = 0;
+          this.editreturnjson.projectschedules.forEach((element1) => {
+            if (element1 == element.projectscheduleid) {
+              existid = 1;
+            }
+          });
+
+          if (existid == 0) {
+            this.editreturnjson.projectschedules.push(
+              element.projectscheduleid
+            );
+          }
+
+          let param = new URLSearchParams();
+          param.append("projectscheduleid", element.projectscheduleid);
+          axios({
+            url: "dailypaper/get_worktypes/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            element.worktypes = res.data;
+            element.worktypes.push({
+              typeid: null,
+              typename: "无",
+            });
+            this.editreturnjson.tableData.push(element);
+          });
+          //this.editreturnjson.tableData.push(element);
         });
 
         this.editoldprojectschedules = this.editreturnjson.projectschedules;
@@ -734,13 +849,39 @@ export default {
         url: "dailypaper/get_history/",
         method: "post",
       }).then((res) => {
+        console.log(res.data);
         res.data.forEach((element) => {
           if (element.projectscheduleid == -1) {
             element.projectschedulename = "自我学习";
           }
           //console.log(element);
-          this.returnjson.projectschedules.push(element.projectscheduleid);
-          this.returnjson.tableData.push(element);
+          var existid = 0;
+          this.returnjson.projectschedules.forEach((element1) => {
+            if (element1 == element.projectscheduleid) {
+              existid = 1;
+            }
+          });
+
+          if (existid == 0) {
+            this.returnjson.projectschedules.push(element.projectscheduleid);
+          }
+
+          let param = new URLSearchParams();
+          param.append("projectscheduleid", element.projectscheduleid);
+          axios({
+            url: "dailypaper/get_worktypes/",
+            method: "post",
+            data: param,
+          }).then((res) => {
+            element.worktypes = res.data;
+            element.worktypes.push({
+              typeid: null,
+              typename: "无",
+            });
+            this.returnjson.tableData.push(element);
+          });
+
+          //this.returnjson.tableData.push(element);
         });
 
         this.oldprojectschedules = this.returnjson.projectschedules;
@@ -787,13 +928,23 @@ export default {
           });
 
           if (exist == 0) {
-            var node = {
-              projectscheduleid: element,
-              projectname: projectschedulename,
-              worktime: null,
-              workcontent: null,
-            };
-            this.editreturnjson.tableData.push(node);
+            let param = new URLSearchParams();
+            param.append("projectscheduleid", element);
+            axios({
+              url: "dailypaper/get_worktypes/",
+              method: "post",
+              data: param,
+            }).then((res) => {
+              var node = {
+                projectscheduleid: element,
+                projectname: projectschedulename,
+                worktime: null,
+                workcontent: null,
+                worktypes: res.data,
+              };
+
+              this.editreturnjson.tableData.push(node);
+            });
           }
         }
       });
@@ -856,14 +1007,23 @@ export default {
           });
 
           if (exist == 0) {
-            var node = {
-              projectscheduleid: element,
-              projectschedulename: projectschedulename,
-              worktime: null,
-              workcontent: null,
-            };
+            let param = new URLSearchParams();
+            param.append("projectscheduleid", element);
+            axios({
+              url: "dailypaper/get_worktypes/",
+              method: "post",
+              data: param,
+            }).then((res) => {
+              var node = {
+                projectscheduleid: element,
+                projectschedulename: projectschedulename,
+                worktime: null,
+                workcontent: null,
+                worktypes: res.data,
+              };
 
-            this.returnjson.tableData.push(node);
+              this.returnjson.tableData.push(node);
+            });
           }
         }
       });

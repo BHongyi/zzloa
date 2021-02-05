@@ -78,7 +78,9 @@ export default {
     // 初始化值
     initHandle(){
       // console.log(this.valueId)
+      console.log(this.valueId);
       if(this.valueId!=0){
+        //console.log(this.valueTitle);
         this.valueTitle = this.$refs.selectTree.getNode(this.valueId).data[this.props.label]     // 初始化显示
               // console.log(this.valueTitle)
         this.$refs.selectTree.setCurrentKey(this.valueId)       // 设置默认选中

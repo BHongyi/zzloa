@@ -3,6 +3,7 @@ from zzlprm.Common import dictfetchall
 from zzlprm.models import TbProject
 from zzlprm.models import TbProjectschedule
 from zzlprm.models import TbProjectscheduleUser
+from zzlprm.models import TbProjectscheduleWorktype
 
 from django.http import HttpResponse,JsonResponse
 from django.db import connection
@@ -30,6 +31,15 @@ def get_project_types(request):
     cursor.execute(sql)
     project_types = dictfetchall(cursor)
     return JsonResponse(project_types, safe=False)
+
+@api_view(['GET','POST'])
+def get_project_worktypes(request):
+    cursor=connection.cursor()
+    sql = "select * from tb_dict "\
+        "where type=9 order by tb_dict.order "
+    cursor.execute(sql)
+    work_types = dictfetchall(cursor)
+    return JsonResponse(work_types, safe=False)
 
 @api_view(['GET','POST'])
 def create_project(request):
@@ -121,6 +131,7 @@ def create_project_schedule(request):
     groupid = request.POST.get("groupid")
     managerid = request.POST.get("managerid")
     members = request.POST.get("members")
+    worktypes = request.POST.get("worktypes")
     schedulestartdate = datetime.datetime.strptime(request.POST.get("schedulestartdate").split("T")[0],'%Y-%m-%d')
     schedulefinishdate = datetime.datetime.strptime(request.POST.get("schedulefinishdate").split("T")[0],'%Y-%m-%d')
     preworkload = request.POST.get("preworkload")
@@ -156,6 +167,14 @@ def create_project_schedule(request):
                 userid = member_ids_list[i],
                 ismanager = 0
                 )
+    
+    worktype_ids_list = worktypes.split(',')
+    if worktype_ids_list[0] != '':
+        for i in range(0,len(worktype_ids_list)):
+            TbProjectscheduleWorktype.objects.create(
+                projectscheduleid = p.pk,
+                typeid = worktype_ids_list[i]
+                )
     return HttpResponse("OK")
 
 @api_view(['GET','POST'])
@@ -173,9 +192,14 @@ def get_project_schedule_byid(request):
     cursor.execute(sql1,[projectscheduleid])
     users = dictfetchall(cursor)
 
+    sql2 = "select * from tb_projectschedule_worktype "\
+          "where projectscheduleid=%s"
+    cursor.execute(sql2,[projectscheduleid])
+    worktypes = dictfetchall(cursor)
     returnjson = {
         'projectschedule':projectschedule,
-        'users':users
+        'users':users,
+        'worktypes':worktypes
     }
     return JsonResponse(returnjson, safe=False)
 
@@ -188,6 +212,7 @@ def edit_project_schedule(request):
     groupid = request.POST.get("groupid")
     managerid = request.POST.get("managerid")
     members = request.POST.get("members")
+    worktypes = request.POST.get("worktypes")
     schedulestartdate = request.POST.get("schedulestartdate")
     schedulefinishdate = request.POST.get("schedulefinishdate")
     schedulerealstartdate = request.POST.get("schedulerealstartdate")
@@ -241,6 +266,15 @@ def edit_project_schedule(request):
                 projectscheduleid = projectscheduleid,
                 userid = member_ids_list[i],
                 ismanager = 0
+                )
+    
+    TbProjectscheduleWorktype.objects.filter(projectscheduleid=projectscheduleid).delete()
+    worktype_ids_list = worktypes.split(',')
+    if worktype_ids_list[0] != '':
+        for i in range(0,len(worktype_ids_list)):
+            TbProjectscheduleWorktype.objects.create(
+                projectscheduleid = projectscheduleid,
+                typeid = worktype_ids_list[i]
                 )
     return HttpResponse("OK")
 

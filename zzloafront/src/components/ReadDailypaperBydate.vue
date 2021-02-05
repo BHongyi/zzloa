@@ -61,6 +61,8 @@
               width="100"
             >
             </el-table-column>
+            <el-table-column prop="typename" label="工作类型" width="120">
+            </el-table-column>
             <el-table-column prop="workcontent" label="工作内容">
             </el-table-column>
           </el-table>

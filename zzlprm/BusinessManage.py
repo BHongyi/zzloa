@@ -4,6 +4,7 @@ from zzlprm.models import TbBusinessClient
 from zzlprm.models import TbBusinessContact
 from zzlprm.models import TbBusinessUser
 from zzlprm.models import TbBusinessrecord
+from zzlprm.models import TbBusinessWorktype
 from zzlprm.models import TbProject
 from zzlprm.Common import dictfetchall
 
@@ -86,6 +87,15 @@ def get_statuses(request):
     return JsonResponse(statuses, safe=False)
 
 @api_view(['GET','POST'])
+def get_business_worktypes(request):
+    cursor=connection.cursor()
+    sql = "select * from tb_dict "\
+        "where type=5 order by tb_dict.order "
+    cursor.execute(sql)
+    work_types = dictfetchall(cursor)
+    return JsonResponse(work_types, safe=False)
+
+@api_view(['GET','POST'])
 def create_business(request):
     data = request.body.decode("utf-8")
     json_data = json.loads(data)
@@ -116,6 +126,14 @@ def create_business(request):
         userid = userid,
         createtime = datetime.datetime.now(),
         )
+
+    worktype_ids_list = json_data.get("worktypes")
+    if worktype_ids_list[0] != '':
+        for i in range(0,len(worktype_ids_list)):
+            TbBusinessWorktype.objects.create(
+                businessid = b.pk,
+                typeid = worktype_ids_list[i]
+                )
     return HttpResponse("OK")
 
 @api_view(['GET','POST'])
@@ -143,11 +161,17 @@ def get_business_byid(request):
     cursor.execute(sql_user,[businessid])
     business_user = dictfetchall(cursor)
 
+    sql_worktype = "select businessid,typeid as worktype from tb_business_worktype "\
+          "where businessid=%s"
+    cursor.execute(sql_worktype,[businessid])
+    business_worktype = dictfetchall(cursor)
+
     returnjson = {
         'business':business,
         'business_client':business_client,
         'business_contact':business_contact,
-        'business_user':business_user
+        'business_user':business_user,
+        'business_worktype':business_worktype
     }
     return JsonResponse(returnjson, safe=False)
 
@@ -234,7 +258,15 @@ def edit_business(request):
                 userid = members[i],
                 ismanager = 0
                 )
-
+    
+    TbBusinessWorktype.objects.filter(businessid=json_data.get("businessid")).delete()
+    worktype_ids_list = json_data.get("worktypes")
+    if worktype_ids_list[0] != '':
+        for i in range(0,len(worktype_ids_list)):
+            TbBusinessWorktype.objects.create(
+                businessid = json_data.get("businessid"),
+                typeid = worktype_ids_list[i]
+                )
     return HttpResponse("OK")
 
 @api_view(['GET','POST'])

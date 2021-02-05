@@ -50,6 +50,8 @@
             </el-table-column>
             <el-table-column prop="contactname" label="联系人" width="200">
             </el-table-column>
+            <el-table-column prop="typename" label="工作类型" width="150">
+            </el-table-column>
             <el-table-column
               prop="workcontent"
               label="工作内容"
@@ -109,7 +111,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog title="填写日报" :visible.sync="dialogVisible" width="950px">
+    <el-dialog title="填写日报" :visible.sync="dialogVisible" width="1050px">
       <el-form
         :model="returnjson"
         label-position="left"
@@ -151,7 +153,7 @@
             v-model="returnjson.businesses"
             multiple
             placeholder="请选择商机"
-            style="width: 800px"
+            style="width: 900px"
             @change="businesschange()"
           >
             <el-option
@@ -178,7 +180,7 @@
             v-model="returnjson.checkeduser"
             multiple
             placeholder="请选择收件人"
-            style="width: 800px"
+            style="width: 900px"
           >
             <el-option
               v-for="item in userlist"
@@ -277,6 +279,23 @@
               </el-form-item>
             </template>
           </el-table-column>
+          <el-table-column prop="worktype" label="工作类型" width="120">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.worktype'"
+              >
+                <el-select v-model="scope.row.worktype" placeholder="请选择">
+                  <el-option
+                    v-for="item in scope.row.worktypes"
+                    :key="item.typeid"
+                    :value="item.typeid"
+                    :label="item.typename"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </template>
+          </el-table-column>
           <el-table-column prop="workcontent" label="工作内容">
             <template slot-scope="scope">
               <el-form-item
@@ -305,7 +324,11 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="修改日报" :visible.sync="editDialogVisible" width="850px">
+    <el-dialog
+      title="修改日报"
+      :visible.sync="editDialogVisible"
+      width="1050px"
+    >
       <el-form
         :model="editreturnjson"
         label-position="left"
@@ -347,7 +370,7 @@
             v-model="editreturnjson.businesses"
             multiple
             placeholder="请选择商机"
-            style="width: 700px"
+            style="width: 900px"
             @change="editbusinesschange()"
           >
             <el-option
@@ -374,7 +397,7 @@
             v-model="editreturnjson.checkeduser"
             multiple
             placeholder="请选择收件人"
-            style="width: 700px"
+            style="width: 900px"
           >
             <el-option
               v-for="item in userlist"
@@ -470,6 +493,23 @@
                 :prop="'tableData.' + scope.$index + '.cost'"
               >
                 <el-input type="number" v-model="scope.row.cost"></el-input>
+              </el-form-item>
+            </template>
+          </el-table-column>
+          <el-table-column prop="worktype" label="工作类型" width="150">
+            <template slot-scope="scope">
+              <el-form-item
+                label-width="0px"
+                :prop="'tableData.' + scope.$index + '.worktype'"
+              >
+                <el-select v-model="scope.row.worktype" placeholder="请选择">
+                  <el-option
+                    v-for="item in scope.row.worktypes"
+                    :key="item.typeid"
+                    :value="item.typeid"
+                    :label="item.typename"
+                  ></el-option>
+                </el-select>
               </el-form-item>
             </template>
           </el-table-column>
@@ -709,7 +749,18 @@ export default {
           if (element.businessid == -1) {
             element.businessname = "自我学习";
           }
-          this.editreturnjson.businesses.push(element.businessid);
+
+          var existid = 0;
+          this.editreturnjson.businesses.forEach((element1) => {
+            if (element1 == element.businessid) {
+              existid = 1;
+            }
+          });
+
+          if (existid == 0) {
+            this.editreturnjson.businesses.push(element.businessid);
+          }
+
           if (element.isimportant == 1) {
             element.isimportant = true;
           }
@@ -725,7 +776,22 @@ export default {
               contactid: null,
               contactname: "无",
             });
-            this.editreturnjson.tableData.push(element);
+
+            let param = new URLSearchParams();
+            param.append("businessid", element.businessid);
+            axios({
+              url: "dailypapersale/get_worktypes/",
+              method: "post",
+              data: param,
+            }).then((res1) => {
+              element.worktypes = res1.data;
+              element.worktypes.push({
+                typeid: null,
+                typename: "无",
+              });
+              this.editreturnjson.tableData.push(element);
+            });
+            //this.editreturnjson.tableData.push(element);
           });
         });
 
@@ -747,7 +813,16 @@ export default {
           if (element.businessid == -1) {
             element.businessname = "自我学习";
           }
-          this.returnjson.businesses.push(element.businessid);
+          var existid = 0;
+          this.returnjson.businesses.forEach((element1) => {
+            if (element1 == element.businessid) {
+              existid = 1;
+            }
+          });
+
+          if (existid == 0) {
+            this.returnjson.businesses.push(element.businessid);
+          }
 
           let param = new URLSearchParams();
           param.append("businessid", element.businessid);
@@ -761,7 +836,24 @@ export default {
               contactid: null,
               contactname: "无",
             });
+
+
+            let param = new URLSearchParams();
+          param.append("businessid", element.businessid);
+          axios({
+            url: "dailypapersale/get_worktypes/",
+            method: "post",
+            data: param,
+          }).then((res1) => {
+            element.worktypes = res1.data;
+            element.worktypes.push({
+              typeid: null,
+              typename: "无",
+            });
             this.returnjson.tableData.push(element);
+          });
+
+            //this.returnjson.tableData.push(element);
           });
         });
 
@@ -787,6 +879,7 @@ export default {
         workcontent: null,
         contacts: row.contacts,
         isimportant: false,
+        worktypes: row.worktypes,
       };
 
       this.returnjson.tableData.push(node);
@@ -816,6 +909,7 @@ export default {
         workcontent: null,
         contacts: row.contacts,
         isimportant: false,
+        worktypes: row.worktypes,
       };
 
       this.editreturnjson.tableData.push(node);
@@ -986,16 +1080,25 @@ export default {
               method: "post",
               data: param,
             }).then((res) => {
-              var node = {
-                businessid: element,
-                businessname: businessname,
-                worktime: null,
-                workcontent: null,
-                contacts: res.data,
-                isimportant: false,
-              };
+              let param = new URLSearchParams();
+              param.append("businessid", element);
+              axios({
+                url: "dailypapersale/get_worktypes/",
+                method: "post",
+                data: param,
+              }).then((res1) => {
+                var node = {
+                  businessid: element,
+                  businessname: businessname,
+                  worktime: null,
+                  workcontent: null,
+                  contacts: res.data,
+                  isimportant: false,
+                  worktypes: res1.data,
+                };
 
-              this.returnjson.tableData.push(node);
+                this.returnjson.tableData.push(node);
+              });
             });
           }
         }

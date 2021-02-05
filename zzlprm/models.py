@@ -199,6 +199,16 @@ class TbBusinessUser(models.Model):
         db_table = 'tb_business_user'
 
 
+class TbBusinessWorktype(models.Model):
+    business_worktype_id = models.AutoField(primary_key=True)
+    businessid = models.IntegerField()
+    typeid = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_business_worktype'
+
+
 class TbBusinessrecord(models.Model):
     businessrecordid = models.AutoField(primary_key=True)
     businessid = models.IntegerField()
@@ -288,6 +298,7 @@ class TbDailypaperdetail(models.Model):
     projectscheduleid = models.IntegerField(blank=True, null=True)
     worktime = models.FloatField()
     workcontent = models.CharField(max_length=1000)
+    worktype = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -303,6 +314,7 @@ class TbDailypaperdetailSale(models.Model):
     workcontent = models.CharField(max_length=1000, blank=True, null=True)
     contactid = models.IntegerField(blank=True, null=True)
     isimportant = models.IntegerField(blank=True, null=True)
+    worktype = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -463,6 +475,16 @@ class TbProjectscheduleUser(models.Model):
     class Meta:
         managed = False
         db_table = 'tb_projectschedule_user'
+
+
+class TbProjectscheduleWorktype(models.Model):
+    projectschedule_worktype_id = models.AutoField(primary_key=True)
+    projectscheduleid = models.IntegerField()
+    typeid = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'tb_projectschedule_worktype'
 
 
 class TbRole(models.Model):

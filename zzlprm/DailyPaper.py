@@ -20,7 +20,7 @@ def get_dailypapers(request):
     cursor.execute(sqlu)
     userid = dictfetchall(cursor)[0]["id"]
 
-    sql = "select tb_dailypaperdetail.*,CONCAT(tb_project.projectname,'-' "\
+    sql = "select tb_dailypaperdetail.*,tb_dict.typename,CONCAT(tb_project.projectname,'-' "\
     ",tb_projectschedule.schedulename) as projectname from tb_dailypaperdetail "\
     "LEFT JOIN tb_projectschedule "\
     "on tb_dailypaperdetail.projectscheduleid = tb_projectschedule.projectscheduleid "\
@@ -28,6 +28,9 @@ def get_dailypapers(request):
     "on tb_project.projectid = tb_projectschedule.projectid "\
     "LEFT JOIN tb_dailypaper "\
     "on tb_dailypaper.dailypaperid = tb_dailypaperdetail.dailypaperid "\
+    "LEFT JOIN tb_dict "\
+    "on tb_dailypaperdetail.worktype = tb_dict.typeid "\
+    "and tb_dict.type=9 "\
     "where tb_dailypaper.userid = %s"
     cursor.execute(sql,[userid])
     dailypaperdetails = dictfetchall(cursor)
@@ -179,10 +182,12 @@ def create_dailypaper(request):
         projectscheduleid = contents[j].get("projectscheduleid")
         worktime = contents[j].get("worktime")
         workcontent = contents[j].get("workcontent")
+        worktype = contents[j].get("worktype")
         TbDailypaperdetail.objects.create(
             dailypaperid = d.pk,
             projectscheduleid = projectscheduleid,
             worktime = worktime,
+            worktype = worktype,
             workcontent = workcontent
         )
     return HttpResponse("OK")
@@ -273,7 +278,7 @@ def load_userdailypaper_bydate(request):
     cursor.execute(sql,[userid,dailypaperdate])
     dailypapers = dictfetchall(cursor)
 
-    sql_detail_dev = "select tb_dailypaperdetail.*,CONCAT(tb_project.projectname,'-' "\
+    sql_detail_dev = "select tb_dailypaperdetail.*,tb_dict.typename,CONCAT(tb_project.projectname,'-' "\
         ",tb_projectschedule.schedulename) as projectname from tb_dailypaperdetail "\
         "LEFT JOIN tb_projectschedule "\
         "on tb_dailypaperdetail.projectscheduleid = tb_projectschedule.projectscheduleid "\
@@ -281,17 +286,23 @@ def load_userdailypaper_bydate(request):
         "on tb_project.projectid = tb_projectschedule.projectid "\
         "LEFT JOIN tb_dailypaper "\
         "on tb_dailypaper.dailypaperid = tb_dailypaperdetail.dailypaperid "\
+        "LEFT JOIN tb_dict "\
+        "on tb_dailypaperdetail.worktype = tb_dict.typeid "\
+        "and tb_dict.type=9 "\
         "where tb_dailypaper.dailypaperdate = %s "
     cursor.execute(sql_detail_dev,[dailypaperdate])
     dailypaperdetails_dev = dictfetchall(cursor)
 
-    sql_detail_business = "select tb_dailypaperdetail_sale.*,tb_business.businessname,tb_contact.contactname from tb_dailypaperdetail_sale "\
+    sql_detail_business = "select tb_dailypaperdetail_sale.*,tb_dict.typename,tb_business.businessname,tb_contact.contactname from tb_dailypaperdetail_sale "\
         "LEFT JOIN tb_business "\
         "on tb_dailypaperdetail_sale.businessid = tb_business.businessid "\
         "LEFT JOIN tb_dailypaper "\
         "on tb_dailypaper.dailypaperid = tb_dailypaperdetail_sale.dailypaperid "\
         "LEFT JOIN tb_contact "\
         "on tb_contact.contactid = tb_dailypaperdetail_sale.contactid "\
+        "LEFT JOIN tb_dict "\
+        "on tb_dailypaperdetail_sale.worktype = tb_dict.typeid "\
+        "and tb_dict.type=5 "\
         "where tb_dailypaper.dailypaperdate = %s"
     cursor.execute(sql_detail_business,[dailypaperdate])
     dailypaperdetails_business = dictfetchall(cursor)
@@ -363,7 +374,7 @@ def load_userdailypaper(request):
 
     dailypaperdetails = None
     if positiontype == 1:
-        sql_detail = "select tb_dailypaperdetail.*,CONCAT(tb_project.projectname,'-' "\
+        sql_detail = "select tb_dailypaperdetail.*,tb_dict.typename,CONCAT(tb_project.projectname,'-' "\
         ",tb_projectschedule.schedulename) as projectname from tb_dailypaperdetail "\
         "LEFT JOIN tb_projectschedule "\
         "on tb_dailypaperdetail.projectscheduleid = tb_projectschedule.projectscheduleid "\
@@ -371,19 +382,25 @@ def load_userdailypaper(request):
         "on tb_project.projectid = tb_projectschedule.projectid "\
         "LEFT JOIN tb_dailypaper "\
         "on tb_dailypaper.dailypaperid = tb_dailypaperdetail.dailypaperid "\
+        "LEFT JOIN tb_dict "\
+        "on tb_dailypaperdetail.worktype = tb_dict.typeid "\
+        "and tb_dict.type=9 "\
         "where tb_dailypaper.userid = %s "
         if dailypaperids != '':
             sql_detail = sql_detail + " and tb_dailypaper.dailypaperid in ("+dailypaperids+")"
         cursor.execute(sql_detail,[writerid])
         dailypaperdetails = dictfetchall(cursor)
     elif positiontype == 2:
-        sql_detail = "select tb_dailypaperdetail_sale.*,tb_business.businessname,tb_contact.contactname from tb_dailypaperdetail_sale "\
+        sql_detail = "select tb_dailypaperdetail_sale.*,tb_dict.typename,tb_business.businessname,tb_contact.contactname from tb_dailypaperdetail_sale "\
         "LEFT JOIN tb_business "\
         "on tb_dailypaperdetail_sale.businessid = tb_business.businessid "\
         "LEFT JOIN tb_dailypaper "\
         "on tb_dailypaper.dailypaperid = tb_dailypaperdetail_sale.dailypaperid "\
         "LEFT JOIN tb_contact "\
         "on tb_contact.contactid = tb_dailypaperdetail_sale.contactid "\
+        "LEFT JOIN tb_dict "\
+        "on tb_dailypaperdetail_sale.worktype = tb_dict.typeid "\
+        "and tb_dict.type=5 "\
         "where tb_dailypaper.userid = %s"
         if dailypaperids != '':
             sql_detail = sql_detail + " and tb_dailypaper.dailypaperid in ("+dailypaperids+")"
@@ -413,6 +430,21 @@ def readdailypaper_byid(request):
             readtime = datetime.datetime.now()
             )
     return HttpResponse("OK")
+
+@api_view(['GET','POST'])
+def get_worktypes(request):
+    projectscheduleid = request.POST.get("projectscheduleid")
+
+    cursor=connection.cursor()
+    sql = "SELECT * FROM tb_projectschedule_worktype "\
+"LEFT JOIN tb_dict "\
+"on tb_projectschedule_worktype.typeid = tb_dict.typeid "\
+"where tb_dict.type = 9 "\
+"and projectscheduleid = %s"
+    cursor.execute(sql,[projectscheduleid])
+    worktypes = dictfetchall(cursor)
+
+    return JsonResponse(worktypes, safe=False)
 
 @api_view(['GET','POST'])
 def readdailypaper_list(request):
@@ -544,8 +576,10 @@ def edit_dailypaper(request):
         projectscheduleid = contents[j].get("projectscheduleid")
         worktime = contents[j].get("worktime")
         workcontent = contents[j].get("workcontent")
+        worktype = contents[j].get("worktype")
         TbDailypaperdetail.objects.create(
             dailypaperid = dailypaperid,
+            worktype = worktype,
             projectscheduleid = projectscheduleid,
             worktime = worktime,
             workcontent = workcontent

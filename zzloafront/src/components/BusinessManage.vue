@@ -175,17 +175,21 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <!-- <el-form-item label="所有者" prop="owner">
-          <el-select v-model="createformdata.owner" placeholder="请选择">
+        <el-form-item label="工作类型" prop="worktypes">
+          <el-select
+            v-model="createformdata.worktypes"
+            multiple
+            placeholder="请选择"
+          >
             <el-option
-              v-for="item in userlist"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
+              v-for="item in worktypes"
+              :key="item.typeid"
+              :label="item.typename"
+              :value="item.typeid"
             >
             </el-option>
           </el-select>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input
             type="textarea"
@@ -240,17 +244,22 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <!-- <el-form-item label="所有者" prop="owner">
-          <el-select v-model="editformdata.owner" placeholder="请选择">
+        <el-form-item label="工作类型" prop="worktypes">
+          <el-select
+            v-model="editformdata.worktypes"
+            multiple
+            placeholder="请选择"
+            @change="worktypechange()"
+          >
             <el-option
-              v-for="item in userlist"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
+              v-for="item in worktypes"
+              :key="item.typeid"
+              :label="item.typename"
+              :value="item.typeid"
             >
             </el-option>
           </el-select>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input
             type="textarea"
@@ -430,6 +439,7 @@ export default {
       clientlist: [],
       contactlist: [],
       projecttypes:[],
+      worktypes: [],
       dialogVisible: false,
       editDialogVisible: false,
       endDialogVisible: false,
@@ -447,6 +457,7 @@ export default {
         contactlist: [],
         managerid: null,
         members: [],
+        worktypes:[],
       },
       createformdata: {
         businessname: "",
@@ -455,6 +466,7 @@ export default {
         possibility: null,
         budget: null,
         owner: null,
+        worktypes:[],
       },
       endbusinessformdata: {
         status:null,
@@ -479,6 +491,7 @@ export default {
     this.initstatuses();
     this.initclients();
     this.inittypes();
+    this.initworktypes();
   },
   methods: {
     initbusinesses() {
@@ -510,6 +523,15 @@ export default {
         data: {},
       }).then((res) => {
         this.statuslist = res.data;
+      });
+    },
+    initworktypes(){
+      axios({
+        url: "businessmanage/get_business_worktypes/",
+        method: "get",
+        data: {},
+      }).then((res) => {
+        this.worktypes = res.data;
       });
     },
     initclients() {
@@ -547,6 +569,7 @@ export default {
       this.createformdata.possibility = null;
       this.createformdata.budget = null;
       this.createformdata.owner = null;
+      this.createformdata.worktypes = [];
     },
     createbusiness() {
       this.$refs["createbusinessform"].validate((valid) => {
@@ -644,6 +667,11 @@ export default {
             this.editformdata.members.push(element.userid);
           }
         });
+
+        this.editformdata.worktypes = [];
+        res.data.business_worktype.forEach((element) => {
+          this.editformdata.worktypes.push(element.worktype);
+        });
         this.clientlistchange();
       });
     },
@@ -694,6 +722,9 @@ export default {
       }
     },
     contactlistchange() {
+      this.$forceUpdate();
+    },
+    worktypechange() {
       this.$forceUpdate();
     },
     managerchange() {

@@ -20,13 +20,16 @@ def get_dailypapers(request):
     cursor.execute(sqlu)
     userid = dictfetchall(cursor)[0]["id"]
 
-    sql = "select tb_dailypaperdetail_sale.*,tb_business.businessname,tb_contact.contactname from tb_dailypaperdetail_sale "\
+    sql = "select tb_dailypaperdetail_sale.*,tb_dict.typename,tb_business.businessname,tb_contact.contactname from tb_dailypaperdetail_sale "\
     "LEFT JOIN tb_business "\
     "on tb_dailypaperdetail_sale.businessid = tb_business.businessid "\
     "LEFT JOIN tb_dailypaper "\
     "on tb_dailypaper.dailypaperid = tb_dailypaperdetail_sale.dailypaperid "\
     "LEFT JOIN tb_contact "\
     "on tb_contact.contactid = tb_dailypaperdetail_sale.contactid "\
+    "LEFT JOIN tb_dict "\
+    "on tb_dailypaperdetail_sale.worktype = tb_dict.typeid "\
+    "and tb_dict.type=5 "\
     "where tb_dailypaper.userid = %s"
     cursor.execute(sql,[userid])
     dailypaperdetails = dictfetchall(cursor)
@@ -193,6 +196,7 @@ def create_dailypaper(request):
         businessid = contents[j].get("businessid")
         worktime = contents[j].get("worktime")
         workcontent = contents[j].get("workcontent")
+        worktype = contents[j].get("worktype")
         isimportant = None
         if contents[j].get("isimportant")==True:
             isimportant = 1
@@ -209,7 +213,8 @@ def create_dailypaper(request):
             cost = cost,
             isimportant = isimportant,
             contactid = contactid,
-            workcontent = workcontent
+            workcontent = workcontent,
+            worktype = worktype
         )
     return HttpResponse("OK")
 
@@ -291,6 +296,7 @@ def edit_dailypaper(request):
         businessid = contents[j].get("businessid")
         worktime = contents[j].get("worktime")
         workcontent = contents[j].get("workcontent")
+        worktype = contents[j].get("worktype")
         isimportant = None
         if contents[j].get("isimportant")==True:
             isimportant = 1
@@ -307,7 +313,8 @@ def edit_dailypaper(request):
             workcontent = workcontent,
             cost = cost,
             isimportant = isimportant,
-            contactid = contactid
+            contactid = contactid,
+            worktype = worktype
         )
     return HttpResponse("OK")
 
@@ -344,6 +351,21 @@ def read_dailypaperdetail(request):
             readtime = datetime.datetime.now()
             )
     return JsonResponse(dailypaper, safe=False)
+
+@api_view(['GET','POST'])
+def get_worktypes(request):
+    businessid = request.POST.get("businessid")
+
+    cursor=connection.cursor()
+    sql = "SELECT * FROM tb_business_worktype "\
+"LEFT JOIN tb_dict "\
+"on tb_business_worktype.typeid = tb_dict.typeid "\
+"where tb_dict.type = 5 "\
+"and businessid = %s"
+    cursor.execute(sql,[businessid])
+    worktypes = dictfetchall(cursor)
+
+    return JsonResponse(worktypes, safe=False)
 
 @api_view(['GET','POST'])
 def get_history(request):
